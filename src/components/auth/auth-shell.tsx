@@ -69,11 +69,7 @@ export function AuthShell({
               <div className="mt-6 text-sm text-slate-600">{footer}</div>
             </div>
           </div>
-
-          <p className="hidden text-sm text-slate-500 lg:block">
-            Protected workflows for social teams who need speed without losing
-            approvals, context, or brand consistency.
-          </p>
+          
         </div>
 
         <aside className="relative hidden overflow-hidden rounded-[32px] border border-white/60 bg-[#10233f] p-8 text-white shadow-[0_40px_100px_-50px_rgba(15,23,42,0.7)] lg:flex lg:flex-col h-[80%]">

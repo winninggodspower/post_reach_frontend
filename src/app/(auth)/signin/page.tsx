@@ -1,8 +1,7 @@
 import Link from "next/link"
 
 import { AuthShell } from "@/components/auth/auth-shell"
-import { GoogleIcon } from "@/components/auth/google-icon"
-import { Button } from "@/components/ui/button"
+import { SignInForm } from "@/components/auth/signin-form"
 import {
   Card,
   CardContent,
@@ -10,9 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 
 export const metadata = {
   title: "Sign In | PostReach",
@@ -46,58 +42,7 @@ export default function SignInPage() {
         </CardHeader>
 
         <CardContent className="space-y-6 px-6 py-6">
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            className="h-12 w-full justify-center rounded-xl border-black/10 bg-white text-slate-900 shadow-sm hover:bg-slate-50"
-          >
-            <GoogleIcon />
-            Continue with Google
-          </Button>
-
-          <div className="relative">
-            <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-400">
-              Or
-            </span>
-          </div>
-
-          <form className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@company.com"
-                required
-                className="h-12 rounded-xl border-black/10 bg-white"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="Enter your password"
-                required
-                className="h-12 rounded-xl border-black/10 bg-white"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              size="lg"
-              className="h-12 w-full rounded-xl bg-slate-950 text-white hover:bg-slate-800"
-            >
-              Sign in
-            </Button>
-          </form>
+          <SignInForm />
         </CardContent>
       </Card>
     </AuthShell>
