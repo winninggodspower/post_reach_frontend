@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import Navbar from "@/components/navbar";
 import { GridPattern } from "@/components/ui/grid-pattern";
 
@@ -20,12 +22,12 @@ export default function Home() {
             </p>
 
             <div className="mt-10">
-              <a
-                href="/get-started"
+              <Link
+                href="/signup"
                 className="btn-primary hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-orange-300"
               >
                 Start Scheduling 
-              </a>
+              </Link>
             </div>
           </div>
       </section>

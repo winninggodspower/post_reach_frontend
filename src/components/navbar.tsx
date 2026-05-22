@@ -19,6 +19,12 @@ export default function Navbar() {
           <Link href="/signin" className="rounded-full px-4 py-2 text-sm font-medium text-black/75 transition hover:text-black">
             Sign in
           </Link>
+          <Link
+            href="/signup"
+            className="rounded-full bg-linear-to-r from-accent-dark to-accent-brand px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
+          >
+            Create account
+          </Link>
         </div>
       </nav>
     </header>
