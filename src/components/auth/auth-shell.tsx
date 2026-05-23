@@ -31,7 +31,7 @@ export function AuthShell({
         ]}
       />
 
-      <div className="relative mx-auto grid min-h-screen max-w-7xl gap-10 px-6 py-8 lg:grid-cols-[minmax(0,1fr)_minmax(420px,520px)] lg:px-10 lg:py-10">
+      <div className="relative mx-auto grid min-h-screen max-w-[1500px] gap-10 px-6 py-8 lg:grid-cols-[minmax(0,45%)_minmax(0,55%)] lg:px-10 lg:py-10">
         <div className="flex min-h-full flex-col">
           <div className="flex items-center justify-between gap-4">
             <Link href="/" className="inline-flex items-center gap-3">
@@ -72,12 +72,12 @@ export function AuthShell({
 
         </div>
 
-        <aside className="relative hidden h-[80%] overflow-hidden rounded-[32px] border border-white/60 bg-[#10233f] p-8 text-white shadow-[0_40px_100px_-50px_rgba(15,23,42,0.7)] lg:flex lg:flex-col">
+        <aside className="relative hidden min-h-full self-stretch overflow-hidden rounded-[32px] border border-white/60 bg-[#10233f] p-4 text-white shadow-[0_40px_100px_-50px_rgba(15,23,42,0.7)] lg:flex lg:flex-col">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,146,60,0.35),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.28),transparent_36%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_28%,rgba(255,255,255,0.03))]" />
 
-          <div className="relative z-10 flex-1 rounded-[28px] border border-white/12 bg-white/8 p-4 backdrop-blur-sm">
-            <div className="relative min-h-105 overflow-hidden rounded-[22px] border border-white/10 bg-[#0b1b35]/80">
+          <div className="relative z-10 flex h-full flex-1 rounded-[28px] border border-white/12 bg-white/8 p-3 backdrop-blur-sm">
+            <div className="relative h-full min-h-full flex-1 overflow-hidden rounded-[22px] border border-white/10 bg-[#0b1b35]/80">
               <Image
                 src="/auth-shell-visual.svg"
                 alt="An abstract dashboard preview for the PostReach workspace"
