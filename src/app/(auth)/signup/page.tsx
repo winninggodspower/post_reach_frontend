@@ -12,15 +12,16 @@ import {
 
 export const metadata = {
   title: "Create Account | PostReach",
-  description: "Create your PostReach account and start planning your social media workflow.",
+  description:
+    "Create your PostReach account and manage publishing, workspaces, and social content from one dashboard.",
 }
 
 export default function SignUpPage() {
   return (
     <AuthShell
       eyebrow="Create account"
-      title="Start building a calmer publishing workflow."
-      description="Open your workspace in minutes, invite teammates later, and keep every social campaign moving from draft to scheduled."
+      title="Build a calmer workflow."
+      description="Set up your workspace and start creating, scheduling, and optimizing content across every social channel you manage."
       footer={
         <p>
           Already have an account?{" "}
@@ -30,14 +31,14 @@ export default function SignUpPage() {
         </p>
       }
     >
-      <Card className="rounded-[28px] border border-black/[0.08] bg-white/90 py-0 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.4)] backdrop-blur gap-0">
+      <Card className="gap-0 rounded-[28px] border border-black/[0.08] bg-white/90 py-0 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.4)] backdrop-blur">
         <CardHeader className="border-b border-black/6 px-6 py-6">
           <CardTitle className="text-xl font-semibold text-slate-950">
             Create your account
           </CardTitle>
           <CardDescription className="text-sm leading-6 text-slate-500">
-            Start with Google first, or set up your account with the fields
-            below.
+            Start one dashboard for publishing, brand management, and social
+            scheduling.
           </CardDescription>
         </CardHeader>
 

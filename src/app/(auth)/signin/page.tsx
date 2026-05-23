@@ -12,15 +12,16 @@ import {
 
 export const metadata = {
   title: "Sign In | PostReach",
-  description: "Sign in to PostReach and continue managing your social media workflow.",
+  description:
+    "Sign in to PostReach and continue managing content, publishing, and social accounts from one dashboard.",
 }
 
 export default function SignInPage() {
   return (
     <AuthShell
       eyebrow="Welcome back"
-      title="Sign in and pick up exactly where you left off."
-      description="Jump back into your content calendar, approvals, and scheduled posts with a quick Google sign in or your email and password."
+      title="Pick up where you left off."
+      description="Return to your dashboard to schedule posts, manage connected accounts, and keep every brand workspace moving."
       footer={
         <p>
           New here?{" "}
@@ -36,8 +37,8 @@ export default function SignInPage() {
             Sign in
           </CardTitle>
           <CardDescription className="text-sm leading-6 text-slate-500">
-            Choose the fastest path in, then use your normal credentials if you
-            prefer.
+            Access your content calendar, social accounts, and publishing
+            workspace.
           </CardDescription>
         </CardHeader>
 

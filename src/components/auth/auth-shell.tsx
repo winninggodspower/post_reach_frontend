@@ -52,7 +52,7 @@ export function AuthShell({
           </div>
 
           <div className="flex flex-1 items-center py-8 lg:py-12">
-            <div className="max-md:mx-auto w-full max-w-md">
+            <div className="w-full max-w-md max-md:mx-auto">
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-accent-dark">
                 {eyebrow}
               </p>
@@ -69,16 +69,15 @@ export function AuthShell({
               <div className="mt-6 text-sm text-slate-600">{footer}</div>
             </div>
           </div>
-          
+
         </div>
 
-        <aside className="relative hidden overflow-hidden rounded-[32px] border border-white/60 bg-[#10233f] p-8 text-white shadow-[0_40px_100px_-50px_rgba(15,23,42,0.7)] lg:flex lg:flex-col h-[80%]">
-          
+        <aside className="relative hidden h-[80%] overflow-hidden rounded-[32px] border border-white/60 bg-[#10233f] p-8 text-white shadow-[0_40px_100px_-50px_rgba(15,23,42,0.7)] lg:flex lg:flex-col">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,146,60,0.35),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.28),transparent_36%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_28%,rgba(255,255,255,0.03))]" />
 
           <div className="relative z-10 flex-1 rounded-[28px] border border-white/12 bg-white/8 p-4 backdrop-blur-sm">
-            <div className="relative min-h-[420px] overflow-hidden rounded-[22px] border border-white/10 bg-[#0b1b35]/80">
+            <div className="relative min-h-105 overflow-hidden rounded-[22px] border border-white/10 bg-[#0b1b35]/80">
               <Image
                 src="/auth-shell-visual.svg"
                 alt="An abstract dashboard preview for the PostReach workspace"
