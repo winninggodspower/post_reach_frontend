@@ -31,7 +31,7 @@ export default function SignUpPage() {
         </p>
       }
     >
-      <Card className="gap-0 rounded-[28px] border border-black/[0.08] bg-white/90 py-0 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.4)] backdrop-blur">
+      <Card className="gap-0 rounded-[28px] border border-black/8 bg-white/90 py-0 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.4)] backdrop-blur">
         <CardHeader className="border-b border-black/6 px-6 py-6">
           <CardTitle className="text-xl font-semibold text-slate-950">
             Create your account
