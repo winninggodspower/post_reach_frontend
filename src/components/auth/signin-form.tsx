@@ -1,8 +1,14 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { signIn } from "next-auth/react"
 
 import { GoogleIcon } from "@/components/auth/google-icon"
+import { FormError } from "@/components/form-error"
+import { handleServerFormErrors } from "@/lib/form/serverErrors"
 import { FormField } from "@/components/form-field"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -13,9 +19,13 @@ type SignInFormValues = {
 }
 
 export function SignInForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<SignInFormValues>({
     defaultValues: {
@@ -25,8 +35,31 @@ export function SignInForm() {
     mode: "onBlur",
   })
 
-  const onSubmit = handleSubmit(async () => {
-    // Hook this up to your auth action/provider when backend auth is ready.
+  const onSubmit = handleSubmit(async (values) => {
+    setSubmitError(null)
+
+    try {
+      const result = await signIn("login", {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+      })
+
+      if (result?.error) {
+        console.log(result)
+        handleServerFormErrors<SignInFormValues>(result.error, setError, setSubmitError)
+        return
+      }
+
+      console.log(result)
+
+      // Prefer the URL returned by next-auth, otherwise use callbackUrl search param
+      const callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard"
+      router.push(callbackUrl)
+      router.refresh()
+    } catch {
+      setSubmitError("Unable to sign in right now. Please try again.")
+    }
   })
 
   return (
@@ -47,6 +80,8 @@ export function SignInForm() {
           Or
         </span>
       </div>
+
+      <FormError message={submitError} />
 
       <FormField
         label="Email"

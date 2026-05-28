@@ -1,9 +1,14 @@
 "use client"
 
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { signIn } from "next-auth/react"
 
 import { GoogleIcon } from "@/components/auth/google-icon"
+import { FormError } from "@/components/form-error"
 import { FormField } from "@/components/form-field"
+import { handleServerFormErrors } from "@/lib/form/serverErrors"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
@@ -16,10 +21,14 @@ type SignUpFormValues = {
 }
 
 export function SignUpForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
     getValues,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormValues>({
     defaultValues: {
@@ -32,8 +41,30 @@ export function SignUpForm() {
     mode: "onBlur",
   })
 
-  const onSubmit = handleSubmit(async () => {
-    // Hook this up to your auth action/provider when backend auth is ready.
+  const onSubmit = handleSubmit(async (values) => {
+    setSubmitError(null)
+
+    try {
+      const result = await signIn("register", {
+        redirect: false,
+        fullName: values.fullName,
+        email: values.email,
+        password: values.password,
+        country: values.country,
+      })
+
+      if (result?.error) {
+        handleServerFormErrors<SignUpFormValues>(result.error, setError, setSubmitError)
+        return
+      }
+
+      const callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard"
+      const destination = result?.url ?? callbackUrl
+      router.push(destination)
+      router.refresh()
+    } catch {
+      setSubmitError("Unable to create your account right now. Please try again.")
+    }
   })
 
   return (
@@ -54,6 +85,8 @@ export function SignUpForm() {
           Or
         </span>
       </div>
+
+      <FormError message={submitError} />
 
       <FormField
         label="Full name"

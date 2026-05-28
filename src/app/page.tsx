@@ -13,7 +13,7 @@ export default function Home() {
         <div className="bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.75),transparent_55%)]" />
 
         <div className="relative z-10 mx-auto max-w-4xl">
-          <h1 className="text-5xl leading-tight text-black md:text-[5rem]">
+          <h1 className="text-5xl leading-tight text-black md:text-7xl">
             One dashboard for every{" "}
             <span className="text-accent-brand">social</span> channel
           </h1>
