@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -8,30 +7,7 @@ import { useAuth } from "@/store/auth-store"
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user, accessToken, isHydrated, isLoadingUser, logout } = useAuth()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted || !isHydrated) {
-      return
-    }
-
-    if (!accessToken) {
-      router.replace("/signin?callbackUrl=/dashboard")
-    }
-  }, [accessToken, isHydrated, mounted, router])
-
-  if (!mounted || !isHydrated || isLoadingUser) {
-    return (
-      <main className="mx-auto flex w-full max-w-6xl items-center justify-center px-6 py-24">
-        <p className="text-sm text-slate-500">Loading dashboard...</p>
-      </main>
-    )
-  }
+  const { user, logout } = useAuth()
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-16">
