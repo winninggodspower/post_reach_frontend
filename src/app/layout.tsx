@@ -1,6 +1,8 @@
 import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 
+import { AuthBootstrapper } from "@/components/auth/auth-bootstrapper";
+
 const sora = Sora({
   variable: "--font-sora",
   subsets: ["latin"],
@@ -26,7 +28,10 @@ export default function RootLayout({
       lang="en"
       className={`${sora.variable} ${inter.variable} ${inter.className} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AuthBootstrapper />
+        {children}
+      </body>
     </html>
   );
 }

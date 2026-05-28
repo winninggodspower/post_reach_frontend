@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { signIn } from "next-auth/react"
 
 import { GoogleIcon } from "@/components/auth/google-icon"
 import { FormError } from "@/components/form-error"
@@ -11,6 +10,7 @@ import { FormField } from "@/components/form-field"
 import { handleServerFormErrors } from "@/lib/form/serverErrors"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { useAuth } from "@/store/auth-store"
 
 type SignUpFormValues = {
   fullName: string
@@ -23,6 +23,7 @@ type SignUpFormValues = {
 export function SignUpForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { register: registerAccountWithAuth } = useAuth()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const {
     register,
@@ -45,25 +46,18 @@ export function SignUpForm() {
     setSubmitError(null)
 
     try {
-      const result = await signIn("register", {
-        redirect: false,
+      await registerAccountWithAuth({
         fullName: values.fullName,
         email: values.email,
         password: values.password,
         country: values.country,
       })
 
-      if (result?.error) {
-        handleServerFormErrors<SignUpFormValues>(result.error, setError, setSubmitError)
-        return
-      }
-
       const callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard"
-      const destination = result?.url ?? callbackUrl
-      router.push(destination)
+      router.replace(callbackUrl)
       router.refresh()
-    } catch {
-      setSubmitError("Unable to create your account right now. Please try again.")
+    } catch (error) {
+      handleServerFormErrors<SignUpFormValues>(error, setError, setSubmitError)
     }
   })
 

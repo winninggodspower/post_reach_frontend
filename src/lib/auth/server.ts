@@ -1,4 +1,4 @@
-import { authApi } from "@/lib/api"
+import { api, authApi } from "@/lib/api"
 import { AUTH_ENDPOINTS } from "@/lib/auth/endpoints"
 import type { AuthData, AuthProfile, AuthResponse, AuthTokenPair } from "@/lib/auth/types"
 
@@ -52,14 +52,34 @@ const submitAuthRequest = async (
     const respData = err?.response?.data
     if (respData && typeof respData === "object") {
       const message = respData.message || errorMessage || "Authentication failed."
-      console.log(respData)
-      throw new Error(JSON.stringify({ message, fields: respData }))
+      throw new Error(
+        JSON.stringify({
+          message,
+          fields: respData.errors ?? respData.fields ?? null,
+        }),
+      )
     }
 
     // Fallback: rethrow with a helpful message
     const fallback = errorMessage || "Authentication failed."
     throw new Error(JSON.stringify({ message: fallback, fields: null }))
   }
+}
+
+export const fetchCurrentUser = async () => {
+  const { data } = await api.get<{ data?: { user?: AuthProfile }; user?: AuthProfile }>(
+    AUTH_ENDPOINTS.me,
+  )
+
+  const user = data.data?.user ?? data.user
+
+  return {
+    id: String(user?.id ?? ""),
+    email: user?.email ?? "",
+    first_name: user?.first_name ?? "",
+    last_name: user?.last_name ?? "",
+    handle: user?.handle ?? "",
+  } satisfies AuthProfile
 }
 
 export const authenticateLogin = async ({
@@ -91,4 +111,15 @@ export const registerAccount = async ({
     email,
     "Unable to create account.",
   )
+}
+
+export const refreshAccessToken = async (refreshToken: string) => {
+  const { data } = await authApi.post<{ access?: string; accessToken?: string }>(
+    AUTH_ENDPOINTS.refresh,
+    {
+      refresh: refreshToken,
+    },
+  )
+
+  return data.accessToken ?? data.access ?? null
 }

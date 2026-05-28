@@ -1,11 +1,9 @@
 import axios from "axios"
-
 import { AUTH_ENDPOINTS } from "@/lib/auth/endpoints"
-import { useAuthStore } from "@/store/auth-store"
 
 const normalizeUrl = (value: string) => value.replace(/\/$/, "")
 
-const API_BASE_URL = normalizeUrl(
+export const API_BASE_URL = normalizeUrl(
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000/api",
 )
 
@@ -18,6 +16,8 @@ export const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
 })
+
+const getAuthStore = async () => (await import("../store/auth-store")).useAuth
 
 let refreshPromise: Promise<string | null> | null = null
 
@@ -43,14 +43,17 @@ const shouldSkipRefresh = (url?: string) => {
 }
 
 api.interceptors.request.use((config) => {
-  const accessToken = useAuthStore.getState().accessToken
+  return Promise.resolve().then(async () => {
+    const authStore = await getAuthStore()
+    const accessToken = authStore.getState().accessToken
 
-  if (accessToken) {
-    config.headers = config.headers ?? {}
-    config.headers.Authorization = `Bearer ${accessToken}`
-  }
+    if (accessToken) {
+      config.headers = config.headers ?? {}
+      config.headers.Authorization = `Bearer ${accessToken}`
+    }
 
-  return config
+    return config
+  })
 })
 
 api.interceptors.response.use(
@@ -70,10 +73,11 @@ api.interceptors.response.use(
 
     originalRequest._retry = true
 
-    const refreshToken = useAuthStore.getState().refreshToken
+    const authStore = await getAuthStore()
+    const refreshToken = authStore.getState().refreshToken
 
     if (!refreshToken) {
-      useAuthStore.getState().clearTokens()
+      authStore.getState().clearAuth()
       return Promise.reject(error)
     }
 
@@ -82,13 +86,13 @@ api.interceptors.response.use(
         refreshPromise = refreshAccessToken(refreshToken)
           .then((accessToken) => {
             if (accessToken) {
-              useAuthStore.getState().updateAccessToken(accessToken)
+              authStore.getState().updateAccessToken(accessToken)
             }
 
             return accessToken
           })
           .catch(() => {
-            useAuthStore.getState().clearTokens()
+            authStore.getState().clearAuth()
             return null
           })
           .finally(() => {
@@ -107,7 +111,7 @@ api.interceptors.response.use(
 
       return api(originalRequest)
     } catch {
-      useAuthStore.getState().clearTokens()
+      authStore.getState().clearAuth()
       return Promise.reject(error)
     }
   },

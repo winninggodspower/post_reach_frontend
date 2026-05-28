@@ -1,10 +1,8 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { signIn } from "next-auth/react"
 
 import { GoogleIcon } from "@/components/auth/google-icon"
 import { FormError } from "@/components/form-error"
@@ -12,6 +10,7 @@ import { handleServerFormErrors } from "@/lib/form/serverErrors"
 import { FormField } from "@/components/form-field"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { useAuth } from "@/store/auth-store"
 
 type SignInFormValues = {
   email: string
@@ -21,6 +20,7 @@ type SignInFormValues = {
 export function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { login } = useAuth()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const {
     register,
@@ -39,26 +39,16 @@ export function SignInForm() {
     setSubmitError(null)
 
     try {
-      const result = await signIn("login", {
-        redirect: false,
+      await login({
         email: values.email,
         password: values.password,
       })
 
-      if (result?.error) {
-        console.log(result)
-        handleServerFormErrors<SignInFormValues>(result.error, setError, setSubmitError)
-        return
-      }
-
-      console.log(result)
-
-      // Prefer the URL returned by next-auth, otherwise use callbackUrl search param
       const callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard"
-      router.push(callbackUrl)
+      router.replace(callbackUrl)
       router.refresh()
-    } catch {
-      setSubmitError("Unable to sign in right now. Please try again.")
+    } catch (error) {
+      handleServerFormErrors<SignInFormValues>(error, setError, setSubmitError)
     }
   })
 

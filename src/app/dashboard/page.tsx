@@ -1,9 +1,37 @@
-import { getServerSession } from "next-auth"
+"use client"
 
-import { authOptions } from "@/auth"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions)
+import { Button } from "@/components/ui/button"
+import { useAuth } from "@/store/auth-store"
+
+export default function DashboardPage() {
+  const router = useRouter()
+  const { user, accessToken, isHydrated, isLoadingUser, logout } = useAuth()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted || !isHydrated) {
+      return
+    }
+
+    if (!accessToken) {
+      router.replace("/signin?callbackUrl=/dashboard")
+    }
+  }, [accessToken, isHydrated, mounted, router])
+
+  if (!mounted || !isHydrated || isLoadingUser) {
+    return (
+      <main className="mx-auto flex w-full max-w-6xl items-center justify-center px-6 py-24">
+        <p className="text-sm text-slate-500">Loading dashboard...</p>
+      </main>
+    )
+  }
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-16">
@@ -12,8 +40,21 @@ export default async function DashboardPage() {
       </p>
       <h1 className="mt-3 text-4xl font-semibold text-slate-950">Welcome back</h1>
       <p className="mt-3 text-slate-600">
-        Signed in as {session?.user?.email}
+        Signed in as {user?.email ?? "your account"}
       </p>
+
+      <div className="mt-6">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            logout()
+            router.replace("/signin")
+          }}
+        >
+          Logout
+        </Button>
+      </div>
 
       <section className="mt-10 grid gap-4 md:grid-cols-3">
         <article className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
