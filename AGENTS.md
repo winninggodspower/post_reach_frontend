@@ -22,3 +22,29 @@ The system focuses on simplifying content workflows, improving consistency, and 
 - Media and content organization
 - OAuth authentication and platform integrations
 - Analytics and performance insights
+
+# Scalable Folder Structure
+
+Use a feature-first structure. Show only the minimal example your agent needs.
+
+```text
+src/
+  app/                    # Next.js routes, layouts, route handlers
+  features/
+	auth/                 # Example feature (API, UI, hooks, store, types)
+	  api/
+	  components/
+	  hooks/
+	  store/
+	  types/
+  shared/
+	ui/                   # Reusable UI primitives and helpers
+	lib/                  # Generic helpers (formatting, utils)
+  components/             # Global components (small primitives)
+```
+
+## Scaling Rules (short)
+
+- Keep route files in `src/app` thin; move business logic into `src/features/*`.
+- If code is reused across features move it to `src/shared/*`.
+- Prefer small feature-scoped stores and APIs.

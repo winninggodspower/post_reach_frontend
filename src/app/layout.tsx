@@ -1,7 +1,7 @@
 import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 
-import { AuthBootstrapper } from "@/components/auth/auth-bootstrapper";
+import { AuthBootstrapper } from "@/features/auth/components/auth-bootstrapper";
 
 const sora = Sora({
   variable: "--font-sora",

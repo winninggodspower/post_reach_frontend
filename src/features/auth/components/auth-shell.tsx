@@ -31,7 +31,7 @@ export function AuthShell({
         ]}
       />
 
-      <div className="relative mx-auto grid min-h-screen max-w-[1500px] gap-10 px-6 py-8 lg:grid-cols-[minmax(0,45%)_minmax(0,55%)] lg:px-10 lg:py-10">
+      <div className="relative mx-auto grid min-h-screen max-w-375 gap-10 px-6 py-8 lg:grid-cols-[minmax(0,45%)_minmax(0,55%)] lg:px-10 lg:py-10">
         <div className="flex min-h-full flex-col">
           <div className="flex items-center justify-between gap-4">
             <Link href="/" className="inline-flex items-center gap-3">

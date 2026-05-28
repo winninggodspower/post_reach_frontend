@@ -1,5 +1,5 @@
 import axios from "axios"
-import { AUTH_ENDPOINTS } from "@/lib/auth/endpoints"
+import { AUTH_ENDPOINTS } from "@/features/auth/api/endpoints"
 
 const normalizeUrl = (value: string) => value.replace(/\/$/, "")
 
@@ -17,7 +17,7 @@ export const api = axios.create({
   withCredentials: true,
 })
 
-const getAuthStore = async () => (await import("../store/auth-store")).useAuth
+const getAuthStore = async () => (await import("@/features/auth/store/auth-store")).useAuth
 
 let refreshPromise: Promise<string | null> | null = null
 

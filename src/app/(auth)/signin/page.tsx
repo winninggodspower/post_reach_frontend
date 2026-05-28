@@ -1,7 +1,7 @@
 import Link from "next/link"
 
-import { AuthShell } from "@/components/auth/auth-shell"
-import { SignInForm } from "@/components/auth/signin-form"
+import { AuthShell } from "@/features/auth/components/auth-shell"
+import { SignInForm } from "@/features/auth/components/signin-form"
 import {
   Card,
   CardContent,

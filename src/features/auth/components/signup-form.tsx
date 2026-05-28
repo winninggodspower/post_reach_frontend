@@ -4,13 +4,13 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 
-import { GoogleIcon } from "@/components/auth/google-icon"
+import { GoogleIcon } from "@/features/auth/components/google-icon"
 import { FormError } from "@/components/form-error"
 import { FormField } from "@/components/form-field"
 import { handleServerFormErrors } from "@/lib/form/serverErrors"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { useAuth } from "@/store/auth-store"
+import { useAuth } from "@/features/auth/store/auth-store"
 
 type SignUpFormValues = {
   fullName: string

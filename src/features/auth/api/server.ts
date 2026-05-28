@@ -1,6 +1,11 @@
 import { api, authApi } from "@/lib/api"
-import { AUTH_ENDPOINTS } from "@/lib/auth/endpoints"
-import type { AuthData, AuthProfile, AuthResponse, AuthTokenPair } from "@/lib/auth/types"
+import { AUTH_ENDPOINTS } from "@/features/auth/api/endpoints"
+import type {
+  AuthData,
+  AuthProfile,
+  AuthResponse,
+  AuthTokenPair,
+} from "@/features/auth/types"
 
 type CredentialPayload = {
   email: string
@@ -28,10 +33,8 @@ const submitAuthRequest = async (
 ) => {
   try {
     const { data } = await authApi.post<AuthResponse>(endpoint, body)
-    console.log(data)
 
     if (!data.success) {
-      // Throw structured error so callers can parse field errors
       throw new Error(
         JSON.stringify({
           message: data.message || errorMessage || "Authentication failed.",
@@ -48,7 +51,6 @@ const submitAuthRequest = async (
       } satisfies AuthTokenPair,
     }
   } catch (err: any) {
-    // If axios returned a 4xx with a JSON body, surface that body as structured fields
     const respData = err?.response?.data
     if (respData && typeof respData === "object") {
       const message = respData.message || errorMessage || "Authentication failed."
@@ -60,7 +62,6 @@ const submitAuthRequest = async (
       )
     }
 
-    // Fallback: rethrow with a helpful message
     const fallback = errorMessage || "Authentication failed."
     throw new Error(JSON.stringify({ message: fallback, fields: null }))
   }

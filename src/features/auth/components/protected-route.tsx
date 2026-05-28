@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 
-import { useAuthStatus } from "@/hooks/use-auth-status"
+import { useAuthStatus } from "@/features/auth/hooks/use-auth-status"
 
 type ProtectedRouteProps = {
   children: ReactNode

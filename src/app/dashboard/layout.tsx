@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 
-import { ProtectedRoute } from "@/components/auth/protected-route"
+import { ProtectedRoute } from "@/features/auth/components/protected-route"
 
 type DashboardLayoutProps = {
   children: ReactNode

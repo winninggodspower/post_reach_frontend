@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 
-import { useAuth } from "@/store/auth-store"
+import { useAuth } from "@/features/auth/store/auth-store"
 
 export function AuthBootstrapper() {
   const bootstrap = useAuth((state) => state.bootstrap)

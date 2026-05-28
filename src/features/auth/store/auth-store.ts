@@ -7,13 +7,13 @@ import {
   fetchCurrentUser,
   refreshAccessToken,
   registerAccount,
-} from "@/lib/auth/server"
+} from "@/features/auth/api/server"
 import type {
   AuthProfile,
   AuthTokenPair,
   LoginFormValues,
   RegisterFormValues,
-} from "@/lib/auth/types"
+} from "@/features/auth/types"
 
 type AuthState = {
   user: AuthProfile | null
