@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -7,7 +8,34 @@ import { useAuth } from "@/features/auth/store/auth-store"
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user, logout } = useAuth()
+  const user = useAuth((state) => state.user)
+  const logout = useAuth((state) => state.logout)
+  const onboardingByEmail = useAuth((state) => state.onboardingByEmail)
+  const isHydrated = useAuth((state) => state.isHydrated)
+  const isLoadingUser = useAuth((state) => state.isLoadingUser)
+
+  const currentEmail = user?.email?.trim().toLowerCase() ?? ""
+  const hasCompletedOnboarding = Boolean(
+    currentEmail && onboardingByEmail[currentEmail],
+  )
+
+  useEffect(() => {
+    if (!isHydrated || isLoadingUser) {
+      return
+    }
+
+    if (!hasCompletedOnboarding) {
+      router.replace("/onboarding")
+    }
+  }, [hasCompletedOnboarding, isHydrated, isLoadingUser, router])
+
+  if (!isHydrated || isLoadingUser || !hasCompletedOnboarding) {
+    return (
+      <main className="mx-auto flex w-full max-w-6xl items-center justify-center px-6 py-24">
+        <p className="text-sm text-slate-500">Loading setup...</p>
+      </main>
+    )
+  }
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-16">

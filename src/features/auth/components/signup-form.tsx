@@ -53,8 +53,12 @@ export function SignUpForm() {
         country: values.country,
       })
 
-      const callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard"
-      router.replace(callbackUrl)
+      const callbackUrl = searchParams?.get("callbackUrl")
+      const nextUrl = callbackUrl
+        ? `/onboarding?next=${encodeURIComponent(callbackUrl)}`
+        : "/onboarding"
+
+      router.replace(nextUrl)
       router.refresh()
     } catch (error) {
       handleServerFormErrors<SignUpFormValues>(error, setError, setSubmitError)

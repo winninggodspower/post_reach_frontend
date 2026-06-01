@@ -37,6 +37,7 @@ src/
 	  hooks/
 	  store/
 	  types/
+    /other features
   shared/
 	ui/                   # Reusable UI primitives and helpers
 	lib/                  # Generic helpers (formatting, utils)

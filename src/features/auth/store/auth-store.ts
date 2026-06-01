@@ -8,6 +8,7 @@ import {
   refreshAccessToken,
   registerAccount,
 } from "@/features/auth/api/server"
+import type { OnboardingSubmission } from "@/features/onboarding/types"
 import type {
   AuthProfile,
   AuthTokenPair,
@@ -15,12 +16,18 @@ import type {
   RegisterFormValues,
 } from "@/features/auth/types"
 
+type OnboardingRecord = {
+  data: OnboardingSubmission
+  completedAt: string
+}
+
 type AuthState = {
   user: AuthProfile | null
   accessToken: string | null
   refreshToken: string | null
   isHydrated: boolean
   isLoadingUser: boolean
+  onboardingByEmail: Record<string, OnboardingRecord>
   setHydrated: (hydrated: boolean) => void
   setLoadingUser: (isLoadingUser: boolean) => void
   setUser: (user: AuthProfile | null) => void
@@ -28,6 +35,11 @@ type AuthState = {
   setAuth: (auth: { user: AuthProfile; tokens: AuthTokenPair }) => void
   updateAccessToken: (accessToken: string) => void
   clearAuth: () => void
+  completeOnboarding: (submission: OnboardingSubmission) => void
+  isOnboardingCompleteForEmail: (email?: string | null) => boolean
+  getOnboardingDataForEmail: (
+    email?: string | null,
+  ) => OnboardingSubmission | null
   login: (values: LoginFormValues) => Promise<AuthProfile>
   register: (values: RegisterFormValues) => Promise<AuthProfile>
   loadUser: () => Promise<AuthProfile | null>
@@ -38,6 +50,8 @@ type AuthState = {
 
 const storage = createJSONStorage(() => localStorage)
 
+const getEmailKey = (email?: string | null) => email?.trim().toLowerCase() ?? ""
+
 export const useAuth = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -46,6 +60,7 @@ export const useAuth = create<AuthState>()(
       refreshToken: null,
       isHydrated: false,
       isLoadingUser: false,
+      onboardingByEmail: {},
       setHydrated: (hydrated) => set({ isHydrated: hydrated }),
       setLoadingUser: (isLoadingUser) => set({ isLoadingUser }),
       setUser: (user) => set({ user }),
@@ -64,6 +79,31 @@ export const useAuth = create<AuthState>()(
           accessToken: null,
           refreshToken: null,
         }),
+      completeOnboarding: (submission) => {
+        const email = getEmailKey(get().user?.email)
+
+        if (!email) {
+          return
+        }
+
+        set((state) => ({
+          onboardingByEmail: {
+            ...state.onboardingByEmail,
+            [email]: {
+              data: submission,
+              completedAt: new Date().toISOString(),
+            },
+          },
+        }))
+      },
+      isOnboardingCompleteForEmail: (email) => {
+        const record = get().onboardingByEmail[getEmailKey(email)]
+
+        return Boolean(record)
+      },
+      getOnboardingDataForEmail: (email) => {
+        return get().onboardingByEmail[getEmailKey(email)]?.data ?? null
+      },
 
       login: async (values) => {
         const result = await authenticateLogin(values)
@@ -147,6 +187,7 @@ export const useAuth = create<AuthState>()(
         user: state.user,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
+        onboardingByEmail: state.onboardingByEmail,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true)
