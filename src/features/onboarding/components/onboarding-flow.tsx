@@ -6,10 +6,10 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { GridPattern } from "@/components/ui/grid-pattern"
 import { useAuthStatus } from "@/features/auth/hooks/use-auth-status"
 import { useAuth } from "@/features/auth/store/auth-store"
+import { submitOnboardingProfile } from "@/features/onboarding/api/server"
 import type { OnboardingPlatform, OnboardingSubmission } from "@/features/onboarding/types"
 
 import { ROLE_OPTIONS, STEP_TITLES } from "./steps/shared"
@@ -37,10 +37,6 @@ export function OnboardingFlow() {
   const searchParams = useSearchParams()
   const { isAuthenticated, isHydrated, isLoadingUser } = useAuthStatus()
   const user = useAuth((state) => state.user)
-  const completeOnboarding = useAuth((state) => state.completeOnboarding)
-  const isOnboardingCompleteForEmail = useAuth(
-    (state) => state.isOnboardingCompleteForEmail,
-  )
 
   const [step, setStep] = useState<StepId>(0)
   const {
@@ -57,9 +53,8 @@ export function OnboardingFlow() {
 
   const form = watch()
 
-  const currentEmail = user?.email?.trim().toLowerCase() ?? ""
   const nextUrl = searchParams?.get("next") ?? "/dashboard"
-  const alreadyCompleted = isOnboardingCompleteForEmail(currentEmail)
+  const alreadyCompleted = user?.onboarded ?? false
   const connectedCount = form.connected_platforms.length
   const progress = Math.round(((step + 1) / 4) * 100)
 
@@ -121,13 +116,24 @@ export function OnboardingFlow() {
     )
   }
 
-  const finishOnboarding = handleSubmit(async (values) => {
-    completeOnboarding({
-      ...values,
-    })
+  const [isSaving, setIsSaving] = useState(false)
 
-    router.replace(nextUrl)
-    router.refresh()
+  const finishOnboarding = handleSubmit(async (values) => {
+    setIsSaving(true)
+
+    try {
+      // Send profile data to backend
+      await submitOnboardingProfile(values)
+
+      router.replace(nextUrl)
+      router.refresh()
+    } catch {
+      // Even if the API fails, let the user proceed
+      router.replace(nextUrl)
+      router.refresh()
+    } finally {
+      setIsSaving(false)
+    }
   })
 
   if (!isHydrated || isLoadingUser || !isAuthenticated || alreadyCompleted) {
@@ -217,7 +223,10 @@ export function OnboardingFlow() {
               ) : null}
 
               {step === 3 ? (
-                <OnboardingStepFourSocial form={form} togglePlatform={togglePlatform} />
+                <OnboardingStepFourSocial
+                  form={form}
+                  togglePlatform={togglePlatform}
+                />
               ) : null}
             </div>
 
@@ -262,20 +271,17 @@ export function OnboardingFlow() {
                     <ArrowRight className="size-4" />
                   </Button>
                 ) : (
-                  <>
-                    <Button type="button" variant="outline" onClick={() => void finishOnboarding()}>
-                      Skip for now
-                    </Button>
-                    <Button type="button" onClick={() => void finishOnboarding()} disabled={isSubmitting} className="gap-2">
-                      Complete setup
-                      <ArrowRight className="size-4" />
-                    </Button>
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => void finishOnboarding()}
+                    className="text-sm font-medium text-slate-500 underline underline-offset-4 transition hover:text-slate-800 cursor-pointer"
+                  >
+                    Skip for now
+                  </button>
                 )}
               </div>
             </div>
           </section>
-
           
         </div>
       </div>

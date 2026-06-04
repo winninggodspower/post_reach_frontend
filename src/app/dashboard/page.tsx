@@ -10,14 +10,10 @@ export default function DashboardPage() {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const logout = useAuth((state) => state.logout)
-  const onboardingByEmail = useAuth((state) => state.onboardingByEmail)
   const isHydrated = useAuth((state) => state.isHydrated)
   const isLoadingUser = useAuth((state) => state.isLoadingUser)
 
-  const currentEmail = user?.email?.trim().toLowerCase() ?? ""
-  const hasCompletedOnboarding = Boolean(
-    currentEmail && onboardingByEmail[currentEmail],
-  )
+  const hasCompletedOnboarding = user?.onboarded ?? false
 
   useEffect(() => {
     if (!isHydrated || isLoadingUser) {

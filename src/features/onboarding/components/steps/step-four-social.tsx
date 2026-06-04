@@ -2,9 +2,9 @@
 
 import type { OnboardingPlatform, OnboardingSubmission } from "@/features/onboarding/types"
 
-import { Button } from "@/components/ui/button"
+import { PlatformConnectCard } from "@/features/onboarding/components/platform-connect-card"
 
-import { PLATFORM_OPTIONS, SocialPlatformIcon, StatusPill } from "./shared"
+import { PLATFORM_OPTIONS } from "./shared"
 
 type OnboardingStepFourSocialProps = {
   form: OnboardingSubmission
@@ -30,39 +30,14 @@ export function OnboardingStepFourSocial({
       </div>
 
       <div className="space-y-3">
-        {PLATFORM_OPTIONS.map((option) => {
-          const connected = form.connected_platforms.includes(option.id)
-
-          return (
-            <div
-              key={option.id}
-              className={`flex items-center gap-4 rounded-[24px] border bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ${
-                connected ? "border-emerald-500/20 bg-emerald-50/70" : "border-black/8"
-              }`}
-            >
-              <SocialPlatformIcon option={option} />
-
-              <div className="min-w-0 flex-1">
-                <h3 className="text-base font-semibold text-slate-950">{option.label}</h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  Connect for publishing and performance insights.
-                </p>
-              </div>
-
-              <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
-                <StatusPill connected={connected} />
-                <Button
-                  type="button"
-                  variant={connected ? "outline" : "default"}
-                  size="sm"
-                  onClick={() => togglePlatform(option.id)}
-                >
-                  {connected ? "Disconnect" : "Connect"}
-                </Button>
-              </div>
-            </div>
-          )
-        })}
+        {PLATFORM_OPTIONS.map((option) => (
+          <PlatformConnectCard
+            key={option.id}
+            option={option}
+            connected={form.connected_platforms.includes(option.id)}
+            onToggle={togglePlatform}
+          />
+        ))}
       </div>
     </div>
   )
