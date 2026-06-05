@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 
-import { GoogleIcon } from "@/features/auth/components/google-icon"
+import { GoogleSignInButton } from "@/features/auth/components/google-signin-button"
 import { FormError } from "@/components/form-error"
 import { handleServerFormErrors } from "@/lib/form/serverErrors"
 import { FormField } from "@/components/form-field"
@@ -46,7 +46,6 @@ export function SignInForm() {
 
       const callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard"
       router.replace(callbackUrl)
-      router.refresh()
     } catch (error) {
       handleServerFormErrors<SignInFormValues>(error, setError, setSubmitError)
     }
@@ -54,15 +53,10 @@ export function SignInForm() {
 
   return (
     <form className="space-y-5" noValidate onSubmit={onSubmit}>
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        className="h-12 w-full justify-center rounded-xl border-black/10 bg-white text-slate-900 shadow-sm hover:bg-slate-50"
-      >
-        <GoogleIcon />
-        Continue with Google
-      </Button>
+      <GoogleSignInButton
+        mode="signin"
+        onError={(message) => setSubmitError(message)}
+      />
 
       <div className="relative">
         <Separator />

@@ -1,3 +1,5 @@
+import axios from "axios"
+
 import { api, authApi } from "@/lib/api"
 import { AUTH_ENDPOINTS } from "@/features/auth/api/endpoints"
 import type {
@@ -34,6 +36,14 @@ const toProfile = (
   has_completed_onboarding: Boolean(payload.user?.has_completed_onboarding ?? false),
 })
 
+const getAxiosResponseData = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data
+  }
+
+  return null
+}
+
 const submitAuthRequest = async (
   endpoint: string,
   body: Record<string, string | undefined>,
@@ -59,8 +69,8 @@ const submitAuthRequest = async (
         refreshToken: data.data.tokens.refresh,
       } satisfies AuthTokenPair,
     }
-  } catch (err: any) {
-    const respData = err?.response?.data
+  } catch (error: unknown) {
+    const respData = getAxiosResponseData(error)
     if (respData && typeof respData === "object") {
       const message = respData.message || errorMessage || "Authentication failed."
       throw new Error(
@@ -111,6 +121,50 @@ export const registerAccount = async ({
     email,
     "Unable to create account.",
   )
+}
+
+type GoogleSignInPayload = {
+  authCode: string
+  redirectUri: string
+}
+
+export const googleSignIn = async ({ authCode, redirectUri }: GoogleSignInPayload) => {
+  try {
+    const { data } = await authApi.post<AuthResponse>(AUTH_ENDPOINTS.googleSignIn, {
+      auth_code: authCode,
+      redirect_uri: redirectUri,
+    })
+
+    if (!data.success) {
+      throw new Error(
+        JSON.stringify({
+          message: data.message || "Google authentication failed.",
+          fields: data.data ?? null,
+        }),
+      )
+    }
+
+    return {
+      profile: toProfile(data.data, data.data.user?.email ?? ""),
+      tokens: {
+        accessToken: data.data.tokens.access,
+        refreshToken: data.data.tokens.refresh,
+      } satisfies AuthTokenPair,
+    }
+  } catch (error: unknown) {
+    const respData = getAxiosResponseData(error)
+    if (respData && typeof respData === "object") {
+      const message = respData.message || "Google authentication failed."
+      throw new Error(
+        JSON.stringify({
+          message,
+          fields: respData.errors ?? respData.fields ?? null,
+        }),
+      )
+    }
+
+    throw new Error(JSON.stringify({ message: "Google authentication failed.", fields: null }))
+  }
 }
 
 export const refreshAccessToken = async (refreshToken: string) => {

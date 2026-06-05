@@ -5,6 +5,7 @@ import { createJSONStorage, persist } from "zustand/middleware"
 import {
   authenticateLogin,
   fetchCurrentUser,
+  googleSignIn,
   refreshAccessToken,
   registerAccount,
 } from "@/features/auth/api/server"
@@ -30,6 +31,7 @@ type AuthState = {
   clearAuth: () => void
   login: (values: LoginFormValues) => Promise<AuthProfile>
   register: (values: RegisterFormValues) => Promise<AuthProfile>
+  googleLogin: (payload: { authCode: string; redirectUri: string }) => Promise<AuthProfile>
   loadUser: () => Promise<AuthProfile | null>
   bootstrap: () => Promise<void>
   refreshSession: () => Promise<string | null>
@@ -77,6 +79,16 @@ export const useAuth = create<AuthState>()(
 
       register: async (values) => {
         const result = await registerAccount(values)
+        set({
+          user: result.profile,
+          accessToken: result.tokens.accessToken,
+          refreshToken: result.tokens.refreshToken,
+        })
+        return result.profile
+      },
+
+      googleLogin: async ({ authCode, redirectUri }) => {
+        const result = await googleSignIn({ authCode, redirectUri })
         set({
           user: result.profile,
           accessToken: result.tokens.accessToken,

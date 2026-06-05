@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 import { AuthBootstrapper } from "@/features/auth/components/auth-bootstrapper";
+import { GoogleAuthProvider } from "@/features/auth/components/google-auth-provider";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -32,7 +33,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AuthBootstrapper />
-        {children}
+        <GoogleAuthProvider>{children}</GoogleAuthProvider>
         <Toaster
           position="top-center"
           closeButton
