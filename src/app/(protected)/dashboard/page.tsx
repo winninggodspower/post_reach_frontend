@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -10,28 +9,6 @@ export default function DashboardPage() {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const logout = useAuth((state) => state.logout)
-  const isHydrated = useAuth((state) => state.isHydrated)
-  const isLoadingUser = useAuth((state) => state.isLoadingUser)
-
-  const hasCompletedOnboarding = user?.onboarded ?? false
-
-  useEffect(() => {
-    if (!isHydrated || isLoadingUser) {
-      return
-    }
-
-    if (!hasCompletedOnboarding) {
-      router.replace("/onboarding")
-    }
-  }, [hasCompletedOnboarding, isHydrated, isLoadingUser, router])
-
-  if (!isHydrated || isLoadingUser || !hasCompletedOnboarding) {
-    return (
-      <main className="mx-auto flex w-full max-w-6xl items-center justify-center px-6 py-24">
-        <p className="text-sm text-slate-500">Loading setup...</p>
-      </main>
-    )
-  }
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-16">

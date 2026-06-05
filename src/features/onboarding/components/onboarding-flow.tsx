@@ -1,13 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
 import { GridPattern } from "@/components/ui/grid-pattern"
-import { useAuthStatus } from "@/features/auth/hooks/use-auth-status"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { submitOnboardingProfile } from "@/features/onboarding/api/server"
 import type { OnboardingPlatform, OnboardingSubmission } from "@/features/onboarding/types"
@@ -33,10 +32,10 @@ const getStepTitle = (step: StepId) => STEP_TITLES[step]
 
 export function OnboardingFlow() {
   const router = useRouter()
-  const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { isAuthenticated, isHydrated, isLoadingUser } = useAuthStatus()
   const user = useAuth((state) => state.user)
+  const isHydrated = useAuth((state) => state.isHydrated)
+  const isLoadingUser = useAuth((state) => state.isLoadingUser)
 
   const [step, setStep] = useState<StepId>(0)
   const {
@@ -63,15 +62,10 @@ export function OnboardingFlow() {
       return
     }
 
-    if (!isAuthenticated) {
-      router.replace(`/signin?callbackUrl=${encodeURIComponent(pathname || "/onboarding")}`)
-      return
-    }
-
     if (alreadyCompleted) {
       router.replace(nextUrl)
     }
-  }, [alreadyCompleted, isAuthenticated, isHydrated, isLoadingUser, nextUrl, pathname, router])
+  }, [alreadyCompleted, isHydrated, isLoadingUser, nextUrl, router])
 
   useEffect(() => {
     if (form.role === "creator") {
@@ -136,7 +130,7 @@ export function OnboardingFlow() {
     }
   })
 
-  if (!isHydrated || isLoadingUser || !isAuthenticated || alreadyCompleted) {
+  if (!isHydrated || isLoadingUser || alreadyCompleted) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-6 py-24">
         <p className="text-sm text-slate-500">Loading onboarding...</p>
