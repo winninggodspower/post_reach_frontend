@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     setMounted(true)
   }, [])
 
-  const hasCompletedOnboarding = user?.onboarded ?? false
+  const hasCompletedOnboarding = user?.has_completed_onboarding ?? false
 
   useEffect(() => {
     if (!mounted || !isHydrated || isLoadingUser) {

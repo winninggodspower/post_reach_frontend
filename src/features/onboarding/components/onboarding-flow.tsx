@@ -55,7 +55,7 @@ export function OnboardingFlow() {
   const form = watch()
 
   const nextUrl = searchParams?.get("next") ?? "/dashboard"
-  const alreadyCompleted = user?.onboarded ?? false
+  const alreadyCompleted = user?.has_completed_onboarding ?? false
   const connectedCount = form.connected_platforms.length
   const progress = Math.round(((step + 1) / 4) * 100)
 

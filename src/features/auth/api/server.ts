@@ -23,7 +23,7 @@ const toProfile = (
   first_name: payload.user?.first_name ?? "",
   last_name: payload.user?.last_name ?? "",
   handle: payload.user?.handle ?? "",
-  onboarded: payload.user?.onboarded ?? false,
+  has_completed_onboarding: Boolean(payload.user?.has_completed_onboarding ?? false),
 })
 
 const submitAuthRequest = async (
@@ -81,7 +81,7 @@ export const fetchCurrentUser = async () => {
     first_name: user?.first_name ?? "",
     last_name: user?.last_name ?? "",
     handle: user?.handle ?? "",
-    onboarded: user?.onboarded ?? false,
+    has_completed_onboarding: Boolean(user?.has_completed_onboarding ?? false),
   } satisfies AuthProfile
 }
 

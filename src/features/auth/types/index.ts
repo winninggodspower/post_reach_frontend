@@ -9,7 +9,7 @@ export type AuthProfile = {
   first_name: string
   last_name: string
   handle: string
-  onboarded: boolean
+  has_completed_onboarding: boolean
 }
 
 export type AuthToken = {
