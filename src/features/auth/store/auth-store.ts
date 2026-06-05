@@ -94,6 +94,7 @@ export const useAuth = create<AuthState>()(
 
         try {
           const user = await fetchCurrentUser()
+          console.log(user)
           set({ user })
           return user
         } catch (error) {

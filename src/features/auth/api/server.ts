@@ -14,6 +14,12 @@ type CredentialPayload = {
   country?: string
 }
 
+type MeResponse = {
+  success: boolean
+  message: string
+  data: AuthProfile
+}
+
 const toProfile = (
   payload: AuthData,
   fallbackEmail: string,
@@ -22,7 +28,9 @@ const toProfile = (
   email: payload.user?.email ?? fallbackEmail,
   first_name: payload.user?.first_name ?? "",
   last_name: payload.user?.last_name ?? "",
-  handle: payload.user?.handle ?? "",
+  full_name: payload.user?.full_name ?? "",
+  handle: payload.user?.handle ?? null,
+  role: payload.user?.role ?? "",
   has_completed_onboarding: Boolean(payload.user?.has_completed_onboarding ?? false),
 })
 
@@ -69,20 +77,9 @@ const submitAuthRequest = async (
 }
 
 export const fetchCurrentUser = async () => {
-  const { data } = await api.get<{ data?: { user?: AuthProfile }; user?: AuthProfile }>(
-    AUTH_ENDPOINTS.me,
-  )
+  const { data } = await api.get<MeResponse>(AUTH_ENDPOINTS.me)
 
-  const user = data.data?.user ?? data.user
-
-  return {
-    id: String(user?.id ?? ""),
-    email: user?.email ?? "",
-    first_name: user?.first_name ?? "",
-    last_name: user?.last_name ?? "",
-    handle: user?.handle ?? "",
-    has_completed_onboarding: Boolean(user?.has_completed_onboarding ?? false),
-  } satisfies AuthProfile
+  return data.data
 }
 
 export const authenticateLogin = async ({

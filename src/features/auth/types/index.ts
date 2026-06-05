@@ -8,7 +8,9 @@ export type AuthProfile = {
   email: string
   first_name: string
   last_name: string
-  handle: string
+  full_name: string
+  handle: string | null
+  role: string
   has_completed_onboarding: boolean
 }
 

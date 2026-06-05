@@ -36,6 +36,7 @@ export function OnboardingFlow() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const user = useAuth((state) => state.user)
+  const setUser = useAuth((state) => state.setUser)
   const isHydrated = useAuth((state) => state.isHydrated)
   const isLoadingUser = useAuth((state) => state.isLoadingUser)
 
@@ -119,6 +120,11 @@ export function OnboardingFlow() {
 
     try {
       await submitOnboardingProfile(values)
+
+      // Update the auth store so has_completed_onboarding is reflected immediately
+      if (user) {
+        setUser({ ...user, has_completed_onboarding: true })
+      }
 
       router.replace(nextUrl)
       router.refresh()
