@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { useForm } from "react-hook-form"
 
+import { toast } from "sonner"
+
 import { Button } from "@/components/ui/button"
 import { GridPattern } from "@/components/ui/grid-pattern"
 import { useAuth } from "@/features/auth/store/auth-store"
@@ -116,15 +118,27 @@ export function OnboardingFlow() {
     setIsSaving(true)
 
     try {
-      // Send profile data to backend
       await submitOnboardingProfile(values)
 
       router.replace(nextUrl)
       router.refresh()
-    } catch {
-      // Even if the API fails, let the user proceed
-      router.replace(nextUrl)
-      router.refresh()
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? (() => {
+              try {
+                const parsed = JSON.parse(err.message)
+                return parsed.message || "Something went wrong."
+              } catch {
+                return err.message || "Something went wrong."
+              }
+            })()
+          : "Something went wrong."
+
+      toast.error(message, {
+        description: "Your onboarding data wasn't saved. Please try again.",
+        duration: 5000,
+      })
     } finally {
       setIsSaving(false)
     }

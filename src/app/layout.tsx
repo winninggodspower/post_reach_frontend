@@ -1,6 +1,8 @@
 import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 
+import { Toaster } from "sonner";
+
 import { AuthBootstrapper } from "@/features/auth/components/auth-bootstrapper";
 
 const sora = Sora({
@@ -31,6 +33,20 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthBootstrapper />
         {children}
+        <Toaster
+          position="top-center"
+          closeButton
+          toastOptions={{
+            duration: 5000,
+            classNames: {
+              toast: "sonner-toast",
+              error: "sonner-error",
+              success: "sonner-success",
+              info: "sonner-info",
+              warning: "sonner-warning",
+            },
+          }}
+        />
       </body>
     </html>
   );

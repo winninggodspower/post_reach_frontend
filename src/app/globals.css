@@ -161,3 +161,69 @@
   }
 
 }
+
+/* ── Sonner toast branding ── */
+/* Base toast — default light appearance */
+.sonner-toast {
+  --normal-bg: #fff;
+  --normal-border: #e2e8f0;
+  --normal-text: #1e293b;
+}
+
+/* Error toast */
+.sonner-toast.sonner-error {
+  --normal-bg: #fef2f2;
+  --normal-border: #fecaca;
+  --normal-text: #991b1b;
+}
+
+/* Success toast */
+.sonner-toast.sonner-success {
+  --normal-bg: #f0fdf4;
+  --normal-border: #bbf7d0;
+  --normal-text: #166534;
+}
+
+/* Info toast — uses brand orange tones */
+.sonner-toast.sonner-info {
+  --normal-bg: #fff7ed;
+  --normal-border: #fed7aa;
+  --normal-text: #9a3412;
+}
+
+/* Warning toast */
+.sonner-toast.sonner-warning {
+  --normal-bg: #fffbeb;
+  --normal-border: #fde68a;
+  --normal-text: #92400e;
+}
+
+/* Toast icon colors */
+.sonner-toast.sonner-error [data-icon] {
+  color: #dc2626 !important;
+}
+
+.sonner-toast.sonner-success [data-icon] {
+  color: #16a34a !important;
+}
+
+.sonner-toast.sonner-info [data-icon] {
+  color: var(--accent-brand) !important;
+}
+
+.sonner-toast.sonner-warning [data-icon] {
+  color: #f59e0b !important;
+}
+
+/* Close button */
+.sonner-toast [data-close-button] {
+  background: transparent !important;
+  border: none !important;
+  color: var(--normal-text) !important;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.sonner-toast [data-close-button]:hover {
+  opacity: 1;
+}
