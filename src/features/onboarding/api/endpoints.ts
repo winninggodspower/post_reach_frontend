@@ -1,3 +1,3 @@
 export const ONBOARDING_ENDPOINTS = {
-  profile: "/onboarding/profile/",
+  profile: "/auth/onboarding/",
 } as const
