@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Check, CircleCheckBig, Loader2 } from "lucide-react"
 
 import type {
@@ -23,7 +24,7 @@ export type PlatformOption = {
   id: OnboardingPlatform
   label: string
   accent: string
-  initials: string
+  icon: string
 }
 
 export const ROLE_OPTIONS: RoleOption[] = [
@@ -61,12 +62,12 @@ export const INDUSTRY_OPTIONS: IndustryOption[] = [
 ]
 
 export const PLATFORM_OPTIONS: PlatformOption[] = [
-  { id: "instagram", label: "Instagram", accent: "from-fuchsia-500 to-orange-400", initials: "IG" },
-  { id: "linkedin", label: "LinkedIn", accent: "from-sky-600 to-sky-400", initials: "IN" },
-  { id: "tiktok", label: "TikTok", accent: "from-zinc-900 to-fuchsia-600", initials: "TT" },
-  { id: "facebook", label: "Facebook", accent: "from-blue-700 to-blue-500", initials: "FB" },
-  { id: "x", label: "X", accent: "from-slate-950 to-slate-700", initials: "X" },
-  { id: "youtube", label: "YouTube", accent: "from-red-600 to-rose-500", initials: "YT" },
+  { id: "youtube", label: "YouTube", accent: "from-red-600 to-rose-500", icon: "/social-icons/youtube-circle.png" },
+  { id: "facebook", label: "Facebook", accent: "from-blue-700 to-blue-500", icon: "/social-icons/facebook-circle.png" },
+  { id: "tiktok", label: "TikTok", accent: "from-zinc-900 to-fuchsia-600", icon: "/social-icons/tiktok-circle.png" },
+  { id: "instagram", label: "Instagram", accent: "from-fuchsia-500 to-orange-400", icon: "/social-icons/instagram-circle.png" },
+  { id: "linkedin", label: "LinkedIn", accent: "from-sky-600 to-sky-400", icon: "/social-icons/linkedin-circle.png" },
+  { id: "x", label: "X", accent: "from-slate-950 to-slate-700", icon: "/social-icons/twitter-circle.png" },
 ]
 
 export const STEP_TITLES = ["Role", "Business", "Content", "Accounts"]
@@ -187,10 +188,16 @@ export function RoleCard({
 export function SocialPlatformIcon({ option }: { option: PlatformOption }) {
   return (
     <span
-      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br ${option.accent} text-[11px] font-semibold tracking-[0.16em] text-white shadow-[0_12px_30px_-18px_rgba(15,23,42,0.8)]`}
+      className="relative flex h-11 w-11 shrink-0 items-center justify-center"
       aria-hidden="true"
     >
-      {option.initials}
+      <Image
+        src={option.icon}
+        alt=""
+        width={44}
+        height={44}
+        className="h-11 w-11"
+      />
     </span>
   )
 }
