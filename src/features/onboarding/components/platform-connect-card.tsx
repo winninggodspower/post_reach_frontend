@@ -4,7 +4,10 @@ import { useState } from "react"
 import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { initiatePlatformOAuth } from "@/features/onboarding/api/social"
+import {
+  getYouTubeAuthUrl,
+  initiatePlatformOAuth,
+} from "@/features/onboarding/api/server"
 import type { OnboardingPlatform } from "@/features/onboarding/types"
 
 import { SocialPlatformIcon, StatusPill } from "./steps/shared"
@@ -23,10 +26,33 @@ export function PlatformConnectCard({
 }: PlatformConnectCardProps) {
   const [connecting, setConnecting] = useState(false)
 
+  const handleYouTubeConnect = async () => {
+    const redirectUri = `${window.location.origin}/social/youtube/callback`
+
+    try {
+      const result = await getYouTubeAuthUrl(redirectUri)
+
+      if (result.data?.auth_url) {
+        // Mark as connected optimistically before redirect
+        onToggle(option.id)
+        // Redirect to Google's OAuth consent page
+        window.location.assign(result.data.auth_url)
+      }
+    } catch {
+      // Connection failed — don't mark as connected
+    }
+  }
+
   const handleConnect = async () => {
     setConnecting(true)
 
     try {
+      // YouTube uses a two-step OAuth flow (GET auth URL, then POST to exchange)
+      if (option.id === "youtube") {
+        await handleYouTubeConnect()
+        return
+      }
+
       const result = await initiatePlatformOAuth(option.id)
 
       if (result.redirect_url) {
@@ -49,6 +75,7 @@ export function PlatformConnectCard({
       void handleConnect()
     }
   }
+
 
   return (
     <div

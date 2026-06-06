@@ -55,7 +55,22 @@ export function OnboardingFlow() {
 
   const form = watch()
 
+  // Handle YouTube OAuth callback — if the user returns from the YouTube
+  // consent flow with youtube_connected=true, ensure YouTube is in the
+  // connected_platforms list (the optimistic update may have been lost
+  // due to page navigation).
+  useEffect(() => {
+    const youtubeConnected = searchParams?.get("youtube_connected") === "true"
+
+    if (youtubeConnected && !form.connected_platforms.includes("youtube")) {
+      setValue("connected_platforms", [...form.connected_platforms, "youtube"], {
+        shouldDirty: true,
+      })
+    }
+  }, [searchParams, form.connected_platforms, setValue])
+
   const nextUrl = searchParams?.get("next") ?? "/dashboard"
+
   const alreadyCompleted = user?.has_completed_onboarding ?? false
   const connectedCount = form.connected_platforms.length
   const progress = Math.round(((step + 1) / 4) * 100)

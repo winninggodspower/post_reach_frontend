@@ -30,7 +30,6 @@ export function AuthShell({
           [12, 7],
         ]}
       />
-
      
       <div className="scrollbar-thin relative flex w-full flex-col overflow-y-auto px-6 py-8 lg:w-[45%] lg:px-10 lg:py-10">
         <div className="flex items-center justify-between gap-4">
@@ -72,7 +71,7 @@ export function AuthShell({
       </div>
 
       {/* Right side - full viewport height image, no padding */}
-      <aside className="relative hidden h-screen w-[55%] flex-shrink-0 overflow-hidden lg:block">
+      <aside className="relative hidden h-screen w-[55%] shrink-0 overflow-hidden lg:block">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,146,60,0.35),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.28),transparent_36%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_28%,rgba(255,255,255,0.03))]" />
 
