@@ -3,6 +3,20 @@ export type AuthTokenPair = {
   refreshToken: string
 }
 
+export type UserBrand = {
+  id: string
+  name: string
+  industry: string | null
+  posting_frequency: string | null
+  primary_platform: string | null
+  team_size: string | null
+  is_youtube_connected: boolean
+  is_instagram_connected: boolean
+  is_tiktok_connected: boolean
+  is_facebook_connected: boolean
+  is_linkedin_connected: boolean
+}
+
 export type AuthProfile = {
   id: string
   email: string
@@ -10,8 +24,9 @@ export type AuthProfile = {
   last_name: string
   full_name: string
   handle: string | null
-  role: string
+  role: string | null
   has_completed_onboarding: boolean
+  brand: UserBrand | null
 }
 
 export type AuthToken = {

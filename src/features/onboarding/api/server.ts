@@ -1,5 +1,9 @@
 import { api } from "@/lib/api"
-import { ONBOARDING_ENDPOINTS, platformToEndpoint, SOCIAL_ENDPOINTS } from "@/features/onboarding/api/endpoints"
+import {
+  ONBOARDING_ENDPOINTS,
+  AUTH_URL_ENDPOINTS,
+  CONNECT_ENDPOINTS,
+} from "@/features/onboarding/api/endpoints"
 import type { OnboardingPlatform, OnboardingSubmission } from "@/features/onboarding/types"
 
 type OnboardingProfileResponse = {
@@ -13,7 +17,7 @@ type OAuthInitResponse = {
   message?: string
 }
 
-type YouTubeAuthUrlResponse = {
+type AuthUrlResponse = {
   success: boolean
   data: {
     auth_url: string
@@ -21,7 +25,7 @@ type YouTubeAuthUrlResponse = {
   message?: string
 }
 
-type YouTubeConnectResponse = {
+type ConnectResponse = {
   success: boolean
   data: {
     message: string
@@ -63,22 +67,24 @@ export const submitOnboardingProfile = async (
 }
 
 /**
- * Get the YouTube OAuth authorization URL from the server.
- * Step 1 of the YouTube OAuth flow.
+ * Get the OAuth authorization URL for any platform.
+ * Step 1 of the OAuth flow — opens the provider's consent screen.
  */
-export const getYouTubeAuthUrl = async (
+export const getAuthUrl = async (
+  platform: OnboardingPlatform,
   redirectUri: string,
-): Promise<YouTubeAuthUrlResponse> => {
+): Promise<AuthUrlResponse> => {
   try {
-    const { data } = await api.get<YouTubeAuthUrlResponse>(
-      SOCIAL_ENDPOINTS.youtubeAuthUrl,
-      { params: { redirect_uri: redirectUri } },
-    )
+    const endpoint = AUTH_URL_ENDPOINTS[platform]
+
+    const { data } = await api.get<AuthUrlResponse>(endpoint, {
+      params: { redirect_uri: redirectUri },
+    })
 
     if (!data.success) {
       throw new Error(
         JSON.stringify({
-          message: data.message || "Failed to get YouTube auth URL.",
+          message: data.message || `Failed to get ${platform} auth URL.`,
         }),
       )
     }
@@ -91,32 +97,35 @@ export const getYouTubeAuthUrl = async (
 
     const axiosError = err as { response?: { data?: { message?: string } } }
     const message =
-      axiosError.response?.data?.message || "Unable to initiate YouTube connection."
+      axiosError.response?.data?.message || `Unable to initiate ${platform} connection.`
 
     throw new Error(JSON.stringify({ message }))
   }
 }
 
 /**
- * Exchange the authorization code for YouTube tokens.
- * Step 3 of the YouTube OAuth flow.
+ * Exchange the authorization code for platform tokens.
+ * Step 3 of the OAuth flow — called from the callback page.
  */
-export const exchangeYouTubeCode = async (payload: {
+export const exchangeOAuthCode = async (payload: {
+  platform: OnboardingPlatform
   code: string
-  redirect_uri: string
   state: string
-  brand?: string
-}): Promise<YouTubeConnectResponse> => {
+  redirect_uri: string
+}): Promise<ConnectResponse> => {
   try {
-    const { data } = await api.post<YouTubeConnectResponse>(
-      SOCIAL_ENDPOINTS.youtubeConnect,
-      payload,
-    )
+    const endpoint = CONNECT_ENDPOINTS[payload.platform]
+
+    const { data } = await api.post<ConnectResponse>(endpoint, {
+      code: payload.code,
+      state: payload.state,
+      redirect_uri: payload.redirect_uri,
+    })
 
     if (!data.success) {
       throw new Error(
         JSON.stringify({
-          message: data.message || "Failed to connect YouTube account.",
+          message: data.message || `Failed to connect ${payload.platform} account.`,
         }),
       )
     }
@@ -129,7 +138,7 @@ export const exchangeYouTubeCode = async (payload: {
 
     const axiosError = err as { response?: { data?: { message?: string } } }
     const message =
-      axiosError.response?.data?.message || "Unable to connect YouTube account."
+      axiosError.response?.data?.message || `Unable to connect ${payload.platform} account.`
 
     throw new Error(JSON.stringify({ message }))
   }
@@ -139,7 +148,9 @@ export const initiatePlatformOAuth = async (
   platform: OnboardingPlatform,
 ): Promise<OAuthInitResponse> => {
   try {
-    const { data } = await api.post<OAuthInitResponse>(platformToEndpoint(platform))
+    const endpoint = AUTH_URL_ENDPOINTS[platform]
+
+    const { data } = await api.post<OAuthInitResponse>(endpoint)
 
     if (!data.success) {
       throw new Error(

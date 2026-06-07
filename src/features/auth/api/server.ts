@@ -32,8 +32,9 @@ const toProfile = (
   last_name: payload.user?.last_name ?? "",
   full_name: payload.user?.full_name ?? "",
   handle: payload.user?.handle ?? null,
-  role: payload.user?.role ?? "",
+  role: payload.user?.role ?? null,
   has_completed_onboarding: Boolean(payload.user?.has_completed_onboarding ?? false),
+  brand: payload.user?.brand ?? null,
 })
 
 const getAxiosResponseData = (error: unknown) => {

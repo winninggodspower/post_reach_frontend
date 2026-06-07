@@ -1,20 +1,27 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
-import { exchangeYouTubeCode } from "@/features/onboarding/api/server"
+import { exchangeOAuthCode } from "@/features/onboarding/api/server"
+import { platformLabelMap } from "@/features/onboarding/components/steps/shared"
+import type { OnboardingPlatform } from "@/features/onboarding/types"
 
-export default function YouTubeCallbackPage() {
+export default function OAuthCallbackPage() {
+  const params = useParams()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<"processing" | "success" | "error">("processing")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const processedRef = useRef(false)
 
+  const platform = params?.platform as OnboardingPlatform | undefined
+  const platformLabel = platform ? (platformLabelMap[platform] ?? platform) : ""
+
   useEffect(() => {
     // Prevent double execution in strict mode
     if (processedRef.current) return
+    if (!platform) return
     processedRef.current = true
 
     const code = searchParams?.get("code")
@@ -28,7 +35,7 @@ export default function YouTubeCallbackPage() {
       // Notify the opener (popup parent) about the error
       if (window.opener) {
         window.opener.postMessage(
-          { type: "youtube-oauth-error", error: "You denied the authorization request." },
+          { type: `oauth-error`, error: "You denied the authorization request." },
           window.location.origin,
         )
       }
@@ -42,7 +49,7 @@ export default function YouTubeCallbackPage() {
 
       if (window.opener) {
         window.opener.postMessage(
-          { type: "youtube-oauth-error", error: "Missing authorization code or state parameter." },
+          { type: `oauth-error`, error: "Missing authorization code or state parameter." },
           window.location.origin,
         )
       }
@@ -52,9 +59,10 @@ export default function YouTubeCallbackPage() {
 
     const handleCallback = async () => {
       try {
-        const redirectUri = `${window.location.origin}/social/youtube/callback`
+        const redirectUri = `${window.location.origin}/social/oauth/${platform}/callback`
 
-        await exchangeYouTubeCode({
+        await exchangeOAuthCode({
+          platform,
           code,
           redirect_uri: redirectUri,
           state,
@@ -62,10 +70,10 @@ export default function YouTubeCallbackPage() {
 
         setStatus("success")
 
-        // Notify the opener (popup parent) that YouTube connected successfully
+        // Notify the opener (popup parent) that the platform connected successfully
         if (window.opener) {
           window.opener.postMessage(
-            { type: "youtube-oauth-success" },
+            { type: `oauth-success` },
             window.location.origin,
           )
 
@@ -81,18 +89,18 @@ export default function YouTubeCallbackPage() {
             ? (() => {
                 try {
                   const parsed = JSON.parse(err.message) as { message?: string }
-                  return parsed.message || "Failed to connect YouTube account."
+                  return parsed.message || `Failed to connect ${platformLabel} account.`
                 } catch {
-                  return err.message || "Failed to connect YouTube account."
+                  return err.message || `Failed to connect ${platformLabel} account.`
                 }
               })()
-            : "Failed to connect YouTube account."
+            : `Failed to connect ${platformLabel} account.`
 
         setErrorMessage(message)
 
         if (window.opener) {
           window.opener.postMessage(
-            { type: "youtube-oauth-error", error: message },
+            { type: `oauth-error`, error: message },
             window.location.origin,
           )
         }
@@ -100,7 +108,39 @@ export default function YouTubeCallbackPage() {
     }
 
     void handleCallback()
-  }, [searchParams])
+  }, [searchParams, platform, platformLabel])
+
+  if (!platform) {
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-6">
+        <div className="w-full rounded-[24px] border border-black/8 bg-white p-8 text-center shadow-sm">
+          <div className="space-y-4">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-red-100">
+              <svg
+                className="size-6 text-red-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </div>
+            <h1 className="text-xl font-semibold text-slate-950">
+              Invalid platform
+            </h1>
+            <p className="text-sm text-slate-500">
+              No platform was specified in the callback URL.
+            </p>
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-6">
@@ -109,7 +149,7 @@ export default function YouTubeCallbackPage() {
           <div className="space-y-4">
             <Loader2 className="mx-auto size-8 animate-spin text-slate-500" />
             <h1 className="text-xl font-semibold text-slate-950">
-              Connecting your YouTube account...
+              Connecting your {platformLabel} account...
             </h1>
             <p className="text-sm text-slate-500">
               Please wait while we complete the connection.
@@ -135,7 +175,7 @@ export default function YouTubeCallbackPage() {
               </svg>
             </div>
             <h1 className="text-xl font-semibold text-slate-950">
-              YouTube account connected!
+              {platformLabel} account connected!
             </h1>
             <p className="text-sm text-slate-500">
               This window will close automatically.
