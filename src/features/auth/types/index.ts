@@ -15,6 +15,7 @@ export type UserBrand = {
   is_tiktok_connected: boolean
   is_facebook_connected: boolean
   is_linkedin_connected: boolean
+  is_x_connected: boolean
 }
 
 export type AuthProfile = {

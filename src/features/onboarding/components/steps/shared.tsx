@@ -1,6 +1,7 @@
 import Image from "next/image"
 import { Check, CircleCheckBig, Loader2 } from "lucide-react"
 
+import type { UserBrand } from "@/features/auth/types"
 import type {
   OnboardingIndustry,
   OnboardingPlatform,
@@ -26,6 +27,25 @@ export type PlatformOption = {
   accent: string
   icon: string
 }
+
+export const BRAND_PLATFORM_FLAGS: {
+  key: keyof UserBrand
+  platform: OnboardingPlatform
+}[] = [
+  { key: "is_youtube_connected", platform: "youtube" },
+  { key: "is_instagram_connected", platform: "instagram" },
+  { key: "is_tiktok_connected", platform: "tiktok" },
+  { key: "is_facebook_connected", platform: "facebook" },
+  { key: "is_linkedin_connected", platform: "linkedin" },
+  { key: "is_x_connected", platform: "x" },
+]
+
+export const getConnectedPlatformsFromBrand = (
+  brand: UserBrand,
+): OnboardingPlatform[] =>
+  BRAND_PLATFORM_FLAGS
+    .filter(({ key }) => brand[key])
+    .map(({ platform }) => platform)
 
 export const ROLE_OPTIONS: RoleOption[] = [
   {

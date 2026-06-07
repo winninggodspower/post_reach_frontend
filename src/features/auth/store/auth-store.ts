@@ -9,12 +9,22 @@ import {
   refreshAccessToken,
   registerAccount,
 } from "@/features/auth/api/server"
+import type { OnboardingPlatform } from "@/features/onboarding/types"
 import type {
   AuthProfile,
   AuthTokenPair,
   LoginFormValues,
   RegisterFormValues,
 } from "@/features/auth/types"
+
+const BRAND_PLATFORM_KEY: Record<OnboardingPlatform, string> = {
+  youtube: "is_youtube_connected",
+  instagram: "is_instagram_connected",
+  tiktok: "is_tiktok_connected",
+  facebook: "is_facebook_connected",
+  linkedin: "is_linkedin_connected",
+  x: "is_x_connected",
+}
 
 type AuthState = {
   user: AuthProfile | null
@@ -29,6 +39,7 @@ type AuthState = {
   setAuth: (auth: { user: AuthProfile; tokens: AuthTokenPair }) => void
   updateAccessToken: (accessToken: string) => void
   clearAuth: () => void
+  setBrandConnection: (platform: OnboardingPlatform) => void
   login: (values: LoginFormValues) => Promise<AuthProfile>
   register: (values: RegisterFormValues) => Promise<AuthProfile>
   googleLogin: (payload: { authCode: string; redirectUri: string }) => Promise<AuthProfile>
@@ -66,6 +77,22 @@ export const useAuth = create<AuthState>()(
           accessToken: null,
           refreshToken: null,
         }),
+
+      setBrandConnection: (platform) => {
+        const currentUser = get().user
+        if (!currentUser?.brand) return
+
+        const key = BRAND_PLATFORM_KEY[platform]
+        set({
+          user: {
+            ...currentUser,
+            brand: {
+              ...currentUser.brand,
+              [key]: true,
+            },
+          },
+        })
+      },
 
       login: async (values) => {
         const result = await authenticateLogin(values)

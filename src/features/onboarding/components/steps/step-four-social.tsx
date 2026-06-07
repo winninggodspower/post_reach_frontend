@@ -1,20 +1,17 @@
 "use client"
 
-import type { OnboardingPlatform, OnboardingSubmission } from "@/features/onboarding/types"
+import { useAuth } from "@/features/auth/store/auth-store"
 
 import { PlatformConnectCard } from "@/features/onboarding/components/platform-connect-card"
 
-import { PLATFORM_OPTIONS } from "./shared"
+import { PLATFORM_OPTIONS, BRAND_PLATFORM_FLAGS } from "./shared"
 
-type OnboardingStepFourSocialProps = {
-  form: OnboardingSubmission
-  togglePlatform: (platform: OnboardingPlatform) => void
-}
+export function OnboardingStepFourSocial() {
+  const brand = useAuth((state) => state.user?.brand)
+  const connectedCount = brand
+    ? BRAND_PLATFORM_FLAGS.filter(({ key }) => brand[key]).length
+    : 0
 
-export function OnboardingStepFourSocial({
-  form,
-  togglePlatform,
-}: OnboardingStepFourSocialProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -31,13 +28,14 @@ export function OnboardingStepFourSocial({
 
       <div className="space-y-3">
         {PLATFORM_OPTIONS.map((option) => (
-          <PlatformConnectCard
-            key={option.id}
-            option={option}
-            connected={form.connected_platforms.includes(option.id)}
-            onToggle={togglePlatform}
-          />
+          <PlatformConnectCard key={option.id} option={option} />
         ))}
+      </div>
+
+      <div className="text-sm text-slate-500">
+        {connectedCount > 0
+          ? `${connectedCount} platform${connectedCount === 1 ? "" : "s"} connected`
+          : "No accounts connected yet"}
       </div>
     </div>
   )

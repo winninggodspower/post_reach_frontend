@@ -3,32 +3,36 @@
 import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import type { OnboardingPlatform } from "@/features/onboarding/types"
+import { useAuth } from "@/features/auth/store/auth-store"
+import type { UserBrand } from "@/features/auth/types"
 
 import { SocialPlatformIcon, StatusPill } from "./steps/shared"
 import type { PlatformOption } from "./steps/shared"
 import { useSocialAuth } from "@/hooks/use-social-auth"
 
+const BRAND_FLAG: Record<string, "is_youtube_connected" | "is_instagram_connected" | "is_tiktok_connected" | "is_facebook_connected" | "is_linkedin_connected" | "is_x_connected"> = {
+  youtube: "is_youtube_connected",
+  instagram: "is_instagram_connected",
+  tiktok: "is_tiktok_connected",
+  facebook: "is_facebook_connected",
+  linkedin: "is_linkedin_connected",
+  x: "is_x_connected",
+}
+
 type PlatformConnectCardProps = {
   option: PlatformOption
-  connected: boolean
-  onToggle: (platform: OnboardingPlatform) => void
 }
 
 export function PlatformConnectCard({
   option,
-  connected,
-  onToggle,
 }: PlatformConnectCardProps) {
-  const { connect, loading: connecting } = useSocialAuth({
-    platform: option.id,
-    onSuccess: () => onToggle(option.id),
-  })
+  const user = useAuth((state) => state.user)
+  const connected = user?.brand?.[BRAND_FLAG[option.id]] ?? false
+
+  const { connect, loading: connecting } = useSocialAuth(option.id)
 
   const handleClick = () => {
-    if (connected) {
-      onToggle(option.id)
-    } else {
+    if (!connected) {
       void connect()
     }
   }
@@ -54,7 +58,7 @@ export function PlatformConnectCard({
           type="button"
           variant={connected ? "outline" : "default"}
           size="sm"
-          disabled={connecting}
+          disabled={connecting || connected}
           onClick={handleClick}
         >
           {connecting ? (
@@ -63,7 +67,7 @@ export function PlatformConnectCard({
               Connecting...
             </>
           ) : connected ? (
-            "Disconnect"
+            "Connected"
           ) : (
             "Connect"
           )}

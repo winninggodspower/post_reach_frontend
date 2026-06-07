@@ -11,9 +11,13 @@ import { Button } from "@/components/ui/button"
 import { GridPattern } from "@/components/ui/grid-pattern"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { submitOnboardingProfile } from "@/features/onboarding/api/server"
-import type { OnboardingPlatform, OnboardingSubmission } from "@/features/onboarding/types"
+import type { OnboardingSubmission } from "@/features/onboarding/types"
 
-import { ROLE_OPTIONS, STEP_TITLES } from "./steps/shared"
+import {
+  ROLE_OPTIONS,
+  STEP_TITLES,
+  getConnectedPlatformsFromBrand,
+} from "./steps/shared"
 import { OnboardingStepOneRole } from "./steps/step-one-role"
 import { OnboardingStepTwoBusiness } from "./steps/step-two-business"
 import { OnboardingStepThreeContent } from "./steps/step-three-content"
@@ -58,7 +62,6 @@ export function OnboardingFlow() {
   const nextUrl = searchParams?.get("next") ?? "/dashboard"
 
   const alreadyCompleted = user?.has_completed_onboarding ?? false
-  const connectedCount = form.connected_platforms.length
   const progress = Math.round(((step + 1) / 4) * 100)
 
   useEffect(() => {
@@ -102,25 +105,18 @@ export function OnboardingFlow() {
     setStep((current) => ((current + 1) as StepId))
   }
 
-  const togglePlatform = (platform: OnboardingPlatform) => {
-    const currentPlatforms = watch("connected_platforms")
-
-    setValue(
-      "connected_platforms",
-      currentPlatforms.includes(platform)
-        ? currentPlatforms.filter((item) => item !== platform)
-        : [...currentPlatforms, platform],
-      { shouldDirty: true },
-    )
-  }
-
   const [isSaving, setIsSaving] = useState(false)
 
   const finishOnboarding = handleSubmit(async (values) => {
     setIsSaving(true)
 
     try {
-      await submitOnboardingProfile(values)
+      // Derive connected_platforms from the auth store brand (single source of truth)
+      const connectedPlatforms = user?.brand
+        ? getConnectedPlatformsFromBrand(user.brand)
+        : values.connected_platforms
+
+      await submitOnboardingProfile({ ...values, connected_platforms: connectedPlatforms })
 
       // Update the auth store so has_completed_onboarding is reflected immediately
       if (user) {
@@ -238,24 +234,15 @@ export function OnboardingFlow() {
               ) : null}
 
               {step === 3 ? (
-                <OnboardingStepFourSocial
-                  form={form}
-                  togglePlatform={togglePlatform}
-                />
+                <OnboardingStepFourSocial />
               ) : null}
             </div>
 
             <div className="mt-8 flex flex-col gap-3 border-t border-black/6 pt-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-slate-500">
-                {step === 3 ? (
-                  <span>
-                    {connectedCount > 0
-                      ? `${connectedCount} platform${connectedCount === 1 ? "" : "s"} connected`
-                      : "No accounts connected yet"}
-                  </span>
-                ) : (
-                  <span>Everything stays editable after onboarding.</span>
-                )}
+                {step === 3
+                  ? null
+                  : "Everything stays editable after onboarding."}
               </div>
 
               <div className="flex flex-wrap items-center gap-3">

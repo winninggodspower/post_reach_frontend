@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { getAuthUrl } from "@/features/onboarding/api/server"
+import { useAuth } from "@/features/auth/store/auth-store"
 import type { OnboardingPlatform } from "@/features/onboarding/types"
 
 const POPUP_WIDTH = 600
@@ -18,15 +19,10 @@ function openPopup(url: string) {
   )
 }
 
-type Params = {
-  platform: OnboardingPlatform
-  onSuccess: () => void
-  onError?: (message?: string) => void
-}
-
-export function useSocialAuth({ platform, onSuccess, onError }: Params) {
+export function useSocialAuth(platform: OnboardingPlatform) {
   const [loading, setLoading] = useState(false)
   const cleanupRef = useRef<(() => void) | null>(null)
+  const setBrandConnection = useAuth((state) => state.setBrandConnection)
 
   const connect = useCallback(async () => {
     setLoading(true)
@@ -51,12 +47,11 @@ export function useSocialAuth({ platform, onSuccess, onError }: Params) {
         const data = event.data
 
         if (data?.type === "oauth-success") {
-          onSuccess()
+          setBrandConnection(platform)
           cleanupRef.current?.()
         }
 
         if (data?.type === "oauth-error") {
-          onError?.(data?.error)
           cleanupRef.current?.()
         }
       }
@@ -69,7 +64,7 @@ export function useSocialAuth({ platform, onSuccess, onError }: Params) {
     } finally {
       setLoading(false)
     }
-  }, [platform, onSuccess, onError])
+  }, [platform, setBrandConnection])
 
   useEffect(() => {
     return () => cleanupRef.current?.()
