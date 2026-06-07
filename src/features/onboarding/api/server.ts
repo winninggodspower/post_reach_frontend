@@ -1,5 +1,5 @@
 import { api } from "@/lib/api"
-import { ONBOARDING_ENDPOINTS, platformToEndpoint } from "@/features/onboarding/api/endpoints"
+import { ONBOARDING_ENDPOINTS, platformToEndpoint, SOCIAL_ENDPOINTS } from "@/features/onboarding/api/endpoints"
 import type { OnboardingPlatform, OnboardingSubmission } from "@/features/onboarding/types"
 
 type OnboardingProfileResponse = {
@@ -71,7 +71,7 @@ export const getYouTubeAuthUrl = async (
 ): Promise<YouTubeAuthUrlResponse> => {
   try {
     const { data } = await api.get<YouTubeAuthUrlResponse>(
-      "/social/youtube/auth-url/",
+      SOCIAL_ENDPOINTS.youtubeAuthUrl,
       { params: { redirect_uri: redirectUri } },
     )
 
@@ -109,7 +109,7 @@ export const exchangeYouTubeCode = async (payload: {
 }): Promise<YouTubeConnectResponse> => {
   try {
     const { data } = await api.post<YouTubeConnectResponse>(
-      "/social/youtube/connect/",
+      SOCIAL_ENDPOINTS.youtubeConnect,
       payload,
     )
 

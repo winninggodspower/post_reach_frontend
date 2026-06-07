@@ -1,13 +1,26 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
-import { exchangeYouTubeCode } from "@/features/onboarding/api/server"
+/**
+ * YouTube OAuth callback page.
+ *
+ * The backend handles the authorization code exchange and token storage.
+ * This page simply:
+ *  1. Shows a status UI while processing.
+ *  2. Posts an `oauth-success` or `oauth-error` message to the opener.
+ *  3. Closes the popup.
+ *
+ * The backend is expected to return an HTML page that does the same, but
+ * this client-side fallback ensures the flow works even if the backend
+ * redirects here with query params.
+ */
+
+const PLATFORM = "youtube"
 
 export default function YouTubeCallbackPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<"processing" | "success" | "error">("processing")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -18,60 +31,64 @@ export default function YouTubeCallbackPage() {
     if (processedRef.current) return
     processedRef.current = true
 
-    const code = searchParams?.get("code")
-    const state = searchParams?.get("state")
     const error = searchParams?.get("error")
 
     if (error) {
       setStatus("error")
       setErrorMessage("You denied the authorization request.")
-      return
-    }
 
-    if (!code || !state) {
-      setStatus("error")
-      setErrorMessage("Missing authorization code or state parameter.")
-      return
-    }
-
-    const handleCallback = async () => {
-      try {
-        const redirectUri = `${window.location.origin}/social/youtube/callback`
-
-        await exchangeYouTubeCode({
-          code,
-          redirect_uri: redirectUri,
-          state,
-        })
-
-        setStatus("success")
-
-        // Redirect back to onboarding with a success flag so the form
-        // can reflect the connected state even after page navigation
-        setTimeout(() => {
-          router.replace("/onboarding?youtube_connected=true")
-        }, 1500)
-
-      } catch (err) {
-        setStatus("error")
-        const message =
-          err instanceof Error
-            ? (() => {
-                try {
-                  const parsed = JSON.parse(err.message) as { message?: string }
-                  return parsed.message || "Failed to connect YouTube account."
-                } catch {
-                  return err.message || "Failed to connect YouTube account."
-                }
-              })()
-            : "Failed to connect YouTube account."
-
-        setErrorMessage(message)
+      if (window.opener) {
+        window.opener.postMessage(
+          {
+            type: "oauth-error",
+            platform: PLATFORM,
+            error: "You denied the authorization request.",
+          },
+          window.location.origin,
+        )
       }
+
+      return
     }
 
-    void handleCallback()
-  }, [searchParams, router])
+    // If we have a code, the backend has already processed it
+    // (or will process it). We just need to notify the opener.
+    const code = searchParams?.get("code")
+
+    if (!code) {
+      setStatus("error")
+      setErrorMessage("Missing authorization code.")
+
+      if (window.opener) {
+        window.opener.postMessage(
+          {
+            type: "oauth-error",
+            platform: PLATFORM,
+            error: "Missing authorization code.",
+          },
+          window.location.origin,
+        )
+      }
+
+      return
+    }
+
+    // Success — the backend has stored the tokens
+    setStatus("success")
+
+    if (window.opener) {
+      window.opener.postMessage(
+        { type: "oauth-success", platform: PLATFORM },
+        window.location.origin,
+      )
+
+      // Close the popup after a brief delay so the user sees the success UI
+      setTimeout(() => {
+        window.close()
+      }, 1500)
+    }
+  }, [searchParams])
+
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-6">
@@ -109,7 +126,7 @@ export default function YouTubeCallbackPage() {
               YouTube account connected!
             </h1>
             <p className="text-sm text-slate-500">
-              Redirecting you back...
+              This window will close automatically.
             </p>
           </div>
         )}
@@ -139,10 +156,10 @@ export default function YouTubeCallbackPage() {
             </p>
             <button
               type="button"
-              onClick={() => router.replace("/onboarding")}
+              onClick={() => window.close()}
               className="mt-4 text-sm font-medium text-slate-500 underline underline-offset-4 transition hover:text-slate-800"
             >
-              Go back to onboarding
+              Close this window
             </button>
           </div>
         )}

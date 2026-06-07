@@ -4,19 +4,30 @@ import { useState } from "react"
 import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  getYouTubeAuthUrl,
-  initiatePlatformOAuth,
-} from "@/features/onboarding/api/server"
 import type { OnboardingPlatform } from "@/features/onboarding/types"
 
 import { SocialPlatformIcon, StatusPill } from "./steps/shared"
 import type { PlatformOption } from "./steps/shared"
+import { getYouTubeAuthUrl } from "../api/server"
 
 type PlatformConnectCardProps = {
   option: PlatformOption
   connected: boolean
   onToggle: (platform: OnboardingPlatform) => void
+}
+
+const POPUP_WIDTH = 600
+const POPUP_HEIGHT = 700
+
+function openPopup(url: string): Window | null {
+  const left = window.screenX + (window.outerWidth - POPUP_WIDTH) / 2
+  const top = window.screenY + (window.outerHeight - POPUP_HEIGHT) / 2
+
+  return window.open(
+    url,
+    "oauth-popup",
+    `width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${left},top=${top},popup=1`,
+  )
 }
 
 export function PlatformConnectCard({
@@ -33,10 +44,30 @@ export function PlatformConnectCard({
       const result = await getYouTubeAuthUrl(redirectUri)
 
       if (result.data?.auth_url) {
-        // Mark as connected optimistically before redirect
-        onToggle(option.id)
-        // Redirect to Google's OAuth consent page
-        window.location.assign(result.data.auth_url)
+        const popup = openPopup(result.data.auth_url)
+
+        if (!popup) {
+          // Popup was blocked — fall back to full-page redirect
+          window.location.assign(result.data.auth_url)
+          return
+        }
+
+        // Listen for a message from the popup when the OAuth flow completes
+        const handleMessage = (event: MessageEvent) => {
+          if (event.origin !== window.location.origin) return
+
+          if (event.data?.type === "youtube-oauth-success") {
+            console.log("YouTube OAuth successful:", event.data)
+            onToggle(option.id)
+            window.removeEventListener("message", handleMessage)
+          }
+
+          if (event.data?.type === "youtube-oauth-error") {
+            window.removeEventListener("message", handleMessage)
+          }
+        }
+
+        window.addEventListener("message", handleMessage)
       }
     } catch {
       // Connection failed — don't mark as connected
@@ -52,15 +83,11 @@ export function PlatformConnectCard({
         await handleYouTubeConnect()
         return
       }
-
-      const result = await initiatePlatformOAuth(option.id)
-
-      if (result.redirect_url) {
-        // Mark as connected optimistically before redirect
-        onToggle(option.id)
-        // Redirect to OAuth provider (external URL, so use window.location)
-        window.location.assign(result.redirect_url)
+      else if (option.id == 'facebook'){
+        // handle facebook connect logic here
+        return
       }
+
     } catch {
       // Connection failed — don't mark as connected
     } finally {
