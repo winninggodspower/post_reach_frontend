@@ -4,21 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
-/**
- * YouTube OAuth callback page.
- *
- * The backend handles the authorization code exchange and token storage.
- * This page simply:
- *  1. Shows a status UI while processing.
- *  2. Posts an `oauth-success` or `oauth-error` message to the opener.
- *  3. Closes the popup.
- *
- * The backend is expected to return an HTML page that does the same, but
- * this client-side fallback ensures the flow works even if the backend
- * redirects here with query params.
- */
-
-const PLATFORM = "youtube"
+import { exchangeYouTubeCode } from "@/features/onboarding/api/server"
 
 export default function YouTubeCallbackPage() {
   const searchParams = useSearchParams()
@@ -31,19 +17,18 @@ export default function YouTubeCallbackPage() {
     if (processedRef.current) return
     processedRef.current = true
 
+    const code = searchParams?.get("code")
+    const state = searchParams?.get("state")
     const error = searchParams?.get("error")
 
     if (error) {
       setStatus("error")
       setErrorMessage("You denied the authorization request.")
 
+      // Notify the opener (popup parent) about the error
       if (window.opener) {
         window.opener.postMessage(
-          {
-            type: "oauth-error",
-            platform: PLATFORM,
-            error: "You denied the authorization request.",
-          },
+          { type: "youtube-oauth-error", error: "You denied the authorization request." },
           window.location.origin,
         )
       }
@@ -51,21 +36,13 @@ export default function YouTubeCallbackPage() {
       return
     }
 
-    // If we have a code, the backend has already processed it
-    // (or will process it). We just need to notify the opener.
-    const code = searchParams?.get("code")
-
-    if (!code) {
+    if (!code || !state) {
       setStatus("error")
-      setErrorMessage("Missing authorization code.")
+      setErrorMessage("Missing authorization code or state parameter.")
 
       if (window.opener) {
         window.opener.postMessage(
-          {
-            type: "oauth-error",
-            platform: PLATFORM,
-            error: "Missing authorization code.",
-          },
+          { type: "youtube-oauth-error", error: "Missing authorization code or state parameter." },
           window.location.origin,
         )
       }
@@ -73,22 +50,57 @@ export default function YouTubeCallbackPage() {
       return
     }
 
-    // Success — the backend has stored the tokens
-    setStatus("success")
+    const handleCallback = async () => {
+      try {
+        const redirectUri = `${window.location.origin}/social/youtube/callback`
 
-    if (window.opener) {
-      window.opener.postMessage(
-        { type: "oauth-success", platform: PLATFORM },
-        window.location.origin,
-      )
+        await exchangeYouTubeCode({
+          code,
+          redirect_uri: redirectUri,
+          state,
+        })
 
-      // Close the popup after a brief delay so the user sees the success UI
-      setTimeout(() => {
-        window.close()
-      }, 1500)
+        setStatus("success")
+
+        // Notify the opener (popup parent) that YouTube connected successfully
+        if (window.opener) {
+          window.opener.postMessage(
+            { type: "youtube-oauth-success" },
+            window.location.origin,
+          )
+
+          // Close the popup after a brief delay
+          setTimeout(() => {
+            window.close()
+          }, 1500)
+        }
+      } catch (err) {
+        setStatus("error")
+        const message =
+          err instanceof Error
+            ? (() => {
+                try {
+                  const parsed = JSON.parse(err.message) as { message?: string }
+                  return parsed.message || "Failed to connect YouTube account."
+                } catch {
+                  return err.message || "Failed to connect YouTube account."
+                }
+              })()
+            : "Failed to connect YouTube account."
+
+        setErrorMessage(message)
+
+        if (window.opener) {
+          window.opener.postMessage(
+            { type: "youtube-oauth-error", error: message },
+            window.location.origin,
+          )
+        }
+      }
     }
-  }, [searchParams])
 
+    void handleCallback()
+  }, [searchParams])
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-6">

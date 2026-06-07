@@ -57,7 +57,6 @@ export function PlatformConnectCard({
           if (event.origin !== window.location.origin) return
 
           if (event.data?.type === "youtube-oauth-success") {
-            console.log("YouTube OAuth successful:", event.data)
             onToggle(option.id)
             window.removeEventListener("message", handleMessage)
           }
