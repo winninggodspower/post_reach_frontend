@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 import { getAuthUrl } from "@/features/onboarding/api/server"
 import { useAuth } from "@/features/auth/store/auth-store"
 import type { OnboardingPlatform } from "@/features/onboarding/types"
@@ -17,6 +18,18 @@ function openPopup(url: string) {
     "oauth-popup",
     `width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${left},top=${top}`,
   )
+}
+
+const tryExtractMessage = (err: unknown): string => {
+  if (err instanceof Error) {
+    try {
+      const parsed = JSON.parse(err.message)
+      return parsed.message || "Something went wrong."
+    } catch {
+      return err.message || "Something went wrong."
+    }
+  }
+  return "Something went wrong."
 }
 
 export function useSocialAuth(platform: OnboardingPlatform) {
@@ -52,6 +65,7 @@ export function useSocialAuth(platform: OnboardingPlatform) {
         }
 
         if (data?.type === "oauth-error") {
+          toast.error(data?.error || "Failed to connect account.")
           cleanupRef.current?.()
         }
       }
@@ -61,6 +75,10 @@ export function useSocialAuth(platform: OnboardingPlatform) {
       cleanupRef.current = () => {
         window.removeEventListener("message", handleMessage)
       }
+    } catch (err) {
+      toast.error(tryExtractMessage(err), {
+        description: `Unable to connect your ${platform} account.`,
+      })
     } finally {
       setLoading(false)
     }
