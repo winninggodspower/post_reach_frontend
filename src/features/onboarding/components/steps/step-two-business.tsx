@@ -64,6 +64,7 @@ export function OnboardingStepTwoBusiness({
               {...register("industry", { required: "Industry is required." })}
               className="h-12 w-full appearance-none rounded-xl border border-black/10 bg-white px-3 pr-10 text-base text-slate-900 shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
             >
+              <option value="" disabled>Select your industry...</option>
               {INDUSTRY_OPTIONS.map((option) => (
                 <option key={option.id} value={option.id}>
                   {option.label}
@@ -87,6 +88,7 @@ export function OnboardingStepTwoBusiness({
                 {...register("team_size", { required: "Team size is required." })}
                 className="h-12 w-full appearance-none rounded-xl border border-black/10 bg-white px-3 pr-10 text-base text-slate-900 shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
               >
+                <option value="" disabled>Select team size...</option>
                 {TEAM_SIZE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}

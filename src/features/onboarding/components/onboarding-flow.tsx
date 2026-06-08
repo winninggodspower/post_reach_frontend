@@ -14,7 +14,6 @@ import { submitOnboardingProfile } from "@/features/onboarding/api/server"
 import type { OnboardingSubmission } from "@/features/onboarding/types"
 
 import {
-  ROLE_OPTIONS,
   STEP_TITLES,
   getConnectedPlatformsFromBrand,
 } from "./steps/shared"
@@ -26,11 +25,11 @@ import { OnboardingStepFourSocial } from "./steps/step-four-social"
 type StepId = 0 | 1 | 2 | 3
 
 const emptySubmission = (): OnboardingSubmission => ({
-  role: "creator",
-  industry: "technology",
-  team_size: "just_me",
-  primary_platform: "instagram",
-  posting_frequency: "weekly",
+  role: "" as OnboardingSubmission["role"],
+  industry: "" as OnboardingSubmission["industry"],
+  team_size: "" as OnboardingSubmission["team_size"],
+  primary_platform: "" as OnboardingSubmission["primary_platform"],
+  posting_frequency: "" as OnboardingSubmission["posting_frequency"],
   connected_platforms: [],
 })
 
@@ -51,6 +50,7 @@ export function OnboardingFlow() {
     watch,
     trigger,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<OnboardingSubmission>({
     defaultValues: emptySubmission(),
@@ -58,6 +58,31 @@ export function OnboardingFlow() {
   })
 
   const form = watch()
+
+  const draftKey = user?.id
+    ? `postreach-onboarding-draft-${user.id}`
+    : "postreach-onboarding-draft"
+
+  // Rehydrate form from localStorage on mount
+  useEffect(() => {
+    const draft = localStorage.getItem(draftKey)
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft) as OnboardingSubmission
+        reset(parsed)
+      } catch {
+        // Corrupt draft — silently ignore
+      }
+    }
+  }, [draftKey, reset])
+
+  // Persist form values to localStorage on every change
+  useEffect(() => {
+    const subscription = watch((values) => {
+      localStorage.setItem(draftKey, JSON.stringify(values))
+    })
+    return () => subscription.unsubscribe()
+  }, [watch, draftKey])
 
   const nextUrl = searchParams?.get("next") ?? "/dashboard"
 
@@ -81,8 +106,8 @@ export function OnboardingFlow() {
   }, [form.role, setValue])
 
   const canProceedStepOne = Boolean(form.role)
-  const canProceedStepTwo = Boolean(form.industry) && Boolean(form.team_size)
-  const canProceedStepThree = Boolean(form.primary_platform) && Boolean(form.posting_frequency)
+  const canProceedStepTwo = (form.industry as string) !== "" && (form.team_size as string) !== ""
+  const canProceedStepThree = (form.primary_platform as string) !== "" && (form.posting_frequency as string) !== ""
 
   const handleNextStep = async () => {
     const fieldsToValidate =
@@ -117,6 +142,9 @@ export function OnboardingFlow() {
         : values.connected_platforms
 
       await submitOnboardingProfile({ ...values, connected_platforms: connectedPlatforms })
+
+      // Clear saved draft on successful submission
+      localStorage.removeItem(draftKey)
 
       // Update the auth store so has_completed_onboarding is reflected immediately
       if (user) {
