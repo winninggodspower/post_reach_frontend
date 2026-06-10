@@ -12,7 +12,8 @@ import type {
 type CredentialPayload = {
   email: string
   password: string
-  fullName?: string
+  firstName?: string
+  lastName?: string
   country?: string
 }
 
@@ -30,7 +31,6 @@ const toProfile = (
   email: payload.user?.email ?? fallbackEmail,
   first_name: payload.user?.first_name ?? "",
   last_name: payload.user?.last_name ?? "",
-  full_name: payload.user?.full_name ?? "",
   handle: payload.user?.handle ?? null,
   role: payload.user?.role ?? null,
   has_completed_onboarding: Boolean(payload.user?.has_completed_onboarding ?? false),
@@ -108,13 +108,15 @@ export const authenticateLogin = async ({
 export const registerAccount = async ({
   email,
   password,
-  fullName,
+  firstName,
+  lastName,
   country,
 }: CredentialPayload) => {
   return submitAuthRequest(
     AUTH_ENDPOINTS.register,
     {
-      full_name: fullName,
+      first_name: firstName,
+      last_name: lastName,
       email,
       password,
       country,

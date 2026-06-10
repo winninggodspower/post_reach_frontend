@@ -23,7 +23,6 @@ export type AuthProfile = {
   email: string
   first_name: string
   last_name: string
-  full_name: string
   handle: string | null
   role: string | null
   has_completed_onboarding: boolean
@@ -53,7 +52,8 @@ export type LoginFormValues = {
 }
 
 export type RegisterFormValues = {
-  fullName: string
+  firstName: string
+  lastName: string
   email: string
   password: string
   country: string

@@ -13,7 +13,8 @@ import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/features/auth/store/auth-store"
 
 type SignUpFormValues = {
-  fullName: string
+  firstName: string
+  lastName: string
   email: string
   password: string
   confirmPassword: string
@@ -33,7 +34,8 @@ export function SignUpForm() {
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormValues>({
     defaultValues: {
-      fullName: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -47,7 +49,8 @@ export function SignUpForm() {
 
     try {
       await registerAccountWithAuth({
-        fullName: values.fullName,
+        firstName: values.firstName,
+        lastName: values.lastName,
         email: values.email,
         password: values.password,
         country: values.country,
@@ -80,19 +83,35 @@ export function SignUpForm() {
 
       <FormError message={submitError} />
 
-      <FormField
-        label="Full name"
-        autoComplete="name"
-        placeholder="Ada Lovelace"
-        error={errors.fullName?.message}
-        {...register("fullName", {
-          required: "Full name is required.",
-          minLength: {
-            value: 2,
-            message: "Enter at least 2 characters.",
-          },
-        })}
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          label="First name"
+          autoComplete="given-name"
+          placeholder="Ada"
+          error={errors.firstName?.message}
+          {...register("firstName", {
+            required: "First name is required.",
+            minLength: {
+              value: 2,
+              message: "Enter at least 2 characters.",
+            },
+          })}
+        />
+
+        <FormField
+          label="Last name"
+          autoComplete="family-name"
+          placeholder="Lovelace"
+          error={errors.lastName?.message}
+          {...register("lastName", {
+            required: "Last name is required.",
+            minLength: {
+              value: 2,
+              message: "Enter at least 2 characters.",
+            },
+          })}
+        />
+      </div>
 
       <FormField
         label="Email"

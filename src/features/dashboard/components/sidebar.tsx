@@ -73,7 +73,7 @@ export function DashboardSidebar() {
   const logout = useAuth((state) => state.logout)
   const user = useAuth((state) => state.user)
 
-  const brandName = user?.full_name ?? "PostReach"
+  const brandName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "PostReach"
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
