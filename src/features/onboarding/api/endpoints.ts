@@ -1,7 +1,7 @@
 import type { OnboardingPlatform } from "@/features/onboarding/types"
 
 export const ONBOARDING_ENDPOINTS = {
-  profile: "/social_accounts/onboarding/",
+  profile: "/auth/onboarding/",
 } as const
 
 export const AUTH_URL_ENDPOINTS: Record<OnboardingPlatform, string> = {

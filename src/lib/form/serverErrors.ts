@@ -16,12 +16,15 @@ export function handleServerFormErrors<T extends FieldValues = FieldValues>(
     return false
   }
 
+  // Extract the payload from an Error object if needed
+  const raw = error instanceof Error ? error.message : error
+
   let parsed: ServerErrorPayload | null = null
   try {
-    if (typeof error === "string") parsed = JSON.parse(error)
-    else if (typeof error === "object" && error !== null) parsed = error as ServerErrorPayload
+    if (typeof raw === "string") parsed = JSON.parse(raw)
+    else if (typeof raw === "object" && raw !== null) parsed = raw as ServerErrorPayload
   } catch {
-    if (setSubmitError) setSubmitError(String(error))
+    if (setSubmitError) setSubmitError(String(raw))
     return false
   }
 
@@ -29,8 +32,8 @@ export function handleServerFormErrors<T extends FieldValues = FieldValues>(
   const fields = parsed?.fields ?? parsed?.errors
   const message = parsed?.message ?? null
 
-  // If the backend provided a top-level detail (e.g. `errors.detail`), surface it
-  const detail = parsed?.errors?.detail ?? parsed?.errors?.non_field_errors ?? null
+  // If the backend provided a top-level detail (e.g. `fields.detail` or `errors.detail`), surface it
+  const detail = parsed?.errors?.detail ?? parsed?.fields?.detail ?? parsed?.errors?.non_field_errors ?? null
 
   const snakeToCamel = (s: string) => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
 
@@ -53,7 +56,7 @@ export function handleServerFormErrors<T extends FieldValues = FieldValues>(
   if (!hadField) {
     if (detail && setSubmitError) setSubmitError(Array.isArray(detail) ? detail.join(" ") : String(detail))
     else if (message && setSubmitError) setSubmitError(message)
-    else if (setSubmitError) setSubmitError(String(error))
+    else if (setSubmitError) setSubmitError(String(raw))
   }
   return hadField
 }
