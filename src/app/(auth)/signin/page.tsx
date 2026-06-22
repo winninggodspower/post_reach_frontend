@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
 import { AuthShell } from "@/features/auth/components/auth-shell"
 import { SignInForm } from "@/features/auth/components/signin-form"
@@ -43,7 +44,15 @@ export default function SignInPage() {
         </CardHeader>
 
         <CardContent className="space-y-6 px-6 py-6">
-          <SignInForm />
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-12">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-950" />
+              </div>
+            }
+          >
+            <SignInForm />
+          </Suspense>
         </CardContent>
       </Card>
     </AuthShell>
