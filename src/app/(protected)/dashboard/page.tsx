@@ -1,9 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-
-import { Button } from "@/components/ui/button"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { StartHere } from "@/features/dashboard/components/start-here"
 
@@ -18,9 +15,7 @@ interface ScheduledPost {
 }
 
 export default function DashboardPage() {
-  const router = useRouter()
   const user = useAuth((state) => state.user)
-  const logout = useAuth((state) => state.logout)
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>(() => {
     if (typeof window !== "undefined") {
       const postsKey = "postreach-scheduled-posts"
@@ -40,66 +35,79 @@ export default function DashboardPage() {
   const brand = user?.brand
   const connectedAccountsCount = brand
     ? [
-        brand.is_youtube_connected,
-        brand.is_instagram_connected,
-        brand.is_tiktok_connected,
-        brand.is_facebook_connected,
-        brand.is_linkedin_connected,
-        brand.is_x_connected,
-      ].filter(Boolean).length
+      brand.is_youtube_connected,
+      brand.is_instagram_connected,
+      brand.is_tiktok_connected,
+      brand.is_facebook_connected,
+      brand.is_linkedin_connected,
+      brand.is_x_connected,
+    ].filter(Boolean).length
     : 0
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 py-16">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent-dark">
-            Dashboard
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold text-slate-950">Welcome back</h1>
-          <p className="mt-2 text-slate-600">
-            Signed in as {user?.email ?? "your account"}
-          </p>
-        </div>
-
-        <div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              logout()
-              router.replace("/signin")
-            }}
-          >
-            Logout
-          </Button>
-        </div>
-      </div>
-
+    <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 py-8 min-w-0 overflow-x-hidden">
       {/* Start Here / Onboarding widget */}
       <StartHere
         scheduledCount={scheduledPosts.length}
       />
 
       {/* Stats Cards */}
-      <section className="mt-10 grid gap-4 md:grid-cols-3">
-        <article className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition hover:shadow-md duration-200">
-          <h2 className="text-sm font-semibold text-slate-500">Scheduled Posts</h2>
-          <p className="mt-2 text-3xl font-bold text-slate-950">{scheduledPosts.length}</p>
+      <section className="mt-8 grid gap-4 grid-cols-1 lg:grid-cols-3 p-6 sm:p-8">
+        <article className="rounded-2xl border border-black/8 bg-white p-5 shadow-xs transition hover:shadow-md duration-200">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Scheduled Posts</h2>
+          <p className="mt-2.5 text-3xl font-bold text-slate-950">{scheduledPosts.length}</p>
+          <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
+            <span className="inline-flex size-1.5 rounded-full bg-emerald-500 animate-ping" />
+            <span>Active queue</span>
+          </div>
         </article>
-        <article className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition hover:shadow-md duration-200">
-          <h2 className="text-sm font-semibold text-slate-500">Connected Accounts</h2>
-          <p className="mt-2 text-3xl font-bold text-slate-950">{connectedAccountsCount}</p>
+
+        <article className="rounded-2xl border border-black/8 bg-white p-5 shadow-xs transition hover:shadow-md duration-200">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Connected Channels</h2>
+          <p className="mt-2.5 text-3xl font-bold text-slate-950">{connectedAccountsCount}</p>
+          <div className="mt-3 text-[11px] font-medium text-slate-500">
+            {connectedAccountsCount > 0 ? "Channels active" : "No channels linked"}
+          </div>
         </article>
-        <article className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition hover:shadow-md duration-200">
-          <h2 className="text-sm font-semibold text-slate-500">Workspaces</h2>
-          <p className="mt-2 text-3xl font-bold text-slate-950">1</p>
+
+        <article className="rounded-2xl border border-black/8 bg-white p-5 shadow-xs transition hover:shadow-md duration-200 flex flex-col justify-between min-h-[120px]">
+          <div>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Time Saved</h2>
+              <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                +18%
+              </span>
+            </div>
+            <p className="mt-1.5 text-3xl font-bold text-slate-950">14.5 hrs</p>
+          </div>
+          {/* Sparkline SVG Chart */}
+          <div className="mt-3 h-6 w-full shrink-0">
+            <svg className="h-full w-full" viewBox="0 0 100 30" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="sparklineGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="rgba(251, 146, 60, 0.25)" />
+                  <stop offset="100%" stopColor="rgba(251, 146, 60, 0.0)" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M0,25 Q15,20 30,12 T60,18 T90,5 L100,2"
+                fill="none"
+                stroke="rgb(251, 146, 60)"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M0,25 Q15,20 30,12 T60,18 T90,5 L100,2 L100,30 L0,30 Z"
+                fill="url(#sparklineGrad)"
+              />
+            </svg>
+          </div>
         </article>
       </section>
 
       {/* Scheduled Posts list preview if any */}
       {scheduledPosts.length > 0 && (
-        <section className="mt-10">
+        <section className="mt-10 p-6 sm:p-8">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-slate-950">Scheduled Queue</h3>
             <button
