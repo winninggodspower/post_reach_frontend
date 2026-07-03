@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Plus, Settings, Calendar } from "lucide-react"
+import { PenSquare, Settings, Calendar } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -30,7 +30,7 @@ export function DashboardHeader({ userName, hasPosts, postsCount }: DashboardHea
       <div className="flex flex-wrap gap-3">
         <Link href="/dashboard/posts">
           <Button className="bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-xs hover:brightness-95 transition-all duration-300 font-semibold cursor-pointer">
-            <Plus className="mr-1.5 size-4" />
+            <PenSquare className="mr-1.5 size-4" />
             New Post
           </Button>
         </Link>

@@ -37,7 +37,7 @@ const SOCIAL_ICONS: IconConfig[] = [
   },
   {
     name: "LinkedIn",
-    src: "/social-icons/linkedin (1).png",
+    src: "/social-icons/linkedin.png",
     className: "animate-float-6",
   },
 ];

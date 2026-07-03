@@ -35,11 +35,10 @@ export default function SignInPage() {
       <Card className="rounded-[28px] border border-black/8 bg-white/90 py-0 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.4)] backdrop-blur">
         <CardHeader className="border-b border-black/6 px-6 py-6">
           <CardTitle className="text-xl font-semibold text-slate-950">
-            Sign in
+            Welcome Back
           </CardTitle>
           <CardDescription className="text-sm leading-6 text-slate-500">
-            Access your content calendar, social accounts, and publishing
-            workspace.
+            Access your content calendar, social accounts, and brand dashboards.
           </CardDescription>
         </CardHeader>
 

@@ -4,15 +4,16 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   Calendar,
-  ChartNoAxesCombined,
+  Clock,
   GalleryVerticalEnd,
-  Home,
+  Link2,
   LogOut,
-  Palette,
+  PenSquare,
+  PlusCircle,
   Settings,
-  Users,
 } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
@@ -24,14 +25,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/features/auth/store/auth-store"
 
 const mainNavItems = [
   {
-    title: "Home",
-    url: "/dashboard",
-    icon: Home,
+    title: "New Post",
+    url: "/dashboard/posts",
+    icon: PlusCircle,
   },
   {
     title: "Calendar",
@@ -39,27 +41,17 @@ const mainNavItems = [
     icon: Calendar,
   },
   {
-    title: "Analytics",
-    url: "/dashboard/analytics",
-    icon: ChartNoAxesCombined,
+    title: "Scheduled",
+    url: "/dashboard/scheduled",
+    icon: Clock,
   },
 ]
 
-const workspaceNavItems = [
+const configNavItems = [
   {
-    title: "Posts",
-    url: "/dashboard/posts",
-    icon: GalleryVerticalEnd,
-  },
-  {
-    title: "Audience",
-    url: "/dashboard/audience",
-    icon: Users,
-  },
-  {
-    title: "Branding",
-    url: "/dashboard/branding",
-    icon: Palette,
+    title: "Connections",
+    url: "/dashboard/connections",
+    icon: Link2,
   },
   {
     title: "Settings",
@@ -70,10 +62,12 @@ const workspaceNavItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname()
+  const { state } = useSidebar()
   const logout = useAuth((state) => state.logout)
   const user = useAuth((state) => state.user)
 
   const brandName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "PostReach"
+  const isCollapsed = state === "collapsed"
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
@@ -93,6 +87,24 @@ export function DashboardSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+
+        {/* Prominent CTA button */}
+        <div className="px-2.5 py-1.5 flex justify-center">
+          {isCollapsed ? (
+            <Link href="/dashboard/posts">
+              <Button size="icon" className="size-8 bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-xs hover:brightness-95 transition-all duration-300 font-semibold cursor-pointer rounded-lg">
+                <PenSquare className="size-4" />
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/dashboard/posts" className="w-full">
+              <Button className="w-full h-9 bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-xs hover:brightness-95 transition-all duration-300 font-semibold cursor-pointer rounded-lg text-xs gap-1.5 px-3">
+                <PenSquare className="size-3.5" />
+                <span>Create post</span>
+              </Button>
+            </Link>
+          )}
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -119,9 +131,9 @@ export function DashboardSidebar() {
         <SidebarSeparator />
 
         <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupLabel>Configuration</SidebarGroupLabel>
           <SidebarMenu>
-            {workspaceNavItems.map((item) => (
+            {configNavItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   asChild
