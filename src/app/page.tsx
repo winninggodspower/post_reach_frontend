@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import FloatingSocialIcons from "@/components/floating-social-icons"
 import Navbar from "@/components/navbar"
 import { GridPattern } from "@/components/ui/grid-pattern"
 
@@ -13,6 +14,8 @@ export default function Home() {
         <div className="bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.75),transparent_55%)]" />
 
         <div className="relative z-10 mx-auto max-w-4xl">
+          <FloatingSocialIcons />
+
           <h1 className="text-4xl font-normal text-black md:text-6xl max-w-4xl mx-auto">
             Post to all your social accounts from <span className="text-accent-brand">one dashboard</span>
           </h1>
