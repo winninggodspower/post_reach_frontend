@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 
 import FloatingSocialIcons from "@/components/floating-social-icons"
 import Navbar from "@/components/navbar"
@@ -27,9 +28,10 @@ export default function Home() {
           <div className="mt-10">
             <Link
               href="/signup"
-              className="btn-primary hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-orange-300"
+              className="btn-primary hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-orange-300 inline-flex items-center gap-1.5"
             >
-              Start For Free
+              <span>Start For Free</span>
+              <ArrowRight className="size-4" />
             </Link>
           </div>
         </div>
