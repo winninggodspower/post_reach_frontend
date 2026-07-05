@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Info } from "lucide-react"
 import { toast } from "sonner"
 import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
+import { VideoComposer } from "./video-composer"
 
 const POST_TYPES = [
   {
@@ -69,11 +70,21 @@ const POST_TYPES = [
 ]
 
 export function CreatePost() {
-  const handleSelectType = (title: string) => {
-    toast.info(`${title} composer coming soon!`, {
-      description: "We are currently setting up the sub-pages for post drafting.",
-      duration: 4000,
-    })
+  const [composerType, setComposerType] = React.useState<"select" | "video">("select")
+
+  const handleSelectType = (id: string, title: string) => {
+    if (id === "video") {
+      setComposerType("video")
+    } else {
+      toast.info(`${title} composer coming soon!`, {
+        description: "We are currently setting up the sub-pages for post drafting.",
+        duration: 4000,
+      })
+    }
+  }
+
+  if (composerType === "video") {
+    return <VideoComposer onBack={() => setComposerType("select")} />
   }
 
   return (
@@ -96,7 +107,7 @@ export function CreatePost() {
           return (
             <button
               key={card.id}
-              onClick={() => handleSelectType(card.title)}
+              onClick={() => handleSelectType(card.id, card.title)}
               className="group relative flex flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 p-10 text-center transition-all duration-300 hover:-translate-y-1.5 hover:border-solid hover:border-accent-brand/60 dark:hover:border-accent-brand/40 hover:bg-white dark:hover:bg-slate-900 hover:shadow-xl cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-accent-brand focus:ring-offset-2 focus:ring-offset-background"
             >
               {/* Icon Container with subtle animation */}
