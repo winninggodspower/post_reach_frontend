@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Play, Pause, X, FileVideo, Sparkles, RefreshCw } from "lucide-react"
+import { Play, Pause, X, FileVideo, Plus, RefreshCw } from "lucide-react"
 
 type MediaFileUploaderProps = {
   videoSrc: string
@@ -66,7 +66,7 @@ export function MediaFileUploader({
             MP4, WebM, or MOV formats. Vertically oriented videos (9:16) work best for Reels, TikTok, and Shorts.
           </p>
           <div className="mt-6 flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 shadow-2xs">
-            <Sparkles className="size-3.5 text-accent-brand" />
+            <Plus className="size-3.5 text-slate-450 dark:text-slate-500" />
             <span>Import from device</span>
           </div>
         </div>

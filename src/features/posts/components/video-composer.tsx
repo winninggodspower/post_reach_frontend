@@ -145,10 +145,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     
     const sizeInMB = (file.size / (1024 * 1024)).toFixed(1)
     setVideoSize(`${sizeInMB} MB`)
-
-    toast.success("Video uploaded successfully!", {
-      description: `Loaded ${file.name} (${sizeInMB} MB)`,
-    })
   }
 
   const handleDrop = (e: React.DragEvent) => {
@@ -306,24 +302,28 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         {/* Right Column - Preview & Scheduler widget */}
         <div className={videoSrc ? "lg:col-span-5 space-y-6 lg:sticky lg:top-6" : "lg:col-span-4 space-y-6"}>
           
-          <LivePreviewPhone
-            videoSrc={videoSrc}
-            isPlaying={isPlaying}
-            previewPlatform={previewPlatform}
-            onChangePreviewPlatform={setPreviewPlatform}
-            previewVideoRef={previewVideoRef}
-            activeChannel={activeChannel}
-            onTogglePlay={togglePlay}
-            title={title}
-            caption={caption}
-            liked={liked}
-            onToggleLike={() => setLiked(!liked)}
-            bookmarked={bookmarked}
-            onToggleBookmark={() => setBookmarked(!bookmarked)}
-          />
+          {videoSrc && (
+            <LivePreviewPhone
+              videoSrc={videoSrc}
+              isPlaying={isPlaying}
+              previewPlatform={previewPlatform}
+              onChangePreviewPlatform={setPreviewPlatform}
+              previewVideoRef={previewVideoRef}
+              activeChannel={activeChannel}
+              onTogglePlay={togglePlay}
+              title={title}
+              caption={caption}
+              liked={liked}
+              onToggleLike={() => setLiked(!liked)}
+              bookmarked={bookmarked}
+              onToggleBookmark={() => setBookmarked(!bookmarked)}
+              channels={channels}
+            />
+          )}
 
           <SchedulerWidget
             register={register}
+            setValue={setValue}
             isScheduled={isScheduled}
             onChangeIsScheduled={(val) => setValue("isScheduled", val)}
             scheduleDate={scheduleDate}

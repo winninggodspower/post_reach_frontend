@@ -1,12 +1,17 @@
 "use client"
 
 import * as React from "react"
-import { Calendar, Clock, Info, Sparkles } from "lucide-react"
-import { UseFormRegister } from "react-hook-form"
+import { Calendar, Clock, Info, Send } from "lucide-react"
+import { UseFormRegister, UseFormSetValue } from "react-hook-form"
 import type { VideoPostFormValues } from "./video-composer"
+import { Calendar as ShadcnCalendar } from "../../../components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover"
+import { Button } from "../../../components/ui/button"
+import { TimePicker } from "../../../components/ui/time-picker"
 
 type SchedulerWidgetProps = {
   register: UseFormRegister<VideoPostFormValues>
+  setValue: UseFormSetValue<VideoPostFormValues>
   isScheduled: boolean
   onChangeIsScheduled: (val: boolean) => void
   scheduleDate: string
@@ -14,14 +19,33 @@ type SchedulerWidgetProps = {
   onPublish: (action: "schedule" | "now") => void
 }
 
+const formatDate = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+const parseDate = (dateStr: string) => {
+  if (!dateStr) return undefined
+  const [year, month, day] = dateStr.split("-").map(Number)
+  return new Date(year, month - 1, day)
+}
+
 export function SchedulerWidget({
   register,
+  setValue,
   isScheduled,
   onChangeIsScheduled,
   scheduleDate,
   scheduleTime,
   onPublish,
 }: SchedulerWidgetProps) {
+  const parsedDate = parseDate(scheduleDate)
+  const displayDateText = parsedDate 
+    ? parsedDate.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
+    : "Pick a date"
+
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-[1.75rem] p-6 shadow-xs space-y-4">
       {/* Header with Switch */}
@@ -59,21 +83,37 @@ export function SchedulerWidget({
               <Calendar className="size-3" />
               <span>Date</span>
             </label>
-            <input
-              type="date"
-              className="w-full px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-hidden focus:ring-1 focus:ring-accent-brand"
-              {...register("scheduleDate")}
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start text-left font-semibold text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-hidden focus:ring-1 focus:ring-accent-brand h-9 text-slate-800 dark:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 cursor-pointer"
+                >
+                  {displayDateText}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <ShadcnCalendar
+                  mode="single"
+                  selected={parsedDate}
+                  onSelect={(date) => {
+                    if (date) {
+                      setValue("scheduleDate", formatDate(date))
+                    }
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
               <Clock className="size-3" />
               <span>Time</span>
             </label>
-            <input
-              type="time"
-              className="w-full px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-hidden focus:ring-1 focus:ring-accent-brand"
-              {...register("scheduleTime")}
+            <TimePicker
+              value={scheduleTime}
+              onChange={(newTime) => setValue("scheduleTime", newTime)}
             />
           </div>
         </div>
@@ -110,7 +150,7 @@ export function SchedulerWidget({
             </>
           ) : (
             <>
-              <Sparkles className="size-4" />
+              <Send className="size-4" />
               <span>Publish now</span>
             </>
           )}

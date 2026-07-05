@@ -67,7 +67,7 @@ export function TargetAccountsSelector({
                 </span>
               )}
 
-              <div className="absolute -bottom-1 -right-0.5 size-5 bg-white dark:bg-slate-900 rounded-full border border-slate-100 dark:border-slate-800 flex items-center justify-center p-0.5">
+              <div className="absolute -bottom-1.5 -right-1 size-6 bg-white dark:bg-slate-900 rounded-full border border-slate-100 dark:border-slate-800 flex items-center justify-center p-0.5 shadow-xs">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={getPlatformIcon(channel.platform)}

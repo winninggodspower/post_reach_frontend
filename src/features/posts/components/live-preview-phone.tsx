@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Eye, Heart, MessageCircle, Bookmark, Share2, Music, Plus } from "lucide-react"
 import type { AccountChannel } from "./target-accounts-selector"
+import { Iphone } from "../../../components/ui/iphone"
 
 type LivePreviewPhoneProps = {
   videoSrc: string
@@ -18,6 +19,7 @@ type LivePreviewPhoneProps = {
   onToggleLike: () => void
   bookmarked: boolean
   onToggleBookmark: () => void
+  channels: AccountChannel[]
 }
 
 export function LivePreviewPhone({
@@ -34,8 +36,39 @@ export function LivePreviewPhone({
   onToggleLike,
   bookmarked,
   onToggleBookmark,
+  channels,
 }: LivePreviewPhoneProps) {
-  
+  const localIphoneRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (localIphoneRef.current) {
+      const videoEl = localIphoneRef.current.querySelector("video")
+      if (videoEl) {
+        if (previewVideoRef) {
+          (previewVideoRef as any).current = videoEl
+        }
+        if (isPlaying) {
+          videoEl.play().catch(() => { })
+        } else {
+          videoEl.pause()
+        }
+      }
+    }
+  }, [isPlaying, videoSrc, previewVideoRef])
+
+  const selectedPlatforms = channels.filter(c => c.selected).map(c => c.platform)
+  const previewTabs = [
+    { id: "tiktok", label: "TikTok" },
+    { id: "youtube", label: "YTShorts" },
+    { id: "instagram", label: "Instagram" },
+  ].filter(tab => selectedPlatforms.includes(tab.id))
+
+  const tabsToRender = previewTabs.length > 0 ? previewTabs : [
+    { id: "tiktok", label: "TikTok" },
+    { id: "youtube", label: "YTShorts" },
+    { id: "instagram", label: "Instagram" },
+  ]
+
   const renderFormattedPreviewCaption = (text: string) => {
     if (!text) return "Enter your main caption here..."
     const words = text.split(" ")
@@ -53,57 +86,53 @@ export function LivePreviewPhone({
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-[1.75rem] p-6 shadow-xs relative text-slate-800 dark:text-slate-200 animate-fade-in">
+
       {/* Top tabs */}
-      <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800/80 pb-3">
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-sans flex items-center gap-1.5">
+      <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800/80 pb-3 gap-2">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-sans flex items-center gap-1.5 shrink-0 whitespace-nowrap">
           <Eye className="size-4 text-accent-brand" />
           Live Preview
         </h3>
 
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-850">
-          {[
-            { id: "tiktok", label: "TikTok" },
-            { id: "youtube", label: "Shorts" },
-            { id: "instagram", label: "Reels" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => onChangePreviewPlatform(tab.id as any)}
-              className={`px-2 py-1 text-[10px] font-bold rounded-md transition select-none cursor-pointer ${
-                previewPlatform === tab.id
+        {tabsToRender.length > 1 && (
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-850 shrink-0">
+            {tabsToRender.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => onChangePreviewPlatform(tab.id as any)}
+                className={`px-2 py-1 text-[10px] font-bold rounded-md transition select-none cursor-pointer ${previewPlatform === tab.id
                   ? "bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-xs"
                   : "text-slate-400 hover:text-slate-600 dark:text-slate-500"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+                  }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Smart Phone Wrapper */}
       <div className="flex justify-center py-2">
-        <div className="w-[280px] h-[520px] rounded-[3rem] border-12 border-slate-950 bg-black shadow-2xl relative overflow-hidden flex flex-col justify-between">
-          {/* Speaker notch */}
-          <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-20 h-4 bg-slate-950 rounded-full z-30 flex items-center justify-center">
-            <div className="size-1 rounded-full bg-slate-800 absolute right-4" />
-          </div>
-
-          {/* Main Screen Content */}
-          <div className="absolute inset-0 bg-slate-950 flex flex-col justify-between z-10 select-none">
-            {/* Backdrop Video Player */}
-            {/* eslint-disable-next-line @next/next/no-html-video-element */}
-            <video
-              ref={previewVideoRef}
-              src={videoSrc}
-              loop
-              muted
-              onClick={onTogglePlay}
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-            />
-
+        <div ref={localIphoneRef} className="w-[300px] relative select-none bg-transparent dark">
+          <Iphone
+            videoSrc={videoSrc}
+            className="w-full bg-transparent iphone-bezel-container"
+          />
+          {/* Main Screen Content Overlays */}
+          <div
+            onClick={onTogglePlay}
+            className="absolute z-20 flex flex-col justify-between select-none overflow-hidden cursor-pointer"
+            style={{
+              left: "4.9076%",
+              top: "2.1825%",
+              width: "89.9538%",
+              height: "95.6349%",
+              borderRadius: "14.3132% / 6.6094%",
+            }}
+          >
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-linear-to-b from-black/25 via-transparent to-black/60 pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-b from-black/25 via-transparent to-black/60 pointer-events-none z-10" />
 
             {/* Header overlays */}
             <div className="w-full pt-8 px-4 flex items-center justify-between text-[11px] font-bold text-white z-20">
@@ -115,7 +144,7 @@ export function LivePreviewPhone({
               )}
               {previewPlatform === "youtube" && (
                 <div className="w-full flex justify-between items-center text-white/80">
-                  <span className="font-extrabold uppercase tracking-wide">Shorts</span>
+                  <span className="font-extrabold uppercase tracking-wide">YTShorts</span>
                   <div className="flex gap-3">
                     <span>🔍</span>
                     <span>⋮</span>
@@ -184,13 +213,15 @@ export function LivePreviewPhone({
                 )}
 
                 <button
-                  onClick={onToggleLike}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onToggleLike()
+                  }}
                   className="flex flex-col items-center cursor-pointer focus:outline-hidden select-none"
                 >
                   <Heart
-                    className={`size-6 transition-all duration-300 active:scale-130 ${
-                      liked ? "fill-red-500 stroke-red-500" : "fill-white/10 text-white"
-                    }`}
+                    className={`size-6 transition-all duration-300 active:scale-130 ${liked ? "fill-red-500 stroke-red-500" : "fill-white/10 text-white"
+                      }`}
                   />
                   <span className="text-[9px] font-bold mt-0.5">{liked ? "4.1k" : "4.0k"}</span>
                 </button>
@@ -202,13 +233,15 @@ export function LivePreviewPhone({
 
                 {previewPlatform === "tiktok" && (
                   <button
-                    onClick={onToggleBookmark}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onToggleBookmark()
+                    }}
                     className="flex flex-col items-center cursor-pointer focus:outline-hidden"
                   >
                     <Bookmark
-                      className={`size-6 transition-all duration-300 active:scale-130 ${
-                        bookmarked ? "fill-yellow-400 stroke-yellow-400" : "fill-white/10 text-white"
-                      }`}
+                      className={`size-6 transition-all duration-300 active:scale-130 ${bookmarked ? "fill-yellow-400 stroke-yellow-400" : "fill-white/10 text-white"
+                        }`}
                     />
                     <span className="text-[9px] font-bold mt-0.5">{bookmarked ? "25" : "24"}</span>
                   </button>
@@ -221,9 +254,8 @@ export function LivePreviewPhone({
 
                 {previewPlatform !== "youtube" && (
                   <div
-                    className={`size-7.5 rounded-full border border-slate-700 bg-slate-900 flex items-center justify-center p-1 mt-1 ${
-                      isPlaying ? "animate-spin" : ""
-                    }`}
+                    className={`size-7.5 rounded-full border border-slate-700 bg-slate-900 flex items-center justify-center p-1 mt-1 ${isPlaying ? "animate-spin" : ""
+                      }`}
                     style={{ animationDuration: "5s" }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
