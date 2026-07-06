@@ -21,6 +21,14 @@ export interface VideoPostFormValues {
   isScheduled: boolean
   scheduleDate: string
   scheduleTime: string
+  customizePerPlatform: boolean
+  youtubeTitle?: string
+  youtubeCaption?: string
+  tiktokCaption?: string
+  instagramCaption?: string
+  facebookCaption?: string
+  linkedinCaption?: string
+  xCaption?: string
 }
 
 type VideoComposerProps = {
@@ -91,6 +99,14 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       isScheduled: false,
       scheduleDate: "2026-10-16",
       scheduleTime: "14:00",
+      customizePerPlatform: false,
+      youtubeTitle: "",
+      youtubeCaption: "",
+      tiktokCaption: "",
+      instagramCaption: "",
+      facebookCaption: "",
+      linkedinCaption: "",
+      xCaption: "",
     },
   })
 
@@ -100,6 +116,14 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   const isScheduled = watch("isScheduled")
   const scheduleDate = watch("scheduleDate")
   const scheduleTime = watch("scheduleTime")
+  const customizePerPlatform = watch("customizePerPlatform")
+  const youtubeTitle = watch("youtubeTitle")
+  const youtubeCaption = watch("youtubeCaption")
+  const tiktokCaption = watch("tiktokCaption")
+  const instagramCaption = watch("instagramCaption")
+  const facebookCaption = watch("facebookCaption")
+  const linkedinCaption = watch("linkedinCaption")
+  const xCaption = watch("xCaption")
 
   // Video state
   const [videoFile, setVideoFile] = React.useState<File | null>(null)
@@ -213,6 +237,14 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       return
     }
 
+    const isYoutubeSelected = activeChs.some(c => c.platform === "youtube")
+    if (isYoutubeSelected && !title.trim()) {
+      toast.error("YouTube Title is required", {
+        description: "Please add a YouTube Title before publishing to YouTube.",
+      })
+      return
+    }
+
     if (action === "schedule") {
       toast.success("Video Post Scheduled!", {
         description: `Successfully scheduled to publish on ${activeChs.length} channel(s) on ${scheduleDate} at ${scheduleTime}.`,
@@ -291,11 +323,14 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
             onVideoLoadedMetadata={handleVideoLoadedMetadata}
           />
 
-          <CompositionDetails
-            register={register}
-            setValue={setValue}
-            caption={caption}
-          />
+          {videoSrc && (
+            <CompositionDetails
+              register={register}
+              setValue={setValue}
+              watch={watch}
+              channels={channels}
+            />
+          )}
 
         </div>
 
@@ -311,8 +346,20 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
               previewVideoRef={previewVideoRef}
               activeChannel={activeChannel}
               onTogglePlay={togglePlay}
-              title={title}
-              caption={caption}
+              title={
+                customizePerPlatform && previewPlatform === "youtube"
+                  ? youtubeTitle || title
+                  : title
+              }
+              caption={
+                customizePerPlatform
+                  ? (previewPlatform === "youtube"
+                      ? youtubeCaption
+                      : previewPlatform === "tiktok"
+                      ? tiktokCaption
+                      : instagramCaption) || caption
+                  : caption
+              }
               liked={liked}
               onToggleLike={() => setLiked(!liked)}
               bookmarked={bookmarked}

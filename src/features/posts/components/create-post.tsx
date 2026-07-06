@@ -76,7 +76,7 @@ export function CreatePost() {
     if (id === "video") {
       setComposerType("video")
     } else {
-      toast.info(`${title} composer coming soon!`, {
+      toast.info(`${title} editor coming soon!`, {
         description: "We are currently setting up the sub-pages for post drafting.",
         duration: 4000,
       })

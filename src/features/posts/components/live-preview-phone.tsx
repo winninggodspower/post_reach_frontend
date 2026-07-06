@@ -276,8 +276,7 @@ export function LivePreviewPhone({
       </div>
 
       <p className="text-[10px] text-center text-slate-500 mt-4 leading-normal">
-        Previews mock the final layout view template on mobile screens. Interactive items support click
-        highlights.
+        Previews mock the final layout view template on mobile screens.
       </p>
     </div>
   )
