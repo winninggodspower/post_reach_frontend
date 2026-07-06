@@ -36,17 +36,10 @@ export default function RootLayout({
         <GoogleAuthProvider>{children}</GoogleAuthProvider>
         <Toaster
           position="top-center"
+          richColors
           closeButton
-          toastOptions={{
-            duration: 5000,
-            classNames: {
-              toast: "sonner-toast",
-              error: "sonner-error",
-              success: "sonner-success",
-              info: "sonner-info",
-              warning: "sonner-warning",
-            },
-          }}
+          theme="dark"
+          toastOptions={{ duration: 5000 }}
         />
       </body>
     </html>

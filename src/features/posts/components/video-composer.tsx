@@ -14,6 +14,7 @@ import { MediaFileUploader } from "./media-file-uploader"
 import { CompositionDetails } from "./composition-details"
 import { LivePreviewPhone } from "./live-preview-phone"
 import { SchedulerWidget } from "./scheduler-widget"
+import { ThumbnailPickerModal } from "./thumbnail-picker-modal"
 
 export interface VideoPostFormValues {
   title: string
@@ -29,6 +30,7 @@ export interface VideoPostFormValues {
   facebookCaption?: string
   linkedinCaption?: string
   xCaption?: string
+  coverImageTimestamp?: number
 }
 
 type VideoComposerProps = {
@@ -137,6 +139,13 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   // Phone preview interactions
   const [previewPlatform, setPreviewPlatform] = React.useState<"tiktok" | "youtube" | "instagram">("tiktok")
 
+  // Thumbnail (cover frame)
+  const [thumbnailDataUrl, setThumbnailDataUrl] = React.useState("")
+  const [showThumbnailPicker, setShowThumbnailPicker] = React.useState(false)
+
+  // Watch cover timestamp from form
+  const coverImageTimestamp = watch("coverImageTimestamp")
+
   const getPlatformIcon = (platformId: string) => {
     const opt = PLATFORM_OPTIONS.find(p => p.id === platformId)
     return opt ? opt.icon : "/social-icons/tiktok-circle.png"
@@ -164,6 +173,10 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     const url = URL.createObjectURL(file)
     setVideoSrc(url)
     setIsPlaying(true)
+    
+    // Clear cover image when media is replaced/updated
+    setThumbnailDataUrl("")
+    setValue("coverImageTimestamp", undefined)
     
     const sizeInMB = (file.size / (1024 * 1024)).toFixed(1)
     setVideoSize(`${sizeInMB} MB`)
@@ -196,6 +209,8 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     setVideoDuration("0:00")
     setVideoSize("")
     setIsPlaying(false)
+    setThumbnailDataUrl("")
+    setValue("coverImageTimestamp", undefined)
   }
 
   const togglePlay = () => {
@@ -315,14 +330,29 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
             videoSize={videoSize}
             isPlaying={isPlaying}
             videoRef={videoRef}
+            thumbnailDataUrl={thumbnailDataUrl}
             onTogglePlay={togglePlay}
             onRemoveVideo={removeVideo}
             onTriggerFileSelect={triggerFileSelect}
+            onOpenThumbnailPicker={() => setShowThumbnailPicker(true)}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onFileChange={handleFileChange}
             onVideoLoadedMetadata={handleVideoLoadedMetadata}
           />
+
+          {/* Thumbnail Picker Modal */}
+          {showThumbnailPicker && videoSrc && (
+            <ThumbnailPickerModal
+              videoSrc={videoSrc}
+              currentThumbnail={thumbnailDataUrl}
+              onSelect={(dataUrl, timestamp) => {
+                setThumbnailDataUrl(dataUrl)
+                setValue("coverImageTimestamp", timestamp)
+              }}
+              onClose={() => setShowThumbnailPicker(false)}
+            />
+          )}
 
           {videoSrc && (
             <CompositionDetails

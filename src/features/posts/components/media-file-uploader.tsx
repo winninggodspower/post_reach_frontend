@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Play, Pause, X, FileVideo, Plus, RefreshCw } from "lucide-react"
+import Image from "next/image"
+import { Play, Pause, X, FileVideo, Plus, RefreshCw, Image as LucideImage } from "lucide-react"
 
 type MediaFileUploaderProps = {
   videoSrc: string
@@ -10,9 +11,11 @@ type MediaFileUploaderProps = {
   videoSize: string
   isPlaying: boolean
   videoRef: React.RefObject<HTMLVideoElement | null>
+  thumbnailDataUrl: string
   onTogglePlay: () => void
   onRemoveVideo: () => void
   onTriggerFileSelect: () => void
+  onOpenThumbnailPicker: () => void
   onDragOver: (e: React.DragEvent) => void
   onDrop: (e: React.DragEvent) => void
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -26,9 +29,11 @@ export function MediaFileUploader({
   videoSize,
   isPlaying,
   videoRef,
+  thumbnailDataUrl,
   onTogglePlay,
   onRemoveVideo,
   onTriggerFileSelect,
+  onOpenThumbnailPicker,
   onDragOver,
   onDrop,
   onFileChange,
@@ -40,6 +45,14 @@ export function MediaFileUploader({
         Media File
       </h3>
 
+      <input
+        type="file"
+        id="video-upload-input"
+        accept="video/*"
+        onChange={onFileChange}
+        className="hidden"
+      />
+
       {!videoSrc ? (
         <div
           onDragOver={onDragOver}
@@ -47,14 +60,6 @@ export function MediaFileUploader({
           onClick={onTriggerFileSelect}
           className="group relative flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-accent-brand/50 dark:hover:border-accent-brand/40 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl py-14 px-6 text-center cursor-pointer transition-all duration-300"
         >
-          <input
-            type="file"
-            id="video-upload-input"
-            accept="video/*"
-            onChange={onFileChange}
-            className="hidden"
-          />
-
           <div className="size-14 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center text-accent-brand shadow-sm border border-slate-100 dark:border-slate-800 group-hover:scale-110 transition duration-300">
             <FileVideo className="size-6" />
           </div>
@@ -121,13 +126,33 @@ export function MediaFileUploader({
           </div>
 
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <button
-              onClick={onTriggerFileSelect}
-              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer"
-            >
-              <RefreshCw className="size-3.5" />
-              Replace Media
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={onTriggerFileSelect}
+                className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer"
+              >
+                <RefreshCw className="size-3.5" />
+                Replace Media
+              </button>
+
+              <button
+                onClick={onOpenThumbnailPicker}
+                className="px-3.5 py-2 text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer transition border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/80"
+              >
+                {thumbnailDataUrl ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={thumbnailDataUrl} alt="Cover" className="size-5 rounded object-cover border border-slate-300 dark:border-slate-600" />
+                    <span className="text-slate-700 dark:text-slate-300">Change Cover</span>
+                  </>
+                ) : (
+                  <>
+                    <LucideImage className="size-3.5 text-slate-500" />
+                    <span className="text-slate-700 dark:text-slate-300">Set Cover</span>
+                  </>
+                )}
+              </button>
+            </div>
 
             <button
               onClick={onTogglePlay}
