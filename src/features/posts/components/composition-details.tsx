@@ -39,6 +39,24 @@ export function CompositionDetails({
 }: CompositionDetailsProps) {
   const customizePerPlatform = watch("customizePerPlatform")
   const caption = watch("caption") || ""
+  const globalTitle = (watch("title") as string) || ""
+
+  // Track prev global title so we can detect manual override edits
+  const prevGlobalTitleRef = React.useRef(globalTitle)
+
+  // Live-sync globalTitle → youtubeTitle override when customization is on,
+  // but stop syncing once the user has manually changed the override.
+  React.useEffect(() => {
+    if (customizePerPlatform && isYoutubeSelected) {
+      const currentOverride = (watch("youtubeTitle") as string) || ""
+      // Sync only if the override is still tracking the previous global title
+      if (!currentOverride.trim() || currentOverride === prevGlobalTitleRef.current) {
+        setValue("youtubeTitle", globalTitle)
+      }
+    }
+    prevGlobalTitleRef.current = globalTitle
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalTitle, customizePerPlatform])
   
   // Find which selected platforms are checked
   const selectedChannels = channels.filter(c => c.selected)
