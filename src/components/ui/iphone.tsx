@@ -42,7 +42,7 @@ export function Iphone({
     >
       {hasVideo && (
         <div
-          className="pointer-events-none absolute z-0 overflow-hidden"
+          className="pointer-events-none absolute z-0 overflow-hidden bg-black"
           style={{
             left: `${LEFT_PCT}%`,
             top: `${TOP_PCT}%`,
@@ -52,9 +52,8 @@ export function Iphone({
           }}
         >
           <video
-            className="block size-full object-cover"
+            className="block size-full object-contain"
             src={videoSrc}
-            autoPlay
             loop
             muted
             playsInline

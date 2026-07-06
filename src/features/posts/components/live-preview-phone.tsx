@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Eye, Heart, MessageCircle, Bookmark, Share2, Music, Plus } from "lucide-react"
+import { Eye, Heart, MessageCircle, Bookmark, Share2, Music, Plus, ThumbsUp, MessageSquare, Search, MoreVertical, Forward } from "lucide-react"
 import type { AccountChannel } from "./target-accounts-selector"
 import { Iphone } from "../../../components/ui/iphone"
 
@@ -15,10 +15,6 @@ type LivePreviewPhoneProps = {
   onTogglePlay: () => void
   title: string
   caption: string
-  liked: boolean
-  onToggleLike: () => void
-  bookmarked: boolean
-  onToggleBookmark: () => void
   channels: AccountChannel[]
 }
 
@@ -32,10 +28,6 @@ export function LivePreviewPhone({
   onTogglePlay,
   title,
   caption,
-  liked,
-  onToggleLike,
-  bookmarked,
-  onToggleBookmark,
   channels,
 }: LivePreviewPhoneProps) {
   const localIphoneRef = React.useRef<HTMLDivElement>(null)
@@ -143,11 +135,11 @@ export function LivePreviewPhone({
                 </div>
               )}
               {previewPlatform === "youtube" && (
-                <div className="w-full flex justify-between items-center text-white/80">
-                  <span className="font-extrabold uppercase tracking-wide">YTShorts</span>
-                  <div className="flex gap-3">
-                    <span>🔍</span>
-                    <span>⋮</span>
+                <div className="w-full flex justify-between items-center">
+                  <span className="text-white text-[11px] font-bold tracking-tight">Shorts</span>
+                  <div className="flex items-center gap-2.5 text-white">
+                    <Search className="size-3.5" />
+                    <MoreVertical className="size-3.5" />
                   </div>
                 </div>
               )}
@@ -159,48 +151,82 @@ export function LivePreviewPhone({
               )}
             </div>
 
-            {/* Content Overlay Info Box */}
-            <div className="mt-auto p-3 flex justify-between items-end gap-3 z-20 w-full">
-              <div className="flex-1 space-y-1.5 max-w-[190px] drop-shadow-md text-white text-left">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold truncate">
-                    {activeChannel?.handle || "@jack_ingy"}
-                  </span>
-                  {previewPlatform === "youtube" && (
-                    <span className="bg-red-600 text-[8px] px-1 rounded-sm uppercase tracking-wide font-extrabold">
+            {/* Content Overlay — YouTube vs TikTok/Instagram */}
+            {previewPlatform === "youtube" ? (
+              <div className="mt-auto p-3 pb-6 flex justify-between items-end gap-2 z-20 w-full">
+                {/* Bottom-left: channel info + title */}
+                <div className="flex-1 space-y-1.5 drop-shadow-md text-white text-left">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={activeChannel?.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"}
+                      alt="Avatar"
+                      className="size-7 rounded-full border border-white object-cover shrink-0"
+                    />
+                    <span className="text-[10px] font-bold truncate max-w-[90px]">
+                      {activeChannel?.handle || "@channel"}
+                    </span>
+                    <span className="bg-white text-black text-[8px] px-2 py-0.5 rounded-full font-bold shrink-0">
                       Subscribe
                     </span>
-                  )}
+                  </div>
+                  <p className="text-[10px] font-semibold leading-snug line-clamp-2 drop-shadow">
+                    {title || "Your video title goes here..."}
+                  </p>
                 </div>
 
-                {previewPlatform === "youtube" && title && (
-                  <p className="text-[11px] font-bold leading-snug line-clamp-1">
-                    {title}
-                  </p>
-                )}
-
-                <p className="text-[10px] leading-snug text-white/90 font-normal break-words line-clamp-3">
-                  {renderFormattedPreviewCaption(caption)}
-                </p>
-
-                <div className="flex items-center gap-1 text-[9px] text-white/80">
-                  <Music className="size-2.5 animate-pulse" />
-                  <span className="truncate font-semibold max-w-[130px]">
-                    {title ? `sound - ${title}` : `original sound - ${activeChannel?.name || "jack"}`}
-                  </span>
+                {/* Bottom-right: action buttons */}
+                <div className="flex flex-col items-center gap-3.5 drop-shadow-md text-white shrink-0">
+                  <div className="flex flex-col items-center">
+                    <ThumbsUp className="size-6" strokeWidth={1.5} />
+                    <span className="text-[9px] font-bold mt-0.5">40K</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <MessageSquare className="size-6" strokeWidth={1.5} />
+                    <span className="text-[9px] font-bold mt-0.5">245</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <Forward className="size-6" strokeWidth={1.5} />
+                    <span className="text-[9px] font-bold mt-0.5">Share</span>
+                  </div>
+                  {/* Square album art box */}
+                  <div className="size-7 rounded-md overflow-hidden border border-white/30 mt-1">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={activeChannel?.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"}
+                      alt="Sound"
+                      className="size-full object-cover"
+                    />
+                  </div>
                 </div>
               </div>
+            ) : (
+              <div className="mt-auto p-3 flex justify-between items-end gap-3 z-20 w-full">
+                <div className="flex-1 space-y-1.5 max-w-[190px] drop-shadow-md text-white text-left">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold truncate">
+                      {activeChannel?.handle || "@jack_ingy"}
+                    </span>
+                  </div>
 
-              {/* Social Action List */}
-              <div className="flex flex-col items-center gap-3 drop-shadow-md text-white z-20">
-                {previewPlatform !== "youtube" && (
+                  <p className="text-[10px] leading-snug text-white/90 font-normal break-words line-clamp-3">
+                    {renderFormattedPreviewCaption(caption)}
+                  </p>
+
+                  <div className="flex items-center gap-1 text-[9px] text-white/80">
+                    <Music className="size-2.5 animate-pulse" />
+                    <span className="truncate font-semibold max-w-[130px]">
+                      {title ? `sound - ${title}` : `original sound - ${activeChannel?.name || "jack"}`}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Social Action List */}
+                <div className="flex flex-col items-center gap-3 drop-shadow-md text-white z-20">
                   <div className="relative mb-1">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={
-                        activeChannel?.avatar ||
-                        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-                      }
+                      src={activeChannel?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"}
                       alt="Avatar preview"
                       className="size-8.5 rounded-full border border-white object-cover"
                     />
@@ -210,67 +236,43 @@ export function LivePreviewPhone({
                       </span>
                     )}
                   </div>
-                )}
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onToggleLike()
-                  }}
-                  className="flex flex-col items-center cursor-pointer focus:outline-hidden select-none"
-                >
-                  <Heart
-                    className={`size-6 transition-all duration-300 active:scale-130 ${liked ? "fill-red-500 stroke-red-500" : "fill-white/10 text-white"
-                      }`}
-                  />
-                  <span className="text-[9px] font-bold mt-0.5">{liked ? "4.1k" : "4.0k"}</span>
-                </button>
+                  <div className="flex flex-col items-center">
+                    <Heart className="size-6 fill-white/10 text-white" />
+                    <span className="text-[9px] font-bold mt-0.5">4.0k</span>
+                  </div>
 
-                <div className="flex flex-col items-center">
-                  <MessageCircle className="size-6 text-white fill-white/10" />
-                  <span className="text-[9px] font-bold mt-0.5">188</span>
-                </div>
+                  <div className="flex flex-col items-center">
+                    <MessageCircle className="size-6 text-white fill-white/10" />
+                    <span className="text-[9px] font-bold mt-0.5">188</span>
+                  </div>
 
-                {previewPlatform === "tiktok" && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onToggleBookmark()
-                    }}
-                    className="flex flex-col items-center cursor-pointer focus:outline-hidden"
-                  >
-                    <Bookmark
-                      className={`size-6 transition-all duration-300 active:scale-130 ${bookmarked ? "fill-yellow-400 stroke-yellow-400" : "fill-white/10 text-white"
-                        }`}
-                    />
-                    <span className="text-[9px] font-bold mt-0.5">{bookmarked ? "25" : "24"}</span>
-                  </button>
-                )}
+                  {previewPlatform === "tiktok" && (
+                    <div className="flex flex-col items-center">
+                      <Bookmark className="size-6 fill-white/10 text-white" />
+                      <span className="text-[9px] font-bold mt-0.5">24</span>
+                    </div>
+                  )}
 
-                <div className="flex flex-col items-center">
-                  <Share2 className="size-6 text-white fill-white/10" />
-                  <span className="text-[9px] font-bold mt-0.5">62</span>
-                </div>
+                  <div className="flex flex-col items-center">
+                    <Share2 className="size-6 text-white fill-white/10" />
+                    <span className="text-[9px] font-bold mt-0.5">62</span>
+                  </div>
 
-                {previewPlatform !== "youtube" && (
                   <div
-                    className={`size-7.5 rounded-full border border-slate-700 bg-slate-900 flex items-center justify-center p-1 mt-1 ${isPlaying ? "animate-spin" : ""
-                      }`}
+                    className={`size-7.5 rounded-full border border-slate-700 bg-slate-900 flex items-center justify-center p-1 mt-1 ${isPlaying ? "animate-spin" : ""}`}
                     style={{ animationDuration: "5s" }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={
-                        activeChannel?.avatar ||
-                        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-                      }
+                      src={activeChannel?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"}
                       alt="Record sound"
                       className="size-full rounded-full object-cover"
                     />
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -136,8 +136,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
 
   // Phone preview interactions
   const [previewPlatform, setPreviewPlatform] = React.useState<"tiktok" | "youtube" | "instagram">("tiktok")
-  const [liked, setLiked] = React.useState(false)
-  const [bookmarked, setBookmarked] = React.useState(false)
 
   const getPlatformIcon = (platformId: string) => {
     const opt = PLATFORM_OPTIONS.find(p => p.id === platformId)
@@ -203,14 +201,17 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   const togglePlay = () => {
     const nextPlay = !isPlaying
     setIsPlaying(nextPlay)
-    
-    if (videoRef.current) {
-      if (nextPlay) videoRef.current.play().catch(() => {})
-      else videoRef.current.pause()
-    }
-    if (previewVideoRef.current) {
-      if (nextPlay) previewVideoRef.current.play().catch(() => {})
-      else previewVideoRef.current.pause()
+
+    if (nextPlay) {
+      // Sync preview to the main video's current time before playing both
+      if (videoRef.current && previewVideoRef.current) {
+        previewVideoRef.current.currentTime = videoRef.current.currentTime
+      }
+      videoRef.current?.play().catch(() => {})
+      previewVideoRef.current?.play().catch(() => {})
+    } else {
+      videoRef.current?.pause()
+      previewVideoRef.current?.pause()
     }
   }
 
@@ -360,10 +361,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
                       : instagramCaption) || caption
                   : caption
               }
-              liked={liked}
-              onToggleLike={() => setLiked(!liked)}
-              bookmarked={bookmarked}
-              onToggleBookmark={() => setBookmarked(!bookmarked)}
               channels={channels}
             />
           )}
