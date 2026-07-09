@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import { useForm } from "react-hook-form"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
-import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
+import { PLATFORM_OPTIONS, DEFAULT_PLATFORM_AVATARS } from "@/features/onboarding/components/steps/shared"
 
 // Sub-components
 import { TargetAccountsSelector } from "./target-accounts-selector"
@@ -52,56 +52,72 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   }
 
   // Target Accounts initial state
-  const [channels, setChannels] = React.useState<AccountChannel[]>([
-    {
-      id: "ch-tiktok-1",
-      platform: "tiktok",
-      name: brand?.name || user?.first_name || "Jack Ingy",
-      handle: "@jack_tok",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80",
-      selected: brand?.is_tiktok_connected ?? true,
-    },
-    {
-      id: "ch-youtube-1",
-      platform: "youtube",
-      name: `${brand?.name || user?.first_name || "Jack"} Shorts`,
-      handle: "@jack_shorts",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80",
-      selected: brand?.is_youtube_connected ?? true,
-    },
-    {
-      id: "ch-instagram-1",
-      platform: "instagram",
-      name: `${brand?.name || user?.first_name || "Jack"} Reels`,
-      handle: "@jack_reels",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80",
-      selected: brand?.is_instagram_connected ?? false,
-    },
-    {
-      id: "ch-facebook-1",
-      platform: "facebook",
-      name: brand?.name || "Jack Page",
-      handle: "@jack_facebook",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80",
-      selected: brand?.is_facebook_connected ?? false,
-    },
-    {
-      id: "ch-linkedin-1",
-      platform: "linkedin",
-      name: `${user?.first_name} ${user?.last_name}`.trim() || "Jack Ingy",
-      handle: "@jack_linkedin",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80",
-      selected: brand?.is_linkedin_connected ?? false,
-    },
-    {
-      id: "ch-x-1",
-      platform: "x",
-      name: brand?.name || "Jack X",
-      handle: "@jack_tweets",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80",
-      selected: brand?.is_x_connected ?? false,
-    },
-  ])
+  const [channels, setChannels] = React.useState<AccountChannel[]>(() => {
+    if (brand?.connected_accounts && brand.connected_accounts.length > 0) {
+      return PLATFORM_OPTIONS.map((opt) => {
+        const conn = brand.connected_accounts.find((acc) => acc.platform.toLowerCase() === opt.id.toLowerCase())
+        return {
+          id: conn?.external_id || `ch-${opt.id}-temp`,
+          platform: opt.id,
+          name: conn?.account_name || opt.label,
+          handle: conn ? `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}` : `@${opt.id}_not_connected`,
+          avatar: conn?.profile_picture_url || DEFAULT_PLATFORM_AVATARS[opt.id] || opt.icon,
+          selected: !!conn,
+        }
+      })
+    }
+
+    return [
+      {
+        id: "ch-tiktok-1",
+        platform: "tiktok",
+        name: brand?.name || user?.first_name || "Jack Ingy",
+        handle: "@jack_tok",
+        avatar: DEFAULT_PLATFORM_AVATARS.tiktok,
+        selected: true,
+      },
+      {
+        id: "ch-youtube-1",
+        platform: "youtube",
+        name: `${brand?.name || user?.first_name || "Jack"} Shorts`,
+        handle: "@jack_shorts",
+        avatar: DEFAULT_PLATFORM_AVATARS.youtube,
+        selected: true,
+      },
+      {
+        id: "ch-instagram-1",
+        platform: "instagram",
+        name: `${brand?.name || user?.first_name || "Jack"} Reels`,
+        handle: "@jack_reels",
+        avatar: DEFAULT_PLATFORM_AVATARS.instagram,
+        selected: false,
+      },
+      {
+        id: "ch-facebook-1",
+        platform: "facebook",
+        name: brand?.name || "Jack Page",
+        handle: "@jack_facebook",
+        avatar: DEFAULT_PLATFORM_AVATARS.facebook,
+        selected: false,
+      },
+      {
+        id: "ch-linkedin-1",
+        platform: "linkedin",
+        name: `${user?.first_name} ${user?.last_name}`.trim() || "Jack Ingy",
+        handle: "@jack_linkedin",
+        avatar: DEFAULT_PLATFORM_AVATARS.linkedin,
+        selected: false,
+      },
+      {
+        id: "ch-x-1",
+        platform: "x",
+        name: brand?.name || "Jack X",
+        handle: "@jack_tweets",
+        avatar: DEFAULT_PLATFORM_AVATARS.x,
+        selected: false,
+      },
+    ]
+  })
 
   // React Hook Form
   const { register, watch, setValue } = useForm<VideoPostFormValues>({

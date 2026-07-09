@@ -13,18 +13,10 @@ import type { OnboardingPlatform } from "@/features/onboarding/types"
 import type {
   AuthProfile,
   AuthTokenPair,
+  ConnectedAccount,
   LoginFormValues,
   RegisterFormValues,
 } from "@/features/auth/types"
-
-const BRAND_PLATFORM_KEY: Record<OnboardingPlatform, string> = {
-  youtube: "is_youtube_connected",
-  instagram: "is_instagram_connected",
-  tiktok: "is_tiktok_connected",
-  facebook: "is_facebook_connected",
-  linkedin: "is_linkedin_connected",
-  x: "is_x_connected",
-}
 
 type AuthState = {
   user: AuthProfile | null
@@ -63,7 +55,7 @@ export const useAuth = create<AuthState>()(
       setLoadingUser: (isLoadingUser) => set({ isLoadingUser }),
       setUser: (user) => set({ user }),
       setTokens: ({ accessToken, refreshToken }) =>
-        set({ accessToken, refreshToken }),
+         set({ accessToken, refreshToken }),
       setAuth: ({ user, tokens }) =>
         set({
           user,
@@ -82,13 +74,28 @@ export const useAuth = create<AuthState>()(
         const currentUser = get().user
         if (!currentUser?.brand) return
 
-        const key = BRAND_PLATFORM_KEY[platform]
+        const connectionAccounts = currentUser.brand.connected_accounts || []
+        const alreadyExists = connectionAccounts.some((a) => a.platform === platform)
+        
+        const newConnectionAccounts = alreadyExists
+          ? connectionAccounts
+          : [
+              ...connectionAccounts,
+              {
+                platform,
+                external_id: `temp_${platform}_${Date.now()}`,
+                account_name: `${currentUser.brand.name || "Connected"} Page`,
+                profile_picture_url: null,
+                connected_at: new Date().toISOString(),
+              },
+            ]
+
         set({
           user: {
             ...currentUser,
             brand: {
               ...currentUser.brand,
-              [key]: true,
+              connected_accounts: newConnectionAccounts,
             },
           },
         })

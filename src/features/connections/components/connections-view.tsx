@@ -2,15 +2,13 @@
 
 import { useAuth } from "@/features/auth/store/auth-store"
 import { PlatformConnectCard } from "@/features/onboarding/components/platform-connect-card"
-import { PLATFORM_OPTIONS, BRAND_PLATFORM_FLAGS } from "@/features/onboarding/components/steps/shared"
+import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
 
 export function ConnectionsView() {
   const brand = useAuth((state) => state.user?.brand)
   const isHydrated = useAuth((state) => state.isHydrated)
 
-  const connectedCount = brand
-    ? BRAND_PLATFORM_FLAGS.filter(({ key }) => brand[key]).length
-    : 0
+  const connectedCount = brand?.connected_accounts?.length ?? 0
 
   if (!isHydrated) {
     return (

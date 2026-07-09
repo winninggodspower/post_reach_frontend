@@ -145,7 +145,6 @@ export function SettingsView() {
     if (!user) return
 
     try {
-      // Update local brand state
       const updatedUser = {
         ...user,
         brand: {
@@ -156,12 +155,7 @@ export function SettingsView() {
           team_size: values.teamSize,
           primary_platform: values.primaryPlatform,
           posting_frequency: values.postingFrequency,
-          is_youtube_connected: user.brand?.is_youtube_connected ?? false,
-          is_instagram_connected: user.brand?.is_instagram_connected ?? false,
-          is_tiktok_connected: user.brand?.is_tiktok_connected ?? false,
-          is_facebook_connected: user.brand?.is_facebook_connected ?? false,
-          is_linkedin_connected: user.brand?.is_linkedin_connected ?? false,
-          is_x_connected: user.brand?.is_x_connected ?? false,
+          connected_accounts: user.brand?.connected_accounts ?? [],
         },
       }
       setUser(updatedUser)

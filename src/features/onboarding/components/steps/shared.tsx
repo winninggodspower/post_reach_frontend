@@ -28,24 +28,21 @@ export type PlatformOption = {
   icon: string
 }
 
-export const BRAND_PLATFORM_FLAGS: {
-  key: keyof UserBrand
-  platform: OnboardingPlatform
-}[] = [
-  { key: "is_youtube_connected", platform: "youtube" },
-  { key: "is_instagram_connected", platform: "instagram" },
-  { key: "is_tiktok_connected", platform: "tiktok" },
-  { key: "is_facebook_connected", platform: "facebook" },
-  { key: "is_linkedin_connected", platform: "linkedin" },
-  { key: "is_x_connected", platform: "x" },
-]
+export const DEFAULT_PLATFORM_AVATARS: Record<string, string> = {
+  tiktok: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80",
+  youtube: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80",
+  instagram: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80",
+  facebook: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80",
+  linkedin: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80",
+  x: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80",
+}
 
 export const getConnectedPlatformsFromBrand = (
   brand: UserBrand,
-): OnboardingPlatform[] =>
-  BRAND_PLATFORM_FLAGS
-    .filter(({ key }) => brand[key])
-    .map(({ platform }) => platform)
+): OnboardingPlatform[] => {
+  if (!brand.connected_accounts) return []
+  return brand.connected_accounts.map((acc) => acc.platform.toLowerCase() as OnboardingPlatform)
+}
 
 export const ROLE_OPTIONS: RoleOption[] = [
   {
@@ -173,11 +170,10 @@ export function RoleCard({
       type="button"
       onClick={() => onSelect(option.id)}
       aria-pressed={selected}
-      className={`group relative flex h-full flex-col rounded-[28px] border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-32px_rgba(15,23,42,0.4)] sm:p-5 ${
-        selected
+      className={`group relative flex h-full flex-col rounded-[28px] border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-32px_rgba(15,23,42,0.4)] sm:p-5 ${selected
           ? "border-slate-950/15 bg-slate-950/3 ring-1 ring-slate-950/10"
           : "border-black/8 bg-white hover:border-slate-950/12"
-      }`}
+        }`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
@@ -192,11 +188,10 @@ export function RoleCard({
         </div>
 
         <span
-          className={`mt-1 flex h-7 w-7 items-center justify-center rounded-full border transition ${
-            selected
+          className={`mt-1 flex h-7 w-7 items-center justify-center rounded-full border transition ${selected
               ? "border-slate-950 bg-slate-950 text-white"
               : "border-black/10 bg-white text-transparent group-hover:border-slate-950/25"
-          }`}
+            }`}
         >
           <Check className="size-4" />
         </span>
@@ -225,11 +220,10 @@ export function SocialPlatformIcon({ option }: { option: PlatformOption }) {
 export function StatusPill({ connected }: { connected: boolean }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
-        connected
+      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${connected
           ? "bg-emerald-500/10 text-emerald-700"
           : "bg-slate-100 text-slate-500"
-      }`}
+        }`}
     >
       {connected ? <CircleCheckBig className="size-3.5" /> : <Loader2 className="size-3.5" />}
       {connected ? "Connected" : "Not connected"}

@@ -3,6 +3,14 @@ export type AuthTokenPair = {
   refreshToken: string
 }
 
+export type ConnectedAccount = {
+  platform: string
+  external_id: string
+  account_name: string
+  profile_picture_url: string | null
+  connected_at: string
+}
+
 export type UserBrand = {
   id: string
   name: string
@@ -10,12 +18,7 @@ export type UserBrand = {
   posting_frequency: string | null
   primary_platform: string | null
   team_size: string | null
-  is_youtube_connected: boolean
-  is_instagram_connected: boolean
-  is_tiktok_connected: boolean
-  is_facebook_connected: boolean
-  is_linkedin_connected: boolean
-  is_x_connected: boolean
+  connected_accounts: ConnectedAccount[]
 }
 
 export type AuthProfile = {

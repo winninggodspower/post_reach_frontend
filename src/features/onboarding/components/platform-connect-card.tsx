@@ -4,20 +4,10 @@ import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/features/auth/store/auth-store"
-import type { UserBrand } from "@/features/auth/types"
 
 import { SocialPlatformIcon, StatusPill } from "./steps/shared"
 import type { PlatformOption } from "./steps/shared"
 import { useSocialAuth } from "@/hooks/use-social-auth"
-
-const BRAND_FLAG: Record<string, "is_youtube_connected" | "is_instagram_connected" | "is_tiktok_connected" | "is_facebook_connected" | "is_linkedin_connected" | "is_x_connected"> = {
-  youtube: "is_youtube_connected",
-  instagram: "is_instagram_connected",
-  tiktok: "is_tiktok_connected",
-  facebook: "is_facebook_connected",
-  linkedin: "is_linkedin_connected",
-  x: "is_x_connected",
-}
 
 type PlatformConnectCardProps = {
   option: PlatformOption
@@ -27,7 +17,11 @@ export function PlatformConnectCard({
   option,
 }: PlatformConnectCardProps) {
   const user = useAuth((state) => state.user)
-  const connected = user?.brand?.[BRAND_FLAG[option.id]] ?? false
+
+  const connectedAccount = user?.brand?.connected_accounts?.find(
+    (acc) => acc.platform.toLowerCase() === option.id.toLowerCase()
+  )
+  const connected = !!connectedAccount
 
   const { connect, loading: connecting } = useSocialAuth(option.id)
 
@@ -39,16 +33,34 @@ export function PlatformConnectCard({
 
   return (
     <div
-      className={`flex items-center gap-4 rounded-[24px] border bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ${
-        connected ? "border-emerald-500/20 bg-emerald-50/70" : "border-black/8"
-      }`}
+      className={`flex items-center gap-4 rounded-[24px] border bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ${connected ? "border-emerald-500/20 bg-emerald-50/70" : "border-black/8"
+        }`}
     >
-      <SocialPlatformIcon option={option} />
+      <div className="relative shrink-0">
+        <SocialPlatformIcon option={option} />
+        {connected && connectedAccount?.profile_picture_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={connectedAccount.profile_picture_url}
+            alt={connectedAccount.account_name}
+            className="absolute inset-0 h-11 w-11 rounded-full object-cover border border-white dark:border-slate-900 shadow-sm"
+          />
+        )}
+      </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="text-base font-semibold text-slate-950">{option.label}</h3>
-        <p className="mt-1 text-sm text-slate-500">
-          Connect for publishing and performance insights.
+        <h3 className="text-base font-semibold text-slate-950 flex flex-wrap items-center gap-x-2">
+          <span>{option.label}</span>
+          {connected && connectedAccount?.account_name && (
+            <span className="text-xs font-normal text-slate-500 truncate max-w-[150px]">
+              ({connectedAccount.account_name})
+            </span>
+          )}
+        </h3>
+        <p className="mt-1 text-sm text-slate-500 truncate">
+          {connected && connectedAccount
+            ? `Connected on ${new Date(connectedAccount.connected_at).toLocaleDateString()}`
+            : "Connect for publishing and performance insights."}
         </p>
       </div>
 
@@ -76,3 +88,4 @@ export function PlatformConnectCard({
     </div>
   )
 }
+

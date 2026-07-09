@@ -24,16 +24,7 @@ export default function DashboardPage() {
   })
 
   const brand = user?.brand
-  const connectedAccountsCount = brand
-    ? [
-      brand.is_youtube_connected,
-      brand.is_instagram_connected,
-      brand.is_tiktok_connected,
-      brand.is_facebook_connected,
-      brand.is_linkedin_connected,
-      brand.is_x_connected,
-    ].filter(Boolean).length
-    : 0
+  const connectedAccountsCount = brand?.connected_accounts?.length ?? 0
 
   const handleClearQueue = () => {
     localStorage.removeItem("postreach-scheduled-posts")

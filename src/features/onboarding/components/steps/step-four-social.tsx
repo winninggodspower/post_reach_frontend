@@ -4,13 +4,11 @@ import { useAuth } from "@/features/auth/store/auth-store"
 
 import { PlatformConnectCard } from "@/features/onboarding/components/platform-connect-card"
 
-import { PLATFORM_OPTIONS, BRAND_PLATFORM_FLAGS } from "./shared"
+import { PLATFORM_OPTIONS } from "./shared"
 
 export function OnboardingStepFourSocial() {
   const brand = useAuth((state) => state.user?.brand)
-  const connectedCount = brand
-    ? BRAND_PLATFORM_FLAGS.filter(({ key }) => brand[key]).length
-    : 0
+  const connectedCount = brand?.connected_accounts?.length ?? 0
 
   return (
     <div className="space-y-6">
