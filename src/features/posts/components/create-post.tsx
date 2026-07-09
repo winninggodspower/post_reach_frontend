@@ -4,8 +4,8 @@ import * as React from "react"
 import Link from "next/link"
 import { Info } from "lucide-react"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
-import { VideoComposer } from "./video-composer"
 
 const POST_TYPES = [
   {
@@ -70,21 +70,17 @@ const POST_TYPES = [
 ]
 
 export function CreatePost() {
-  const [composerType, setComposerType] = React.useState<"select" | "video">("select")
+  const router = useRouter()
 
   const handleSelectType = (id: string, title: string) => {
     if (id === "video") {
-      setComposerType("video")
+      router.push("/dashboard/posts/video")
     } else {
       toast.info(`${title} editor coming soon!`, {
         description: "We are currently setting up the sub-pages for post drafting.",
         duration: 4000,
       })
     }
-  }
-
-  if (composerType === "video") {
-    return <VideoComposer onBack={() => setComposerType("select")} />
   }
 
   return (

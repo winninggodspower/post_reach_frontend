@@ -5,6 +5,7 @@ import { ChevronLeft } from "lucide-react"
 import { toast } from "sonner"
 import { useForm } from "react-hook-form"
 import { useAuth } from "@/features/auth/store/auth-store"
+import { useRouter } from "next/navigation"
 import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
 
 // Sub-components
@@ -34,12 +35,21 @@ export interface VideoPostFormValues {
 }
 
 type VideoComposerProps = {
-  onBack: () => void
+  onBack?: () => void
 }
 
 export function VideoComposer({ onBack }: VideoComposerProps) {
+  const router = useRouter()
   const user = useAuth((state) => state.user)
   const brand = user?.brand
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack()
+    } else {
+      router.push("/dashboard/posts")
+    }
+  }
 
   // Target Accounts initial state
   const [channels, setChannels] = React.useState<AccountChannel[]>([
@@ -283,7 +293,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-3">
           <button
-            onClick={onBack}
+            onClick={handleBack}
             className="flex items-center justify-center h-10 w-10 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 transition cursor-pointer"
             aria-label="Back to selection"
           >
