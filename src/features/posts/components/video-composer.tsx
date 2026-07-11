@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
 import { PLATFORM_OPTIONS, PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
+import { publishVideoPost } from "../api/server"
 
 // Sub-components
 import { TargetAccountsSelector } from "./target-accounts-selector"
@@ -42,6 +43,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const brand = user?.brand
+  const [isPublishing, setIsPublishing] = React.useState(false)
 
   const handleBack = () => {
     if (onBack) {
@@ -214,7 +216,9 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     setVideoDuration(`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`)
   }
 
-  const handlePublish = (action: "schedule" | "now") => {
+  const handlePublish = async (action: "schedule" | "now") => {
+    if (isPublishing) return
+
     const activeChs = channels.filter(c => c.selected)
     if (activeChs.length === 0) {
       toast.error("No channels selected", {
@@ -239,14 +243,65 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     }
 
     if (action === "schedule") {
-      toast.success("Video Post Scheduled!", {
-        description: `Successfully scheduled to publish on ${activeChs.length} channel(s) on ${scheduleDate} at ${scheduleTime}.`,
+      toast.error("Scheduling not supported yet", {
+        description: "Scheduled posting is not supported in this version. Please select 'Publish Now'.",
+      })
+      return
+    }
+
+    setIsPublishing(true)
+    const toastId = toast.loading("Publishing video post...", {
+      description: "Uploading and publishing your video post immediately.",
+    })
+
+    try {
+      const mappedPlatforms = activeChs.map(c => c.platform === "x" ? "twitter" : c.platform)
+      
+      const platformSettings: Record<string, any> = {}
+      if (mappedPlatforms.includes("youtube")) {
+        platformSettings.youtube = {
+          title: (customizePerPlatform ? youtubeTitle : title) || title,
+          description: (customizePerPlatform ? youtubeCaption : caption) || caption
+        }
+      }
+      
+      if (customizePerPlatform) {
+        if (mappedPlatforms.includes("facebook") && facebookCaption) {
+          platformSettings.facebook = { caption: facebookCaption }
+        }
+        if (mappedPlatforms.includes("instagram") && instagramCaption) {
+          platformSettings.instagram = { caption: instagramCaption }
+        }
+        if (mappedPlatforms.includes("tiktok") && tiktokCaption) {
+          platformSettings.tiktok = { caption: tiktokCaption }
+        }
+        if (mappedPlatforms.includes("linkedin") && linkedinCaption) {
+          platformSettings.linkedin = { caption: linkedinCaption }
+        }
+        if (mappedPlatforms.includes("twitter") && xCaption) {
+          platformSettings.twitter = { caption: xCaption }
+        }
+      }
+
+      await publishVideoPost({
+        video: videoFile,
+        caption: caption || "",
+        platforms: mappedPlatforms,
+        platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
+      })
+
+      toast.success("Video post published!", {
+        id: toastId,
+        description: "Successfully published to the selected platform(s).",
         duration: 5000,
       })
-    } else {
-      toast.success("Publishing Post!", {
-        description: "Uploading and publishing your video post immediately.",
-        duration: 5000,
+      router.push("/dashboard/posts")
+    } catch (err: any) {
+      setIsPublishing(false)
+      const errorMsg = err.response?.data?.message || err.message || "Something went wrong while publishing."
+      toast.error("Failed to publish", {
+        id: toastId,
+        description: errorMsg,
       })
     }
   }
@@ -279,10 +334,11 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         {/* Action Header publish shortcut */}
         <div className="flex items-center gap-2">
           <button
+            disabled={isPublishing}
             onClick={() => handlePublish(isScheduled ? "schedule" : "now")}
-            className="px-5 py-2 text-xs font-semibold rounded-xl bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-md hover:brightness-105 transition cursor-pointer"
+            className="px-5 py-2 text-xs font-semibold rounded-xl bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-md hover:brightness-105 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isScheduled ? "Schedule Post" : "Publish Now"}
+            {isPublishing ? "Publishing..." : (isScheduled ? "Schedule Post" : "Publish Now")}
           </button>
         </div>
       </div>
@@ -380,6 +436,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
             scheduleDate={scheduleDate}
             scheduleTime={scheduleTime}
             onPublish={handlePublish}
+            disabled={isPublishing}
           />
 
         </div>

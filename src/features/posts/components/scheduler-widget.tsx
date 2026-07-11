@@ -17,6 +17,7 @@ type SchedulerWidgetProps = {
   scheduleDate: string
   scheduleTime: string
   onPublish: (action: "schedule" | "now") => void
+  disabled?: boolean
 }
 
 const formatDate = (date: Date) => {
@@ -40,6 +41,7 @@ export function SchedulerWidget({
   scheduleDate,
   scheduleTime,
   onPublish,
+  disabled = false,
 }: SchedulerWidgetProps) {
   const parsedDate = parseDate(scheduleDate)
   const displayDateText = parsedDate 
@@ -59,8 +61,9 @@ export function SchedulerWidget({
 
         <button
           type="button"
+          disabled={disabled}
           onClick={() => onChangeIsScheduled(!isScheduled)}
-          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-50 disabled:cursor-not-allowed ${
             isScheduled ? "bg-emerald-500" : "bg-slate-200 dark:bg-slate-800"
           }`}
           role="switch"
@@ -88,7 +91,8 @@ export function SchedulerWidget({
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full justify-start text-left font-semibold text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-hidden focus:ring-1 focus:ring-accent-brand h-9 text-slate-800 dark:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  disabled={disabled}
+                  className="w-full justify-start text-left font-semibold text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-hidden focus:ring-1 focus:ring-accent-brand h-9 text-slate-800 dark:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {displayDateText}
                 </Button>
@@ -113,7 +117,7 @@ export function SchedulerWidget({
             </label>
             <TimePicker
               value={scheduleTime}
-              onChange={(newTime) => setValue("scheduleTime", newTime)}
+              onChange={(newTime) => !disabled && setValue("scheduleTime", newTime)}
             />
           </div>
         </div>
@@ -140,10 +144,13 @@ export function SchedulerWidget({
       {/* Call to action buttons */}
       <div className="space-y-2 pt-2">
         <button
+          disabled={disabled}
           onClick={() => onPublish(isScheduled ? "schedule" : "now")}
-          className="w-full py-3 rounded-xl bg-linear-to-r from-accent-dark to-accent-brand hover:brightness-105 transition font-semibold text-xs tracking-wider uppercase text-white shadow-md flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full py-3 rounded-xl bg-linear-to-r from-accent-dark to-accent-brand hover:brightness-105 transition font-semibold text-xs tracking-wider uppercase text-white shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isScheduled ? (
+          {disabled ? (
+            <span>Publishing...</span>
+          ) : isScheduled ? (
             <>
               <Calendar className="size-4" />
               <span>Schedule post</span>
