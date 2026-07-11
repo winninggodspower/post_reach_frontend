@@ -67,18 +67,17 @@ export function TimePicker({
       <PopoverContent className="w-64 p-3" align="end">
         <div className="flex gap-2 justify-between h-48 select-none">
           {/* Hours Column */}
-          <div className="flex-1 overflow-y-auto scrollbar-thin border-r border-slate-100 dark:border-slate-800/80 pr-1 space-y-0.5">
+          <div className="flex-1 overflow-y-auto [scrollbar-color:var(--color-slate-200)_transparent] dark:[scrollbar-color:var(--color-slate-800)_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent border-r border-slate-100 dark:border-slate-800/80 pr-1 space-y-0.5">
             <div className="text-[9px] text-center font-bold text-slate-400 uppercase tracking-wider mb-1 sticky top-0 bg-popover py-1">Hour</div>
             {hours.map((h) => (
               <button
                 key={h}
                 type="button"
                 onClick={() => handleSelectHour(h)}
-                className={`w-full py-1 text-center text-xs font-semibold rounded-md transition cursor-pointer ${
-                  hour12 === h
-                    ? "bg-accent-brand text-white"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
+                className={`w-full py-1 text-center text-xs font-semibold rounded-md transition cursor-pointer ${hour12 === h
+                  ? "bg-accent-brand text-white"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                  }`}
               >
                 {String(h).padStart(2, "0")}
               </button>
@@ -86,18 +85,17 @@ export function TimePicker({
           </div>
 
           {/* Minutes Column */}
-          <div className="flex-1 overflow-y-auto scrollbar-thin border-r border-slate-100 dark:border-slate-800/80 pr-1 space-y-0.5">
+          <div className="flex-1 overflow-y-auto [scrollbar-color:theme(colors.slate.200)_transparent] dark:[scrollbar-color:theme(colors.slate.800)_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent border-r border-slate-100 dark:border-slate-800/80 pr-1 space-y-0.5">
             <div className="text-[9px] text-center font-bold text-slate-400 uppercase tracking-wider mb-1 sticky top-0 bg-popover py-1">Min</div>
             {minutes.map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => handleSelectMinute(m)}
-                className={`w-full py-1 text-center text-xs font-semibold rounded-md transition cursor-pointer ${
-                  minute === m
-                    ? "bg-accent-brand text-white"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
+                className={`w-full py-1 text-center text-xs font-semibold rounded-md transition cursor-pointer ${minute === m
+                  ? "bg-accent-brand text-white"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                  }`}
               >
                 {String(m).padStart(2, "0")}
               </button>
@@ -112,11 +110,10 @@ export function TimePicker({
                 key={ap}
                 type="button"
                 onClick={() => handleSelectAmPm(ap)}
-                className={`w-full py-2.5 text-center text-xs font-bold rounded-md transition cursor-pointer ${
-                  ampm === ap
-                    ? "bg-accent-brand text-white"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
+                className={`w-full py-2.5 text-center text-xs font-bold rounded-md transition cursor-pointer ${ampm === ap
+                  ? "bg-accent-brand text-white"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                  }`}
               >
                 {ap}
               </button>
