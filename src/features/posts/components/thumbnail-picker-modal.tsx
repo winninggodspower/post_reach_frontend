@@ -24,16 +24,33 @@ export function ThumbnailPickerModal({
   const [isReady, setIsReady] = React.useState(false)
   const [aspectRatio, setAspectRatio] = React.useState<number>(16 / 9) // Default fallback
 
-  const captureFrame = React.useCallback(() => {
+  const seekTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+
+  const captureFrame = React.useCallback((isFullRes = false) => {
     const video = videoRef.current
     const canvas = canvasRef.current
     if (!video || !canvas || video.videoWidth === 0) return
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
+
+    // Scale down image size for preview to speed up canvas.toDataURL encoding
+    const maxDim = isFullRes ? 1280 : 640
+    let w = video.videoWidth
+    let h = video.videoHeight
+    if (w > maxDim || h > maxDim) {
+      if (w > h) {
+        h = Math.round((h * maxDim) / w)
+        w = maxDim
+      } else {
+        w = Math.round((w * maxDim) / h)
+        h = maxDim
+      }
+    }
+
+    canvas.width = w
+    canvas.height = h
     const ctx = canvas.getContext("2d")
     if (!ctx) return
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-    setPreviewDataUrl(canvas.toDataURL("image/jpeg", 0.9))
+    ctx.drawImage(video, 0, 0, w, h)
+    setPreviewDataUrl(canvas.toDataURL("image/jpeg", 0.8))
   }, [])
 
   const handleLoadedData = () => {
@@ -54,10 +71,25 @@ export function ThumbnailPickerModal({
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value)
     setSliderValue(val)
-    if (videoRef.current) {
-      videoRef.current.currentTime = val
+
+    if (seekTimeoutRef.current) {
+      clearTimeout(seekTimeoutRef.current)
     }
+
+    // 40ms debounce to prevent browser video decoder overload
+    seekTimeoutRef.current = setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.currentTime = val
+      }
+    }, 40)
   }
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (seekTimeoutRef.current) clearTimeout(seekTimeoutRef.current)
+    }
+  }, [])
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60)
@@ -66,6 +98,23 @@ export function ThumbnailPickerModal({
   }
 
   const maxModalWidth = aspectRatio < 1 ? "max-w-md" : "max-w-2xl"
+
+  const handleSetCover = () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (video && canvas) {
+      // Capture at full resolution for the final selected cover
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext("2d")
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        const fullResDataUrl = canvas.toDataURL("image/jpeg", 0.9)
+        onSelect(fullResDataUrl, sliderValue)
+      }
+    }
+    onClose()
+  }
 
   const footer = (
     <>
@@ -76,10 +125,7 @@ export function ThumbnailPickerModal({
         Cancel
       </button>
       <button
-        onClick={() => {
-          if (previewDataUrl) onSelect(previewDataUrl, sliderValue)
-          onClose()
-        }}
+        onClick={handleSetCover}
         disabled={!previewDataUrl}
         className="px-4 py-2 text-xs font-semibold rounded-xl bg-accent-brand text-white hover:bg-accent-dark transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
       >
@@ -105,7 +151,7 @@ export function ThumbnailPickerModal({
             <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               New cover image
             </p>
-            <div 
+            <div
               className="rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-slate-800 relative w-full max-h-[45vh]"
               style={{ aspectRatio: `${aspectRatio}` }}
             >
@@ -124,7 +170,7 @@ export function ThumbnailPickerModal({
               <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                 Current cover
               </p>
-              <div 
+              <div
                 className="rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-slate-800 w-full max-h-[45vh]"
                 style={{ aspectRatio: `${aspectRatio}` }}
               >

@@ -178,7 +178,7 @@ export function LivePreviewPhone({
                 {/* Bottom-right: action buttons */}
                 <div className="flex flex-col items-center gap-3.5 drop-shadow-md text-white shrink-0">
                   <div className="flex flex-col items-center">
-                    <ThumbsUp className="size-6" strokeWidth={1.5} />
+                    <Heart className="size-6" strokeWidth={1.5} />
                     <span className="text-[9px] font-bold mt-0.5">40K</span>
                   </div>
                   <div className="flex flex-col items-center">
