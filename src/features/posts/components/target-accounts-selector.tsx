@@ -45,29 +45,29 @@ export function TargetAccountsSelector({
           >
             <div className="relative">
               <div
-                className={`size-12 rounded-full overflow-hidden border-2 p-0.5 transition-all duration-300 ${
+                className={`size-11 rounded-full transition-all duration-300 ${
                   channel.selected
-                    ? "border-emerald-500 dark:border-emerald-400 ring-4 ring-emerald-500/15 scale-105"
-                    : "border-slate-200 dark:border-slate-800 group-hover:border-slate-400 group-hover:scale-102"
+                    ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-950 scale-105"
+                    : "group-hover:scale-102"
                 }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={channel.avatar}
                   alt={channel.name}
-                  className={`size-full object-cover rounded-full transition duration-300 ${
+                  className={`size-full object-cover rounded-full border border-white dark:border-slate-900 shadow-sm transition duration-300 ${
                     channel.selected ? "grayscale-0" : "grayscale opacity-75 group-hover:grayscale-0 group-hover:opacity-100"
                   }`}
                 />
               </div>
 
               {channel.selected && (
-                <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-emerald-500 text-white border border-white shadow-xs">
+                <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-emerald-500 text-white border border-white shadow-xs z-10">
                   <Check className="size-3 stroke-3" />
                 </span>
               )}
 
-              <div className="absolute -bottom-1.5 -right-1 size-6 bg-white dark:bg-slate-900 rounded-full border border-slate-100 dark:border-slate-800 flex items-center justify-center p-0.5 shadow-xs">
+              <div className="absolute -bottom-1 -right-1 size-5 bg-white dark:bg-slate-900 rounded-full border border-slate-100 dark:border-slate-800 flex items-center justify-center p-0.5 shadow-xs">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={getPlatformIcon(channel.platform)}
@@ -84,7 +84,7 @@ export function TargetAccountsSelector({
           className="group relative cursor-pointer focus:outline-hidden"
           title="Connect a new account"
         >
-          <div className="size-12 rounded-full border-2 border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center bg-slate-50/50 dark:bg-slate-950/20 text-slate-400 group-hover:border-accent-brand group-hover:text-accent-brand transition duration-300">
+          <div className="size-11 rounded-full border-2 border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center bg-slate-50/50 dark:bg-slate-950/20 text-slate-400 group-hover:border-accent-brand group-hover:text-accent-brand transition duration-300">
             <Plus className="size-5" />
           </div>
         </button>

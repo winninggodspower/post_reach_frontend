@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import { useForm } from "react-hook-form"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
-import { PLATFORM_OPTIONS, DEFAULT_PLATFORM_AVATARS } from "@/features/onboarding/components/steps/shared"
+import { PLATFORM_OPTIONS, PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
 
 // Sub-components
 import { TargetAccountsSelector } from "./target-accounts-selector"
@@ -54,69 +54,20 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   // Target Accounts initial state
   const [channels, setChannels] = React.useState<AccountChannel[]>(() => {
     if (brand?.connected_accounts && brand.connected_accounts.length > 0) {
-      return PLATFORM_OPTIONS.map((opt) => {
-        const conn = brand.connected_accounts.find((acc) => acc.platform.toLowerCase() === opt.id.toLowerCase())
+      return brand.connected_accounts.map((conn) => {
+        const opt = PLATFORM_OPTIONS.find((p) => p.id.toLowerCase() === conn.platform.toLowerCase())
         return {
-          id: conn?.external_id || `ch-${opt.id}-temp`,
-          platform: opt.id,
-          name: conn?.account_name || opt.label,
-          handle: conn ? `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}` : `@${opt.id}_not_connected`,
-          avatar: conn?.profile_picture_url || DEFAULT_PLATFORM_AVATARS[opt.id] || opt.icon,
-          selected: !!conn,
+          id: conn.external_id,
+          platform: conn.platform.toLowerCase(),
+          name: conn.account_name,
+          handle: `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}`,
+          avatar: conn.profile_picture_url || PLAIN_AVATAR,
+          selected: true,
         }
       })
     }
 
-    return [
-      {
-        id: "ch-tiktok-1",
-        platform: "tiktok",
-        name: brand?.name || user?.first_name || "Jack Ingy",
-        handle: "@jack_tok",
-        avatar: DEFAULT_PLATFORM_AVATARS.tiktok,
-        selected: true,
-      },
-      {
-        id: "ch-youtube-1",
-        platform: "youtube",
-        name: `${brand?.name || user?.first_name || "Jack"} Shorts`,
-        handle: "@jack_shorts",
-        avatar: DEFAULT_PLATFORM_AVATARS.youtube,
-        selected: true,
-      },
-      {
-        id: "ch-instagram-1",
-        platform: "instagram",
-        name: `${brand?.name || user?.first_name || "Jack"} Reels`,
-        handle: "@jack_reels",
-        avatar: DEFAULT_PLATFORM_AVATARS.instagram,
-        selected: false,
-      },
-      {
-        id: "ch-facebook-1",
-        platform: "facebook",
-        name: brand?.name || "Jack Page",
-        handle: "@jack_facebook",
-        avatar: DEFAULT_PLATFORM_AVATARS.facebook,
-        selected: false,
-      },
-      {
-        id: "ch-linkedin-1",
-        platform: "linkedin",
-        name: `${user?.first_name} ${user?.last_name}`.trim() || "Jack Ingy",
-        handle: "@jack_linkedin",
-        avatar: DEFAULT_PLATFORM_AVATARS.linkedin,
-        selected: false,
-      },
-      {
-        id: "ch-x-1",
-        platform: "x",
-        name: brand?.name || "Jack X",
-        handle: "@jack_tweets",
-        avatar: DEFAULT_PLATFORM_AVATARS.x,
-        selected: false,
-      },
-    ]
+    return []
   })
 
   // React Hook Form
@@ -199,11 +150,11 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     const url = URL.createObjectURL(file)
     setVideoSrc(url)
     setIsPlaying(true)
-    
+
     // Clear cover image when media is replaced/updated
     setThumbnailDataUrl("")
     setValue("coverImageTimestamp", undefined)
-    
+
     const sizeInMB = (file.size / (1024 * 1024)).toFixed(1)
     setVideoSize(`${sizeInMB} MB`)
   }
@@ -248,8 +199,8 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       if (videoRef.current && previewVideoRef.current) {
         previewVideoRef.current.currentTime = videoRef.current.currentTime
       }
-      videoRef.current?.play().catch(() => {})
-      previewVideoRef.current?.play().catch(() => {})
+      videoRef.current?.play().catch(() => { })
+      previewVideoRef.current?.play().catch(() => { })
     } else {
       videoRef.current?.pause()
       previewVideoRef.current?.pause()
@@ -304,7 +255,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-20 py-6 md:py-10 animate-fade-in text-slate-800 dark:text-slate-200">
-      
+
       {/* Back button and title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-3">
@@ -345,10 +296,10 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
 
       {/* Main Grid: Left inputs, Right preview/scheduler */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
+
         {/* Left Column - Form fields */}
         <div className={videoSrc ? "lg:col-span-7 space-y-6" : "lg:col-span-8 space-y-6"}>
-          
+
           <MediaFileUploader
             videoSrc={videoSrc}
             videoFile={videoFile}
@@ -393,7 +344,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
 
         {/* Right Column - Preview & Scheduler widget */}
         <div className={videoSrc ? "lg:col-span-5 space-y-6 lg:sticky lg:top-6" : "lg:col-span-4 space-y-6"}>
-          
+
           {videoSrc && (
             <LivePreviewPhone
               videoSrc={videoSrc}
@@ -411,8 +362,8 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
               caption={
                 customizePerPlatform
                   ? (previewPlatform === "youtube"
-                      ? youtubeCaption
-                      : previewPlatform === "tiktok"
+                    ? youtubeCaption
+                    : previewPlatform === "tiktok"
                       ? tiktokCaption
                       : instagramCaption) || caption
                   : caption
