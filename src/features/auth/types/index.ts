@@ -9,6 +9,8 @@ export type ConnectedAccount = {
   account_name: string
   profile_picture_url: string | null
   connected_at: string
+  is_expired?: boolean
+  expired_at?: string | null
 }
 
 export type UserBrand = {

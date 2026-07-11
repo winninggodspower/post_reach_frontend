@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { Check, CircleCheckBig, Loader2 } from "lucide-react"
+import { Check, CircleCheckBig, Loader2, AlertTriangle } from "lucide-react"
 
 import type { UserBrand } from "@/features/auth/types"
 import type {
@@ -211,7 +211,16 @@ export function SocialPlatformIcon({ option }: { option: PlatformOption }) {
   )
 }
 
-export function StatusPill({ connected }: { connected: boolean }) {
+export function StatusPill({ connected, expired }: { connected: boolean; expired?: boolean }) {
+  if (expired) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] bg-rose-500/10 text-rose-700">
+        <AlertTriangle className="size-3.5" />
+        Expired
+      </span>
+    )
+  }
+
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${connected

@@ -93,7 +93,7 @@ export function CreatePost() {
       </div>
 
       {/* Post Type Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
         {POST_TYPES.map((card) => {
           // Get platforms supported by this card
           const supportedPlatforms = PLATFORM_OPTIONS.filter((p) =>

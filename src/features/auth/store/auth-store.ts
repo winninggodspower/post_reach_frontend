@@ -78,7 +78,11 @@ export const useAuth = create<AuthState>()(
         const alreadyExists = connectionAccounts.some((a) => a.platform === platform)
         
         const newConnectionAccounts = alreadyExists
-          ? connectionAccounts
+          ? connectionAccounts.map((a) =>
+              a.platform === platform
+                ? { ...a, is_expired: false, expired_at: null }
+                : a
+            )
           : [
               ...connectionAccounts,
               {
@@ -87,6 +91,8 @@ export const useAuth = create<AuthState>()(
                 account_name: `${currentUser.brand.name || "Connected"} Page`,
                 profile_picture_url: null,
                 connected_at: new Date().toISOString(),
+                is_expired: false,
+                expired_at: null,
               },
             ]
 

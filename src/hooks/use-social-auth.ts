@@ -36,6 +36,7 @@ export function useSocialAuth(platform: OnboardingPlatform) {
   const [loading, setLoading] = useState(false)
   const cleanupRef = useRef<(() => void) | null>(null)
   const setBrandConnection = useAuth((state) => state.setBrandConnection)
+  const loadUser = useAuth((state) => state.loadUser)
 
   const connect = useCallback(async () => {
     setLoading(true)
@@ -61,6 +62,7 @@ export function useSocialAuth(platform: OnboardingPlatform) {
 
         if (data?.type === "oauth-success") {
           setBrandConnection(platform)
+          void loadUser()
           cleanupRef.current?.()
         }
 

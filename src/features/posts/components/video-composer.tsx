@@ -64,7 +64,8 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
           name: conn.account_name,
           handle: `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}`,
           avatar: conn.profile_picture_url || PLAIN_AVATAR,
-          selected: true,
+          selected: conn.is_expired ? false : true,
+          expired: conn.is_expired,
         }
       })
     }
@@ -131,6 +132,14 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   }
 
   const toggleChannel = (id: string) => {
+    const channel = channels.find(c => c.id === id)
+    if (channel?.expired) {
+      toast.error("Account connection expired", {
+        description: `Please reconnect your ${channel.name} account in Connections settings.`,
+      })
+      return
+    }
+
     setChannels(prev =>
       prev.map(c => (c.id === id ? { ...c, selected: !c.selected } : c))
     )

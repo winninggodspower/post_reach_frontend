@@ -22,19 +22,25 @@ export function PlatformConnectCard({
     (acc) => acc.platform.toLowerCase() === option.id.toLowerCase()
   )
   const connected = !!connectedAccount
+  const expired = !!connectedAccount?.is_expired
 
   const { connect, loading: connecting } = useSocialAuth(option.id)
 
   const handleClick = () => {
-    if (!connected) {
+    if (!connected || expired) {
       void connect()
     }
   }
 
   return (
     <div
-      className={`flex items-center gap-4 rounded-[24px] border bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ${connected ? "border-emerald-500/20 bg-emerald-50/70" : "border-black/8"
-        }`}
+      className={`flex items-center gap-4 rounded-[24px] border bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ${
+        expired
+          ? "border-rose-500/20 bg-rose-50/70"
+          : connected
+            ? "border-emerald-500/20 bg-emerald-50/70"
+            : "border-black/8"
+      }`}
     >
       <div className="relative shrink-0">
         <SocialPlatformIcon option={option} />
@@ -68,19 +74,21 @@ export function PlatformConnectCard({
           )}
         </h3>
         <p className="mt-1 text-sm text-slate-500 truncate">
-          {connected && connectedAccount
-            ? `Connected on ${new Date(connectedAccount.connected_at).toLocaleDateString()}`
-            : "Connect for publishing and performance insights."}
+          {expired
+            ? "Connection expired. Please reconnect."
+            : connected && connectedAccount
+              ? `Connected on ${new Date(connectedAccount.connected_at).toLocaleDateString()}`
+              : "Connect for publishing and performance insights."}
         </p>
       </div>
 
       <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
-        <StatusPill connected={connected} />
+        <StatusPill connected={connected} expired={expired} />
         <Button
           type="button"
-          variant={connected ? "outline" : "default"}
+          variant={connected && !expired ? "outline" : "default"}
           size="sm"
-          disabled={connecting || connected}
+          disabled={connecting || (connected && !expired)}
           onClick={handleClick}
         >
           {connecting ? (
@@ -88,6 +96,8 @@ export function PlatformConnectCard({
               <Loader2 className="mr-1.5 size-3.5 animate-spin" />
               Connecting...
             </>
+          ) : expired ? (
+            "Reconnect"
           ) : connected ? (
             "Connected"
           ) : (
