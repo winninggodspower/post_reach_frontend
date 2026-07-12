@@ -21,11 +21,11 @@ export function DashboardNavbar() {
   const activeBrandName = user?.brand?.name || "PostReach Brand"
 
   return (
-    <header className="relative flex h-12 shrink-0 items-center justify-between border-b border-sidebar-border px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 bg-white">
+    <header className="relative flex h-14 shrink-0 items-center justify-between border-b border-sidebar-border px-5 transition-[width,height] ease-linear bg-white">
       {/* Left Side: Navigation & Brand Selector */}
-      <div className="flex items-center gap-2">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
+      <div className="flex items-center gap-3">
+        <SidebarTrigger className="-ml-1 size-9 [&_svg]:size-5" />
+        <Separator orientation="vertical" className="mr-2 h-5" />
 
         <div className="relative">
           <button
@@ -39,7 +39,7 @@ export function DashboardNavbar() {
           {brandDropdownOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setBrandDropdownOpen(false)} />
-              <div className="absolute top-8 left-0 z-50 w-56 rounded-xl border border-black/8 bg-white p-1.5 shadow-md animate-in fade-in-0 slide-in-from-top-1">
+              <div className="absolute top-9 left-0 z-50 w-56 rounded-xl border border-black/8 bg-white p-1.5 shadow-md animate-in fade-in-0 slide-in-from-top-1">
                 <p className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Brands
                 </p>
@@ -72,15 +72,20 @@ export function DashboardNavbar() {
       <div className="relative">
         <button
           onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-          className="flex size-8 items-center justify-center rounded-full bg-linear-to-br from-orange-500 to-orange-600 text-white text-xs font-bold shadow-xs select-none cursor-pointer ring-2 ring-orange-500/10 hover:brightness-95 transition"
+          className="flex size-8 items-center justify-center rounded-full border border-blue-500 hover:brightness-95 transition overflow-hidden shadow-xs cursor-pointer bg-slate-50 p-0.5"
         >
-          {initials}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/placeholder-avatar.svg"
+            alt={fullName}
+            className="size-full object-cover rounded-full"
+          />
         </button>
 
         {profileDropdownOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setProfileDropdownOpen(false)} />
-            <div className="absolute top-9 right-0 z-50 w-56 rounded-xl border border-black/8 bg-white p-1.5 shadow-md animate-in fade-in-0 slide-in-from-top-1 space-y-2">
+            <div className="absolute top-9 right-0 z-50 w-56 rounded-xl border border-black/8 bg-white p-1.5 shadow-md animate-in fade-in-0 slide-in-from-top-1 space-y-0.5">
               <div className="border-b border-black/5 p-2">
                 <p className="text-xs font-bold text-slate-900 leading-none truncate">
                   {fullName}
@@ -107,9 +112,9 @@ export function DashboardNavbar() {
                   logout()
                   window.location.href = "/signin"
                 }}
-                className="w-full text-left rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer flex items-center gap-2"
+                className="w-full text-left rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
               >
-                <LogOut className="size-3.5 text-rose-500" />
+                <LogOut className="size-3.5 text-slate-400" />
                 Logout
               </button>
             </div>
