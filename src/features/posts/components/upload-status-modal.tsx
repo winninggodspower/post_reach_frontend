@@ -4,6 +4,8 @@ import * as React from "react"
 import { CheckCircle2, XCircle, Loader2, ExternalLink } from "lucide-react"
 import { ModalShell } from "@/components/ui/modal-shell"
 import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
+import { useAuth } from "@/features/auth/store/auth-store"
+import { SocialAccountAvatar } from "@/components/ui/social-account-avatar"
 import { getPostStatus } from "../api/server"
 import type { PlatformPostStatus } from "../api/server"
 
@@ -20,6 +22,8 @@ export function UploadStatusModal({
   postId,
   uploadProgress,
 }: UploadStatusModalProps) {
+  const user = useAuth((state) => state.user)
+  const connectedAccounts = user?.brand?.connected_accounts || []
   const [platformStatuses, setPlatformStatuses] = React.useState<PlatformPostStatus[]>([])
   const [error, setError] = React.useState<string | null>(null)
 
@@ -150,9 +154,13 @@ export function UploadStatusModal({
       footerContent={
         <button
           onClick={onClose}
-          className="w-full sm:w-auto px-5 py-2.5 text-xs font-semibold rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 shadow-md transition cursor-pointer"
+          className={`w-full sm:w-auto px-6 py-2.5 text-xs font-bold rounded-xl transition duration-300 shadow-md cursor-pointer ${
+            isFinished
+              ? "bg-linear-to-r from-accent-dark to-accent-brand hover:brightness-105 text-white"
+              : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-slate-205 dark:text-slate-900"
+          }`}
         >
-          {isFinished ? "Close Summary" : "Close & Keep Publishing"}
+          {isFinished ? "Done" : "Keep Publishing in Background"}
         </button>
       }
     >
@@ -178,10 +186,10 @@ export function UploadStatusModal({
 
         {/* Polling Multi-platform publishing status */}
         {uploadProgress === 100 && (
-          <div className="space-y-4">
-            <div className="py-2">
+          <div className="space-y-5">
+            <div className="py-1">
               {!isFinished ? (
-                <div className="flex flex-col gap-2 text-center text-xs font-semibold text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-950/20 py-3 px-4 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                <div className="flex flex-col gap-2 text-center text-xs font-semibold text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-950/20 py-3.5 px-4 rounded-2xl border border-slate-100 dark:border-slate-800/80">
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="size-4 text-accent-brand animate-spin" />
                     <span>Processing and distributing video to platforms...</span>
@@ -191,19 +199,19 @@ export function UploadStatusModal({
                   </p>
                 </div>
               ) : (
-                <div className="text-center py-2 animate-fade-in">
+                <div className="text-center py-3 animate-fade-in">
                   {publishSummary?.failedCount === 0 ? (
-                    <h4 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1.5 justify-center">
-                      🎉 Success! Your content is live!
-                    </h4>
+                    <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-bold text-sm shadow-xs">
+                      <span>🎉 Success! Your content is live!</span>
+                    </div>
                   ) : publishSummary?.postedCount === 0 ? (
-                    <h4 className="text-sm font-bold text-rose-600 dark:text-rose-400 flex items-center justify-center gap-1.5 justify-center">
-                      ⚠️ Publishing failed
-                    </h4>
+                    <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-400 font-bold text-sm shadow-xs">
+                      <span>⚠️ Publishing failed</span>
+                    </div>
                   ) : (
-                    <h4 className="text-sm font-bold text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5 justify-center">
-                      ⚡ Partial success
-                    </h4>
+                    <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold text-sm shadow-xs">
+                      <span>⚡ Partial success</span>
+                    </div>
                   )}
                 </div>
               )}
@@ -213,44 +221,60 @@ export function UploadStatusModal({
             {platformStatuses.length > 0 && (
               <div className="space-y-3">
                 {platformStatuses.map((status) => {
+                  const matchKey = status.platform === "twitter" ? "x" : status.platform
+                  const connectedAccount = connectedAccounts.find(
+                    (acc) => acc.platform.toLowerCase() === matchKey.toLowerCase()
+                  )
                   const meta = getPlatformMeta(status.platform)
+                  
                   return (
                     <div
                       key={status.id}
-                      className="border border-slate-100 dark:border-slate-800/80 rounded-xl p-3.5 bg-slate-50/50 dark:bg-slate-950/20 space-y-2"
+                      className="border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 bg-slate-50/30 dark:bg-slate-950/10 hover:border-slate-200/80 dark:hover:border-slate-800 transition duration-300 space-y-3"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={meta.icon}
-                            alt={meta.label}
-                            className="size-6 object-contain"
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <SocialAccountAvatar
+                            avatarUrl={connectedAccount?.profile_picture_url}
+                            accountName={connectedAccount?.account_name}
+                            platformIconUrl={meta.icon}
+                            platformLabel={meta.label}
+                            size="sm"
                           />
-                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                            {meta.label}
-                          </span>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                              {meta.label}
+                            </span>
+                            {connectedAccount?.account_name && (
+                              <span className="text-[10px] text-slate-450 dark:text-slate-500 truncate font-medium">
+                                @{connectedAccount.account_name.toLowerCase().replace(/\s+/g, "")}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
+
+                        <div className="flex items-center gap-2 shrink-0">
                           {status.status === "posted" && status.platform_post_id && (
                             <a
                               href={getPostUrl(status.platform, status.platform_post_id) || "#"}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[10px] font-semibold text-slate-600 hover:text-slate-905 dark:text-slate-400 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1 rounded-lg mr-2 flex items-center gap-1 transition-all shadow-2xs cursor-pointer"
+                              className="text-[10px] font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl mr-1.5 flex items-center gap-1.5 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
                             >
                               <span>View Post</span>
                               <ExternalLink className="size-3" />
                             </a>
                           )}
-                          {renderStatusBadge(status.status)}
-                          {renderStatusIcon(status.status)}
+                          <div className="flex items-center gap-1.5">
+                            {renderStatusBadge(status.status)}
+                            {renderStatusIcon(status.status)}
+                          </div>
                         </div>
                       </div>
 
                       {/* Error message detail */}
                       {status.status === "failed" && status.error_message && (
-                        <p className="text-[10px] text-rose-600 dark:text-rose-400 bg-rose-50/80 dark:bg-rose-950/10 p-2 rounded-lg leading-normal font-medium border border-rose-100/50 dark:border-rose-900/35">
+                        <p className="text-[10px] text-rose-600 dark:text-rose-450 bg-rose-500/5 dark:bg-rose-950/10 p-2.5 rounded-xl leading-normal font-medium border border-rose-500/10">
                           {status.error_message}
                         </p>
                       )}

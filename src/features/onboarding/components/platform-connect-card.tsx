@@ -10,6 +10,8 @@ import { SocialPlatformIcon, StatusPill, PLAIN_AVATAR } from "./steps/shared"
 import type { PlatformOption } from "./steps/shared"
 import { useSocialAuth } from "@/hooks/use-social-auth"
 
+import { SocialAccountAvatar } from "@/components/ui/social-account-avatar"
+
 type PlatformConnectCardProps = {
   option: PlatformOption
 }
@@ -62,24 +64,16 @@ export function PlatformConnectCard({
         }`}
     >
       <div className="relative shrink-0">
-        <SocialPlatformIcon option={option} />
-        {connected && (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={connectedAccount?.profile_picture_url || PLAIN_AVATAR}
-              alt={connectedAccount?.account_name || "Profile"}
-              className="absolute inset-0 h-11 w-11 rounded-full object-cover border border-white dark:border-slate-900 shadow-sm"
-            />
-            <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-white border border-slate-100 flex items-center justify-center p-0.5 shadow-xs">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={option.icon}
-                alt={option.label}
-                className="h-full w-full object-contain"
-              />
-            </div>
-          </>
+        {connected ? (
+          <SocialAccountAvatar
+            avatarUrl={connectedAccount?.profile_picture_url}
+            accountName={connectedAccount?.account_name}
+            platformIconUrl={option.icon}
+            platformLabel={option.label}
+            size="md"
+          />
+        ) : (
+          <SocialPlatformIcon option={option} />
         )}
       </div>
 
