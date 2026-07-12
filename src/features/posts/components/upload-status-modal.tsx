@@ -143,23 +143,17 @@ export function UploadStatusModal({
   return (
     <ModalShell
       isOpen={isOpen}
-      onClose={() => {
-        if (isFinished) {
-          onClose()
-        }
-      }}
+      onClose={onClose}
       title={postId ? "Publishing Status" : "Uploading Video"}
       showPulseAccent={!isFinished}
       maxWidthClass="max-w-2xl"
       footerContent={
-        isFinished && (
-          <button
-            onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2.5 text-xs font-semibold rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 shadow-md transition cursor-pointer"
-          >
-            Close Summary
-          </button>
-        )
+        <button
+          onClick={onClose}
+          className="w-full sm:w-auto px-5 py-2.5 text-xs font-semibold rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 shadow-md transition cursor-pointer"
+        >
+          {isFinished ? "Close Summary" : "Close & Keep Publishing"}
+        </button>
       }
     >
       <div className="space-y-6">
@@ -177,7 +171,7 @@ export function UploadStatusModal({
               />
             </div>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center">
-              Please do not close this tab or navigate away.
+              Uploading file... You can close this modal; the upload will continue in the background.
             </p>
           </div>
         )}
@@ -187,9 +181,14 @@ export function UploadStatusModal({
           <div className="space-y-4">
             <div className="py-2">
               {!isFinished ? (
-                <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-950/20 py-3 px-4 rounded-xl border border-slate-100 dark:border-slate-800/80">
-                  <Loader2 className="size-4 text-accent-brand animate-spin" />
-                  <span>Processing and distributing video to platforms...</span>
+                <div className="flex flex-col gap-2 text-center text-xs font-semibold text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-950/20 py-3 px-4 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="size-4 text-accent-brand animate-spin" />
+                    <span>Processing and distributing video to platforms...</span>
+                  </div>
+                  <p className="text-[10px] text-slate-450 dark:text-slate-500 font-medium">
+                    You can safely close this modal or navigate away. Publishing runs in the background.
+                  </p>
                 </div>
               ) : (
                 <div className="text-center py-2 animate-fade-in">
@@ -232,13 +231,13 @@ export function UploadStatusModal({
                             {meta.label}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           {status.status === "posted" && status.platform_post_id && (
                             <a
                               href={getPostUrl(status.platform, status.platform_post_id) || "#"}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[10px] font-semibold text-accent-brand hover:text-accent-dark dark:hover:text-accent-brand/80 mr-2 flex items-center gap-1 transition-colors"
+                              className="text-[10px] font-semibold text-slate-600 hover:text-slate-905 dark:text-slate-400 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1 rounded-lg mr-2 flex items-center gap-1 transition-all shadow-2xs cursor-pointer"
                             >
                               <span>View Post</span>
                               <ExternalLink className="size-3" />

@@ -1,6 +1,7 @@
 "use client"
 
-import { Loader2 } from "lucide-react"
+import * as React from "react"
+import { Loader2, MoreVertical, RefreshCw } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/features/auth/store/auth-store"
@@ -17,6 +18,8 @@ export function PlatformConnectCard({
   option,
 }: PlatformConnectCardProps) {
   const user = useAuth((state) => state.user)
+  const [showDropdown, setShowDropdown] = React.useState(false)
+  const dropdownRef = React.useRef<HTMLDivElement>(null)
 
   const connectedAccount = user?.brand?.connected_accounts?.find(
     (acc) => acc.platform.toLowerCase() === option.id.toLowerCase()
@@ -26,21 +29,37 @@ export function PlatformConnectCard({
 
   const { connect, loading: connecting } = useSocialAuth(option.id)
 
-  const handleClick = () => {
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+
+
+  const handleConnectClick = () => {
     if (!connected || expired) {
       void connect()
     }
   }
 
+  const handleReconnectClick = () => {
+    setShowDropdown(false)
+    void connect()
+  }
+
   return (
     <div
-      className={`flex items-center gap-4 rounded-[24px] border bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ${
-        expired
+      className={`flex items-center gap-4 rounded-[24px] border bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ${expired
           ? "border-rose-500/20 bg-rose-50/70"
           : connected
             ? "border-emerald-500/20 bg-emerald-50/70"
             : "border-black/8"
-      }`}
+        }`}
     >
       <div className="relative shrink-0">
         <SocialPlatformIcon option={option} />
@@ -64,6 +83,7 @@ export function PlatformConnectCard({
         )}
       </div>
 
+
       <div className="min-w-0 flex-1">
         <h3 className="text-base font-semibold text-slate-950 flex flex-wrap items-center gap-x-2">
           <span>{option.label}</span>
@@ -82,30 +102,55 @@ export function PlatformConnectCard({
         </p>
       </div>
 
-      <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
-        <StatusPill connected={connected} expired={expired} />
-        <Button
-          type="button"
-          variant={connected && !expired ? "outline" : "default"}
-          size="sm"
-          disabled={connecting || (connected && !expired)}
-          onClick={handleClick}
-        >
-          {connecting ? (
-            <>
-              <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-              Connecting...
-            </>
-          ) : expired ? (
-            "Reconnect"
-          ) : connected ? (
-            "Connected"
-          ) : (
-            "Connect"
-          )}
-        </Button>
+      <div className="flex items-center gap-2 relative" ref={dropdownRef}>
+        {connected && !expired ? (
+          <div className="relative">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center gap-1.5 cursor-pointer border-emerald-500/30 hover:bg-slate-50 text-emerald-700 hover:text-emerald-800 transition"
+              title="Account settings"
+            >
+              <span>Connected</span>
+              <MoreVertical className="size-3.5" />
+            </Button>
+
+            {showDropdown && (
+              <div className="absolute right-0 mt-1.5 w-48 bg-white rounded-xl border border-slate-200/80 shadow-lg py-1 z-10 animate-in fade-in slide-in-from-top-1 duration-150">
+                <button
+                  type="button"
+                  onClick={handleReconnectClick}
+                  className="w-full px-3 py-2 text-xs text-left text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
+                >
+                  <RefreshCw className="size-3.5" />
+                  <span>Reconnect / Switch</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant={expired ? "destructive" : "default"}
+            size="sm"
+            disabled={connecting}
+            onClick={handleConnectClick}
+          >
+            {connecting ? (
+              <>
+                <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                Connecting...
+              </>
+            ) : expired ? (
+              "Reconnect"
+            ) : (
+              "Connect"
+            )}
+          </Button>
+        )}
       </div>
     </div>
   )
 }
-

@@ -66,16 +66,26 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   // Target Accounts initial state
   const [channels, setChannels] = React.useState<AccountChannel[]>(() => {
     if (brand?.connected_accounts && brand.connected_accounts.length > 0) {
+      let firstActiveSelected = false
       return brand.connected_accounts.map((conn) => {
         const opt = PLATFORM_OPTIONS.find((p) => p.id.toLowerCase() === conn.platform.toLowerCase())
+        
+        // Select only the first active/non-expired channel by default
+        const isExpired = !!conn.is_expired
+        let shouldSelect = false
+        if (!isExpired && !firstActiveSelected) {
+          shouldSelect = true
+          firstActiveSelected = true
+        }
+
         return {
           id: conn.external_id,
           platform: conn.platform.toLowerCase(),
           name: conn.account_name,
           handle: `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}`,
           avatar: conn.profile_picture_url || PLAIN_AVATAR,
-          selected: conn.is_expired ? false : true,
-          expired: conn.is_expired,
+          selected: shouldSelect,
+          expired: isExpired,
         }
       })
     }
@@ -120,8 +130,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   // Video state
   const [videoFile, setVideoFile] = React.useState<File | null>(null)
   const [videoSrc, setVideoSrc] = React.useState<string>("")
-  const [videoDuration, setVideoDuration] = React.useState("0:00")
-  const [videoSize, setVideoSize] = React.useState("")
   const [isPlaying, setIsPlaying] = React.useState(false)
   const videoRef = React.useRef<HTMLVideoElement>(null)
   const previewVideoRef = React.useRef<HTMLVideoElement>(null)
@@ -135,11 +143,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
 
   // Watch cover timestamp from form
   const coverImageTimestamp = watch("coverImageTimestamp")
-
-  const getPlatformIcon = (platformId: string) => {
-    const opt = PLATFORM_OPTIONS.find(p => p.id === platformId)
-    return opt ? opt.icon : "/social-icons/tiktok-circle.png"
-  }
 
   const toggleChannel = (id: string) => {
     const channel = channels.find(c => c.id === id)
@@ -155,15 +158,16 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     )
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
-
-  const loadVideo = (file: File) => {
-    if (!file.type.startsWith("video/")) {
-      toast.error("Invalid file format", {
-        description: "Please upload a valid MP4, WebM, or MOV video file.",
-      })
+  const handleFileChange = (file: File | null) => {
+    if (!file) {
+      if (videoSrc) {
+        URL.revokeObjectURL(videoSrc)
+      }
+      setVideoFile(null)
+      setVideoSrc("")
+      setIsPlaying(false)
+      setThumbnailDataUrl("")
+      setValue("coverImageTimestamp", undefined)
       return
     }
 
@@ -173,40 +177,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     setIsPlaying(true)
 
     // Clear cover image when media is replaced/updated
-    setThumbnailDataUrl("")
-    setValue("coverImageTimestamp", undefined)
-
-    const sizeInMB = (file.size / (1024 * 1024)).toFixed(1)
-    setVideoSize(`${sizeInMB} MB`)
-  }
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      loadVideo(e.dataTransfer.files[0])
-    }
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      loadVideo(e.target.files[0])
-    }
-  }
-
-  const triggerFileSelect = () => {
-    const input = document.getElementById("video-upload-input")
-    input?.click()
-  }
-
-  const removeVideo = () => {
-    if (videoSrc) {
-      URL.revokeObjectURL(videoSrc)
-    }
-    setVideoFile(null)
-    setVideoSrc("")
-    setVideoDuration("0:00")
-    setVideoSize("")
-    setIsPlaying(false)
     setThumbnailDataUrl("")
     setValue("coverImageTimestamp", undefined)
   }
@@ -226,13 +196,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       videoRef.current?.pause()
       previewVideoRef.current?.pause()
     }
-  }
-
-  const handleVideoLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const video = e.currentTarget
-    const minutes = Math.floor(video.duration / 60)
-    const seconds = Math.floor(video.duration % 60)
-    setVideoDuration(`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`)
   }
 
   const handlePublish = async (action: "schedule" | "now") => {
@@ -369,7 +332,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       <TargetAccountsSelector
         channels={channels}
         onToggleChannel={toggleChannel}
-        getPlatformIcon={getPlatformIcon}
       />
 
       {/* Main Grid: Left inputs, Right preview/scheduler */}
@@ -381,19 +343,12 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
           <MediaFileUploader
             videoSrc={videoSrc}
             videoFile={videoFile}
-            videoDuration={videoDuration}
-            videoSize={videoSize}
             isPlaying={isPlaying}
             videoRef={videoRef}
             thumbnailDataUrl={thumbnailDataUrl}
             onTogglePlay={togglePlay}
-            onRemoveVideo={removeVideo}
-            onTriggerFileSelect={triggerFileSelect}
-            onOpenThumbnailPicker={() => setShowThumbnailPicker(true)}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
             onFileChange={handleFileChange}
-            onVideoLoadedMetadata={handleVideoLoadedMetadata}
+            onOpenThumbnailPicker={() => setShowThumbnailPicker(true)}
           />
 
           {/* Thumbnail Picker Modal */}

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Check, Plus, AlertTriangle } from "lucide-react"
+import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
 
 export type AccountChannel = {
   id: string
@@ -16,14 +17,16 @@ export type AccountChannel = {
 type TargetAccountsSelectorProps = {
   channels: AccountChannel[]
   onToggleChannel: (id: string) => void
-  getPlatformIcon: (platformId: string) => string
 }
 
 export function TargetAccountsSelector({
   channels,
   onToggleChannel,
-  getPlatformIcon,
 }: TargetAccountsSelectorProps) {
+  const getPlatformIcon = (platformId: string) => {
+    const opt = PLATFORM_OPTIONS.find(p => p.id === platformId)
+    return opt ? opt.icon : "/social-icons/tiktok-circle.png"
+  }
   return (
     <div className="mb-8 space-y-4">
       <div className="space-y-1">
@@ -52,7 +55,7 @@ export function TargetAccountsSelector({
                     isExpired
                       ? "ring-2 ring-rose-500 ring-offset-2 dark:ring-offset-slate-950 opacity-65"
                       : channel.selected
-                        ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-950 scale-105"
+                        ? "ring-1 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-950 scale-105"
                         : "group-hover:scale-102"
                   }`}
                 >
