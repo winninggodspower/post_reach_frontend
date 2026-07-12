@@ -8,6 +8,7 @@ import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
 import { PLATFORM_OPTIONS, PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
 import { publishVideoPost } from "../api/server"
+import { UploadStatusModal } from "./upload-status-modal"
 
 // Sub-components
 import { TargetAccountsSelector } from "./target-accounts-selector"
@@ -44,6 +45,9 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   const user = useAuth((state) => state.user)
   const brand = user?.brand
   const [isPublishing, setIsPublishing] = React.useState(false)
+  const [isStatusModalOpen, setIsStatusModalOpen] = React.useState(false)
+  const [uploadProgress, setUploadProgress] = React.useState(0)
+  const [createdPostId, setCreatedPostId] = React.useState<string | null>(null)
 
   const handleBack = () => {
     if (onBack) {
@@ -51,6 +55,12 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     } else {
       router.push("/dashboard/posts")
     }
+  }
+
+  const handleCloseStatusModal = () => {
+    setIsStatusModalOpen(false)
+    setIsPublishing(false)
+    router.push("/dashboard/posts")
   }
 
   // Target Accounts initial state
@@ -258,14 +268,14 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       return
     }
 
+    setUploadProgress(0)
+    setCreatedPostId(null)
+    setIsStatusModalOpen(true)
     setIsPublishing(true)
-    const toastId = toast.loading("Publishing video post...", {
-      description: "Uploading and publishing your video post immediately.",
-    })
 
     try {
       const mappedPlatforms = activeChs.map(c => c.platform === "x" ? "twitter" : c.platform)
-      
+
       const platformSettings: Record<string, any> = {}
       if (mappedPlatforms.includes("youtube")) {
         platformSettings.youtube = {
@@ -273,7 +283,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
           description: (customizePerPlatform ? youtubeCaption : caption) || caption
         }
       }
-      
+
       if (customizePerPlatform) {
         if (mappedPlatforms.includes("facebook") && facebookCaption) {
           platformSettings.facebook = { caption: facebookCaption }
@@ -292,24 +302,27 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         }
       }
 
-      await publishVideoPost({
+      const response = await publishVideoPost({
         video: videoFile,
         caption: caption || "",
         platforms: mappedPlatforms,
         platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
+      }, (progressEvent) => {
+        console.log(progressEvent)
+        const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || progressEvent.loaded))
+        setUploadProgress(percent)
       })
 
-      toast.success("Video post published!", {
-        id: toastId,
-        description: "Successfully published to the selected platform(s).",
-        duration: 5000,
-      })
-      router.push("/dashboard/posts")
+      if (response && response.success && response.data) {
+        setCreatedPostId(response.data.id)
+      } else {
+        throw new Error("Failed to retrieve created post details.")
+      }
     } catch (err: any) {
       setIsPublishing(false)
+      setIsStatusModalOpen(false)
       const errorMsg = err.response?.data?.message || err.message || "Something went wrong while publishing."
       toast.error("Failed to publish", {
-        id: toastId,
         description: errorMsg,
       })
     }
@@ -452,6 +465,12 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
 
       </div>
 
+      <UploadStatusModal
+        isOpen={isStatusModalOpen}
+        onClose={handleCloseStatusModal}
+        postId={createdPostId}
+        uploadProgress={uploadProgress}
+      />
     </div>
   )
 }
