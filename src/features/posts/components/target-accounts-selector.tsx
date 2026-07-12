@@ -28,7 +28,7 @@ export function TargetAccountsSelector({
     return opt ? opt.icon : "/social-icons/tiktok-circle.png"
   }
   return (
-    <div className="mb-8 space-y-4">
+    <div className="mb-12 space-y-4">
       <div className="space-y-1">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
           Target Accounts

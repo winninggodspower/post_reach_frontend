@@ -75,6 +75,8 @@ export function CreatePost() {
   const handleSelectType = (id: string, title: string) => {
     if (id === "video") {
       router.push("/dashboard/posts/video")
+    } else if (id === "image") {
+      router.push("/dashboard/posts/image")
     } else {
       toast.info(`${title} editor coming soon!`, {
         description: "We are currently setting up the sub-pages for post drafting.",

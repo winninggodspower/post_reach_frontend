@@ -33,6 +33,13 @@ export type PostStatusResponse = {
   }
 }
 
+export type PublishImagePayload = {
+  images: File[]
+  caption: string
+  platforms: string[]
+  platformSettings?: Record<string, any>
+}
+
 export const publishVideoPost = async (
   payload: PublishVideoPayload,
   onProgress?: (progressEvent: AxiosProgressEvent) => void
@@ -50,6 +57,34 @@ export const publishVideoPost = async (
   }
 
   const { data } = await api.post(POSTS_ENDPOINTS.createVideo, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    onUploadProgress: onProgress,
+  })
+
+  return data
+}
+
+export const publishImagePost = async (
+  payload: PublishImagePayload,
+  onProgress?: (progressEvent: AxiosProgressEvent) => void
+) => {
+  const formData = new FormData()
+  payload.images.forEach((img) => {
+    formData.append("images", img)
+  })
+  formData.append("caption", payload.caption)
+
+  payload.platforms.forEach((platform) => {
+    formData.append("platforms", platform)
+  })
+
+  if (payload.platformSettings) {
+    formData.append("platform_settings", JSON.stringify(payload.platformSettings))
+  }
+
+  const { data } = await api.post(POSTS_ENDPOINTS.createImage, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

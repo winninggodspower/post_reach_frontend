@@ -86,7 +86,7 @@ export function LivePreviewPhone({
           Live Preview
         </h3>
 
-        {tabsToRender.length > 1 && (
+        {tabsToRender.length > 0 && (
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-850 shrink-0">
             {tabsToRender.map((tab) => (
               <button
