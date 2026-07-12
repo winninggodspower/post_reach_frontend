@@ -1,4 +1,4 @@
-import { ImageComposer } from "@/features/posts/components/image-composer"
+import { ImageComposer } from "@/features/posts/components/image/image-composer"
 
 export const metadata = {
   title: "Create Image Post | PostReach",

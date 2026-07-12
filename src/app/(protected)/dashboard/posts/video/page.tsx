@@ -1,4 +1,4 @@
-import { VideoComposer } from "@/features/posts/components/video-composer"
+import { VideoComposer } from "@/features/posts/components/video/video-composer"
 
 export const metadata = {
   title: "Create Video Post | PostReach",

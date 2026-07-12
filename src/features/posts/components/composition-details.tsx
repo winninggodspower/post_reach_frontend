@@ -4,7 +4,7 @@ import * as React from "react"
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
-import type { VideoPostFormValues } from "./video-composer"
+import type { VideoPostFormValues } from "./video/video-composer"
 import type { AccountChannel } from "./target-accounts-selector"
 
 type CompositionDetailsProps = {
@@ -19,7 +19,7 @@ const getPlatformIcon = (platformId: string) => {
   return opt ? opt.icon : `/social-icons/${platformId}-circle.png`
 }
 
-const getPlatformFormKey = (platform: string): keyof VideoPostFormValues => {
+const getPlatformFormKey = (platform: string): any => {
   switch (platform) {
     case "youtube": return "youtubeCaption"
     case "tiktok": return "tiktokCaption"

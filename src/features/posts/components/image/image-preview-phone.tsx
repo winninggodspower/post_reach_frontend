@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import { Eye, Heart, MessageCircle, Share2, Plus, Image as LucideImage } from "lucide-react"
-import type { AccountChannel } from "./target-accounts-selector"
-import { Iphone } from "../../../components/ui/iphone"
+import type { AccountChannel } from "../target-accounts-selector"
+import { Iphone } from "../../../../components/ui/iphone"
 
 type ImagePreviewPhoneProps = {
   imageSrcs: string[]

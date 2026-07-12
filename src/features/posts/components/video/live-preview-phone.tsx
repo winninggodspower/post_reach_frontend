@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import { Eye, Heart, MessageCircle, Bookmark, Share2, Music, Plus, ThumbsUp, MessageSquare, Search, MoreVertical, Forward } from "lucide-react"
-import type { AccountChannel } from "./target-accounts-selector"
-import { Iphone } from "../../../components/ui/iphone"
+import type { AccountChannel } from "../target-accounts-selector"
+import { Iphone } from "../../../../components/ui/iphone"
 
 type LivePreviewPhoneProps = {
   videoSrc: string

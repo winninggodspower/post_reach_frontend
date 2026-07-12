@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Calendar, Clock, Info, Send } from "lucide-react"
 import { UseFormRegister, UseFormSetValue } from "react-hook-form"
-import type { VideoPostFormValues } from "./video-composer"
+import type { VideoPostFormValues } from "./video/video-composer"
 import { Calendar as ShadcnCalendar } from "../../../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover"
 import { Button } from "../../../components/ui/button"

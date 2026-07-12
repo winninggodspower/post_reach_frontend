@@ -7,19 +7,40 @@ import { useForm } from "react-hook-form"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
 import { PLATFORM_OPTIONS, PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
-import { publishImagePost } from "../api/server"
-import { UploadStatusModal } from "./upload-status-modal"
+import { publishVideoPost } from "../../api/server"
+import { UploadStatusModal } from "../upload-status-modal"
 
 // Sub-components
-import { TargetAccountsSelector } from "./target-accounts-selector"
-import type { AccountChannel } from "./target-accounts-selector"
-import { ImageFilesUploader } from "./image-files-uploader"
-import { CompositionDetails } from "./composition-details"
-import type { VideoPostFormValues } from "./video-composer"
-import { ImagePreviewPhone } from "./image-preview-phone"
-import { SchedulerWidget } from "./scheduler-widget"
+import { TargetAccountsSelector } from "../target-accounts-selector"
+import type { AccountChannel } from "../target-accounts-selector"
+import { MediaFileUploader } from "./media-file-uploader"
+import { CompositionDetails } from "../composition-details"
+import { LivePreviewPhone } from "./live-preview-phone"
+import { SchedulerWidget } from "../scheduler-widget"
+import { ThumbnailPickerModal } from "./thumbnail-picker-modal"
 
-export function ImageComposer() {
+export interface VideoPostFormValues {
+  title: string
+  caption: string
+  isScheduled: boolean
+  scheduleDate: string
+  scheduleTime: string
+  customizePerPlatform: boolean
+  youtubeTitle?: string
+  youtubeCaption?: string
+  tiktokCaption?: string
+  instagramCaption?: string
+  facebookCaption?: string
+  linkedinCaption?: string
+  xCaption?: string
+  coverImageTimestamp?: number
+}
+
+type VideoComposerProps = {
+  onBack?: () => void
+}
+
+export function VideoComposer({ onBack }: VideoComposerProps) {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const brand = user?.brand
@@ -28,62 +49,49 @@ export function ImageComposer() {
   const [uploadProgress, setUploadProgress] = React.useState(0)
   const [createdPostId, setCreatedPostId] = React.useState<string | null>(null)
 
+  const handleBack = () => {
+    if (onBack) {
+      onBack()
+    } else {
+      router.push("/dashboard/posts")
+    }
+  }
+
+  const handleCloseStatusModal = () => {
+    setIsStatusModalOpen(false)
+    setIsPublishing(false)
+    router.push("/dashboard/posts")
+  }
+
   // Target Accounts initial state
   const [channels, setChannels] = React.useState<AccountChannel[]>(() => {
     if (brand?.connected_accounts && brand.connected_accounts.length > 0) {
       let firstActiveSelected = false
-      return brand.connected_accounts
-        .filter((conn) => conn.platform.toLowerCase() !== "youtube")
-        .map((conn) => {
-          const isExpired = !!conn.is_expired
-          let shouldSelect = false
-          if (!isExpired && !firstActiveSelected) {
-            shouldSelect = true
-            firstActiveSelected = true
-          }
+      return brand.connected_accounts.map((conn) => {
+        const opt = PLATFORM_OPTIONS.find((p) => p.id.toLowerCase() === conn.platform.toLowerCase())
 
-          return {
-            id: conn.external_id,
-            platform: conn.platform.toLowerCase(),
-            name: conn.account_name,
-            handle: `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}`,
-            avatar: conn.profile_picture_url || PLAIN_AVATAR,
-            selected: shouldSelect,
-            expired: isExpired,
-          }
-        })
+        // Select only the first active/non-expired channel by default
+        const isExpired = !!conn.is_expired
+        let shouldSelect = false
+        if (!isExpired && !firstActiveSelected) {
+          shouldSelect = true
+          firstActiveSelected = true
+        }
+
+        return {
+          id: conn.external_id,
+          platform: conn.platform.toLowerCase(),
+          name: conn.account_name,
+          handle: `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}`,
+          avatar: conn.profile_picture_url || PLAIN_AVATAR,
+          selected: shouldSelect,
+          expired: isExpired,
+        }
+      })
     }
+
     return []
   })
-
-  // Images state
-  const [imageFiles, setImageFiles] = React.useState<File[]>([])
-  const [imageSrcs, setImageSrcs] = React.useState<string[]>([])
-
-  // Revoke blob URLs on unmount
-  React.useEffect(() => {
-    return () => {
-      imageSrcs.forEach((src) => URL.revokeObjectURL(src))
-    }
-  }, [imageSrcs])
-
-  const handleFileChange = (newFiles: File[]) => {
-    // Revoke old URLs
-    imageSrcs.forEach((src) => URL.revokeObjectURL(src))
-    
-    // Create new URLs
-    const newSrcs = newFiles.map((file) => URL.createObjectURL(file))
-    setImageFiles(newFiles)
-    setImageSrcs(newSrcs)
-  }
-
-  const handleRemoveImage = (indexToRemove: number) => {
-    URL.revokeObjectURL(imageSrcs[indexToRemove])
-    const newFiles = imageFiles.filter((_, i) => i !== indexToRemove)
-    const newSrcs = imageSrcs.filter((_, i) => i !== indexToRemove)
-    setImageFiles(newFiles)
-    setImageSrcs(newSrcs)
-  }
 
   // React Hook Form
   const { register, watch, setValue } = useForm<VideoPostFormValues>({
@@ -104,7 +112,7 @@ export function ImageComposer() {
     },
   })
 
-  // Watch form fields for live preview
+  // Watch values for preview binding and scheduler trigger
   const title = watch("title")
   const caption = watch("caption")
   const isScheduled = watch("isScheduled")
@@ -119,12 +127,22 @@ export function ImageComposer() {
   const linkedinCaption = watch("linkedinCaption")
   const xCaption = watch("xCaption")
 
-  // Phone preview interactions
-  const [previewPlatform, setPreviewPlatform] = React.useState<any>("instagram")
+  // Video state
+  const [videoFile, setVideoFile] = React.useState<File | null>(null)
+  const [videoSrc, setVideoSrc] = React.useState<string>("")
+  const [isPlaying, setIsPlaying] = React.useState(false)
+  const videoRef = React.useRef<HTMLVideoElement>(null)
+  const previewVideoRef = React.useRef<HTMLVideoElement>(null)
 
-  const handleBack = () => {
-    router.push("/dashboard/posts")
-  }
+  // Phone preview interactions
+  const [previewPlatform, setPreviewPlatform] = React.useState<"tiktok" | "youtube" | "instagram">("tiktok")
+
+  // Thumbnail (cover frame)
+  const [thumbnailDataUrl, setThumbnailDataUrl] = React.useState("")
+  const [showThumbnailPicker, setShowThumbnailPicker] = React.useState(false)
+
+  // Watch cover timestamp from form
+  const coverImageTimestamp = watch("coverImageTimestamp")
 
   const toggleChannel = (id: string) => {
     const channel = channels.find(c => c.id === id)
@@ -140,6 +158,46 @@ export function ImageComposer() {
     )
   }
 
+  const handleFileChange = (file: File | null) => {
+    if (!file) {
+      if (videoSrc) {
+        URL.revokeObjectURL(videoSrc)
+      }
+      setVideoFile(null)
+      setVideoSrc("")
+      setIsPlaying(false)
+      setThumbnailDataUrl("")
+      setValue("coverImageTimestamp", undefined)
+      return
+    }
+
+    setVideoFile(file)
+    const url = URL.createObjectURL(file)
+    setVideoSrc(url)
+    setIsPlaying(true)
+
+    // Clear cover image when media is replaced/updated
+    setThumbnailDataUrl("")
+    setValue("coverImageTimestamp", undefined)
+  }
+
+  const togglePlay = () => {
+    const nextPlay = !isPlaying
+    setIsPlaying(nextPlay)
+
+    if (nextPlay) {
+      // Sync preview to the main video's current time before playing both
+      if (videoRef.current && previewVideoRef.current) {
+        previewVideoRef.current.currentTime = videoRef.current.currentTime
+      }
+      videoRef.current?.play().catch(() => { })
+      previewVideoRef.current?.play().catch(() => { })
+    } else {
+      videoRef.current?.pause()
+      previewVideoRef.current?.pause()
+    }
+  }
+
   const handlePublish = async (action: "schedule" | "now") => {
     if (isPublishing) return
 
@@ -151,9 +209,17 @@ export function ImageComposer() {
       return
     }
 
-    if (imageFiles.length === 0) {
-      toast.error("Images are missing", {
-        description: "Please upload at least one image to compose your post.",
+    if (!videoFile) {
+      toast.error("Video file is missing", {
+        description: "Please upload a video to compose your post.",
+      })
+      return
+    }
+
+    const isYoutubeSelected = activeChs.some(c => c.platform === "youtube")
+    if (isYoutubeSelected && !title.trim()) {
+      toast.error("YouTube Title is required", {
+        description: "Please add a YouTube Title before publishing to YouTube.",
       })
       return
     }
@@ -174,6 +240,13 @@ export function ImageComposer() {
       const mappedPlatforms = activeChs.map(c => c.platform === "x" ? "twitter" : c.platform)
 
       const platformSettings: Record<string, any> = {}
+      if (mappedPlatforms.includes("youtube")) {
+        platformSettings.youtube = {
+          title: (customizePerPlatform ? youtubeTitle : title) || title,
+          description: (customizePerPlatform ? youtubeCaption : caption) || caption
+        }
+      }
+
       if (customizePerPlatform) {
         if (mappedPlatforms.includes("facebook") && facebookCaption) {
           platformSettings.facebook = { caption: facebookCaption }
@@ -192,12 +265,13 @@ export function ImageComposer() {
         }
       }
 
-      const response = await publishImagePost({
-        images: imageFiles,
+      const response = await publishVideoPost({
+        video: videoFile,
         caption: caption || "",
         platforms: mappedPlatforms,
         platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
       }, (progressEvent) => {
+        console.log(progressEvent)
         const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || progressEvent.loaded))
         setUploadProgress(percent)
       })
@@ -221,7 +295,7 @@ export function ImageComposer() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-20 py-6 md:py-10 animate-fade-in text-slate-800 dark:text-slate-200">
-      
+
       {/* Back button and title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-3">
@@ -234,10 +308,10 @@ export function ImageComposer() {
           </button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              Create image post
+              Create video post
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Draft and schedule multi-platform image and carousel posts
+              Draft and schedule multi-platform short video content
             </p>
           </div>
         </div>
@@ -262,36 +336,62 @@ export function ImageComposer() {
 
       {/* Main Grid: Left inputs, Right preview/scheduler */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
+
         {/* Left Column - Form fields */}
-        <div className={imageSrcs.length > 0 ? "lg:col-span-7 space-y-6" : "lg:col-span-8 space-y-6"}>
-          
-          <ImageFilesUploader
-            imageFiles={imageFiles}
-            imageSrcs={imageSrcs}
+        <div className={videoSrc ? "lg:col-span-7 space-y-6" : "lg:col-span-8 space-y-6"}>
+
+          <MediaFileUploader
+            videoSrc={videoSrc}
+            videoFile={videoFile}
+            isPlaying={isPlaying}
+            videoRef={videoRef}
+            thumbnailDataUrl={thumbnailDataUrl}
+            onTogglePlay={togglePlay}
             onFileChange={handleFileChange}
-            onRemoveImage={handleRemoveImage}
+            onOpenThumbnailPicker={() => setShowThumbnailPicker(true)}
           />
 
-          {imageSrcs.length > 0 && (
+          {/* Thumbnail Picker Modal */}
+          {showThumbnailPicker && videoSrc && (
+            <ThumbnailPickerModal
+              videoSrc={videoSrc}
+              currentThumbnail={thumbnailDataUrl}
+              onSelect={(dataUrl, timestamp) => {
+                setThumbnailDataUrl(dataUrl)
+                setValue("coverImageTimestamp", timestamp)
+              }}
+              onClose={() => setShowThumbnailPicker(false)}
+            />
+          )}
+
+          {videoSrc && (
             <CompositionDetails
-              register={register as any}
-              setValue={setValue as any}
-              watch={watch as any}
+              register={register}
+              setValue={setValue}
+              watch={watch}
               channels={channels}
             />
           )}
+
         </div>
 
         {/* Right Column - Preview & Scheduler widget */}
-        <div className={imageSrcs.length > 0 ? "lg:col-span-5 space-y-6 lg:sticky lg:top-6" : "lg:col-span-4 space-y-6"}>
-          
-          {imageSrcs.length > 0 && (
-            <ImagePreviewPhone
-              imageSrcs={imageSrcs}
+        <div className={videoSrc ? "lg:col-span-5 space-y-6 lg:sticky lg:top-6" : "lg:col-span-4 space-y-6"}>
+
+          {videoSrc && (
+            <LivePreviewPhone
+              videoSrc={videoSrc}
+              isPlaying={isPlaying}
               previewPlatform={previewPlatform}
               onChangePreviewPlatform={setPreviewPlatform}
+              previewVideoRef={previewVideoRef}
               activeChannel={activeChannel}
+              onTogglePlay={togglePlay}
+              title={
+                customizePerPlatform && previewPlatform === "youtube"
+                  ? youtubeTitle || title
+                  : title
+              }
               caption={
                 customizePerPlatform
                   ? (previewPlatform === "youtube"
@@ -306,8 +406,8 @@ export function ImageComposer() {
           )}
 
           <SchedulerWidget
-            register={register as any}
-            setValue={setValue as any}
+            register={register}
+            setValue={setValue}
             isScheduled={isScheduled}
             onChangeIsScheduled={(val) => setValue("isScheduled", val)}
             scheduleDate={scheduleDate}
@@ -315,17 +415,14 @@ export function ImageComposer() {
             onPublish={handlePublish}
             disabled={isPublishing}
           />
+
         </div>
+
       </div>
 
-      {/* Status Multi-platform modal popup */}
       <UploadStatusModal
         isOpen={isStatusModalOpen}
-        onClose={() => {
-          setIsStatusModalOpen(false)
-          setIsPublishing(false)
-          router.push("/dashboard/posts")
-        }}
+        onClose={handleCloseStatusModal}
         postId={createdPostId}
         uploadProgress={uploadProgress}
       />
