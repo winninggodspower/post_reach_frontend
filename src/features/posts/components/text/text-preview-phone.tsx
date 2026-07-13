@@ -7,18 +7,23 @@ import { Iphone } from "@/components/ui/iphone"
 import { PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
 
 type TextPreviewPhoneProps = {
-  watch: any
+  caption: string
+  customizePerPlatform: boolean
+  facebookCaption?: string
+  linkedinCaption?: string
+  xCaption?: string
   channels: AccountChannel[]
 }
 
-export function TextPreviewPhone({ watch, channels }: TextPreviewPhoneProps) {
+export function TextPreviewPhone({
+  caption = "",
+  customizePerPlatform = false,
+  facebookCaption = "",
+  linkedinCaption = "",
+  xCaption = "",
+  channels,
+}: TextPreviewPhoneProps) {
   const [previewPlatform, setPreviewPlatform] = React.useState<"facebook" | "linkedin" | "x">("facebook")
-
-  const caption = watch("caption") || ""
-  const customizePerPlatform = watch("customizePerPlatform") || false
-  const facebookCaption = watch("facebookCaption") || ""
-  const linkedinCaption = watch("linkedinCaption") || ""
-  const xCaption = watch("xCaption") || ""
 
   const selectedPlatforms = channels
     .filter((c) => c.selected)

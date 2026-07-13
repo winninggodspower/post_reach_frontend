@@ -69,9 +69,14 @@ export function TextComposer() {
     },
   })
 
+  const caption = watch("caption")
   const isScheduled = watch("isScheduled")
   const scheduleDate = watch("scheduleDate")
   const scheduleTime = watch("scheduleTime")
+  const customizePerPlatform = watch("customizePerPlatform")
+  const facebookCaption = watch("facebookCaption")
+  const linkedinCaption = watch("linkedinCaption")
+  const xCaption = watch("xCaption")
 
   const handleBack = () => {
     router.push("/dashboard/posts")
@@ -101,8 +106,6 @@ export function TextComposer() {
       })
       return
     }
-
-    const { caption, customizePerPlatform, facebookCaption, linkedinCaption, xCaption } = getValues()
 
     if (!caption && !customizePerPlatform) {
       toast.error("Content is empty", {
@@ -225,7 +228,11 @@ export function TextComposer() {
         {/* Right Column - Preview & Scheduler widget */}
         <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-6">
           <TextPreviewPhone
-            watch={watch}
+            caption={caption || ""}
+            customizePerPlatform={customizePerPlatform}
+            facebookCaption={facebookCaption}
+            linkedinCaption={linkedinCaption}
+            xCaption={xCaption}
             channels={channels}
           />
 
