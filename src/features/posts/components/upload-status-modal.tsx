@@ -14,6 +14,7 @@ type UploadStatusModalProps = {
   onClose: () => void
   postId: string | null
   uploadProgress: number
+  postType?: "video" | "photo" | "text"
 }
 
 export function UploadStatusModal({
@@ -21,10 +22,12 @@ export function UploadStatusModal({
   onClose,
   postId,
   uploadProgress,
+  postType,
 }: UploadStatusModalProps) {
   const user = useAuth((state) => state.user)
   const connectedAccounts = user?.brand?.connected_accounts || []
   const [platformStatuses, setPlatformStatuses] = React.useState<PlatformPostStatus[]>([])
+  const [contentType, setContentType] = React.useState<"video" | "photo" | "text" | null>(postType || null)
   const [error, setError] = React.useState<string | null>(null)
 
   // Determine terminal states
@@ -57,6 +60,9 @@ export function UploadStatusModal({
         const response = await getPostStatus(postId)
         if (isMounted && response.success && response.data) {
           setPlatformStatuses(response.data.platforms || [])
+          if (response.data.content_type) {
+            setContentType(response.data.content_type as any)
+          }
         }
       } catch (err: any) {
         console.error("Error polling post status:", err)
@@ -84,13 +90,15 @@ export function UploadStatusModal({
     if (!platformPostId) return null
     switch (platform.toLowerCase()) {
       case "youtube":
-        return `https://youtube.com/shorts/${platformPostId}`
+        return contentType === "photo" ? null : `https://youtube.com/shorts/${platformPostId}`
       case "instagram":
         return `https://instagram.com/p/${platformPostId}`
       case "tiktok":
         return `https://www.tiktok.com/video/${platformPostId}`
       case "facebook":
-        return `https://facebook.com/watch/?v=${platformPostId}`
+        return contentType === "photo"
+          ? `https://facebook.com/${platformPostId}`
+          : `https://facebook.com/watch/?v=${platformPostId}`
       case "linkedin":
         return `https://www.linkedin.com/feed/update/${platformPostId}`
       case "twitter":
@@ -144,11 +152,19 @@ export function UploadStatusModal({
     }
   }
 
+  const titleText = React.useMemo(() => {
+    if (postId) return "Publishing Status"
+    if (contentType === "video") return "Uploading Video"
+    if (contentType === "photo") return "Uploading Photos"
+    if (contentType === "text") return "Creating Text Post"
+    return "Uploading Media"
+  }, [postId, contentType])
+
   return (
     <ModalShell
       isOpen={isOpen}
       onClose={onClose}
-      title={postId ? "Publishing Status" : "Uploading Video"}
+      title={titleText}
       showPulseAccent={!isFinished}
       maxWidthClass="max-w-2xl"
       footerContent={
@@ -169,7 +185,15 @@ export function UploadStatusModal({
         {uploadProgress < 100 && (
           <div className="space-y-3">
             <div className="flex justify-between items-center text-xs font-semibold text-slate-500 dark:text-slate-400">
-              <span>Uploading to servers...</span>
+              <span>
+                {contentType === "video"
+                  ? "Uploading video to servers..."
+                  : contentType === "photo"
+                  ? "Uploading photos to servers..."
+                  : contentType === "text"
+                  ? "Publishing text post to servers..."
+                  : "Uploading media to servers..."}
+              </span>
               <span>{uploadProgress}%</span>
             </div>
             <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -192,7 +216,15 @@ export function UploadStatusModal({
                 <div className="flex flex-col gap-2 text-center text-xs font-semibold text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-950/20 py-3.5 px-4 rounded-2xl border border-slate-100 dark:border-slate-800/80">
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="size-4 text-accent-brand animate-spin" />
-                    <span>Processing and distributing video to platforms...</span>
+                    <span>
+                      {contentType === "video"
+                        ? "Processing and distributing video to platforms..."
+                        : contentType === "photo"
+                        ? "Processing and distributing photos to platforms..."
+                        : contentType === "text"
+                        ? "Processing and distributing text post to platforms..."
+                        : "Processing and distributing media to platforms..."}
+                    </span>
                   </div>
                   <p className="text-[10px] text-slate-450 dark:text-slate-500 font-medium">
                     You can safely close this modal or navigate away. Publishing runs in the background.

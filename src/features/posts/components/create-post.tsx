@@ -77,6 +77,8 @@ export function CreatePost() {
       router.push("/dashboard/posts/video")
     } else if (id === "image") {
       router.push("/dashboard/posts/image")
+    } else if (id === "text") {
+      router.push("/dashboard/posts/text")
     } else {
       toast.info(`${title} editor coming soon!`, {
         description: "We are currently setting up the sub-pages for post drafting.",

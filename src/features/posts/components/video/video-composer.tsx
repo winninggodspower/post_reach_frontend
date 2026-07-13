@@ -425,6 +425,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         onClose={handleCloseStatusModal}
         postId={createdPostId}
         uploadProgress={uploadProgress}
+        postType="video"
       />
     </div>
   )

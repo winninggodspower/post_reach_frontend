@@ -72,7 +72,7 @@ export const publishImagePost = async (
 ) => {
   const formData = new FormData()
   payload.images.forEach((img) => {
-    formData.append("images", img)
+    formData.append("photos", img)
   })
   formData.append("caption", payload.caption)
 
@@ -85,6 +85,37 @@ export const publishImagePost = async (
   }
 
   const { data } = await api.post(POSTS_ENDPOINTS.createImage, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    onUploadProgress: onProgress,
+  })
+
+  return data
+}
+
+export type PublishTextPayload = {
+  caption: string
+  platforms: string[]
+  platformSettings?: Record<string, any>
+}
+
+export const publishTextPost = async (
+  payload: PublishTextPayload,
+  onProgress?: (progressEvent: AxiosProgressEvent) => void
+) => {
+  const formData = new FormData()
+  formData.append("caption", payload.caption)
+
+  payload.platforms.forEach((platform) => {
+    formData.append("platforms", platform)
+  })
+
+  if (payload.platformSettings) {
+    formData.append("platform_settings", JSON.stringify(payload.platformSettings))
+  }
+
+  const { data } = await api.post(POSTS_ENDPOINTS.createText, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
