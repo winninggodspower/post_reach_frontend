@@ -8,6 +8,8 @@ import { useAuth } from "@/features/auth/store/auth-store"
 import { SocialAccountAvatar } from "@/components/ui/social-account-avatar"
 import { getPostStatus } from "../api/server"
 import type { PlatformPostStatus } from "../api/server"
+import confetti from "canvas-confetti"
+import { useRouter } from "next/navigation"
 
 type UploadStatusModalProps = {
   isOpen: boolean
@@ -24,6 +26,7 @@ export function UploadStatusModal({
   uploadProgress,
   postType,
 }: UploadStatusModalProps) {
+  const router = useRouter()
   const user = useAuth((state) => state.user)
   const connectedAccounts = user?.brand?.connected_accounts || []
   const [platformStatuses, setPlatformStatuses] = React.useState<PlatformPostStatus[]>([])
@@ -49,6 +52,27 @@ export function UploadStatusModal({
       totalCount,
     }
   }, [platformStatuses])
+
+  const confettiFiredRef = React.useRef(false)
+
+  // Reset confetti state when modal is opened for a new post
+  React.useEffect(() => {
+    if (isOpen) {
+      confettiFiredRef.current = false
+    }
+  }, [isOpen, postId])
+
+  // Trigger confetti when at least one platform successfully publishes
+  React.useEffect(() => {
+    if (isFinished && publishSummary && publishSummary.postedCount > 0 && !confettiFiredRef.current) {
+      confettiFiredRef.current = true
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      })
+    }
+  }, [isFinished, publishSummary])
 
   // Poll status endpoint
   React.useEffect(() => {
@@ -96,9 +120,9 @@ export function UploadStatusModal({
       case "tiktok":
         return `https://www.tiktok.com/video/${platformPostId}`
       case "facebook":
-        return contentType === "photo"
-          ? `https://facebook.com/${platformPostId}`
-          : `https://facebook.com/watch/?v=${platformPostId}`
+        return contentType === "video"
+          ? `https://facebook.com/watch/?v=${platformPostId}`
+          : `https://facebook.com/${platformPostId}`
       case "linkedin":
         return `https://www.linkedin.com/feed/update/${platformPostId}`
       case "twitter":
@@ -169,7 +193,13 @@ export function UploadStatusModal({
       maxWidthClass="max-w-2xl"
       footerContent={
         <button
-          onClick={onClose}
+          onClick={() => {
+            if (isFinished) {
+              router.push("/dashboard/calendar")
+            } else {
+              onClose()
+            }
+          }}
           className={`w-full sm:w-auto px-6 py-2.5 text-xs font-bold rounded-xl transition duration-300 shadow-md cursor-pointer ${
             isFinished
               ? "bg-linear-to-r from-accent-dark to-accent-brand hover:brightness-105 text-white"
