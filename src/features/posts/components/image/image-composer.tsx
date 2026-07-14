@@ -8,6 +8,7 @@ import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
 import { PLATFORM_OPTIONS, PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
 import { useTargetChannels } from "../../hooks/use-target-channels"
+import { usePostSubmit } from "../../hooks/use-post-submit"
 import { publishImagePost } from "../../api/server"
 import { UploadStatusModal } from "../upload-status-modal"
 
@@ -24,10 +25,6 @@ export function ImageComposer() {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const brand = user?.brand
-  const [isPublishing, setIsPublishing] = React.useState(false)
-  const [isStatusModalOpen, setIsStatusModalOpen] = React.useState(false)
-  const [uploadProgress, setUploadProgress] = React.useState(0)
-  const [createdPostId, setCreatedPostId] = React.useState<string | null>(null)
 
   // Target Accounts using hook
   const { channels, toggleChannel, selectedChannels } = useTargetChannels(
@@ -100,40 +97,19 @@ export function ImageComposer() {
   // Phone preview interactions
   const [previewPlatform, setPreviewPlatform] = React.useState<any>("instagram")
 
-  const handleBack = () => {
-    router.push("/dashboard/posts")
-  }
-
-  const handlePublish = async (action: "schedule" | "now") => {
-    if (isPublishing) return
-
-    const activeChs = channels.filter(c => c.selected)
-    if (activeChs.length === 0) {
-      toast.error("No channels selected", {
-        description: "Please select at least one social media channel to post to.",
-      })
-      return
-    }
-
-    if (imageFiles.length === 0) {
-      toast.error("Images are missing", {
-        description: "Please upload at least one image to compose your post.",
-      })
-      return
-    }
-
-    let scheduledAt: string | undefined = undefined
-    if (action === "schedule") {
-      const dt = new Date(`${scheduleDate}T${scheduleTime}:00`)
-      scheduledAt = dt.toISOString()
-    }
-
-    setUploadProgress(0)
-    setCreatedPostId(null)
-    setIsStatusModalOpen(true)
-    setIsPublishing(true)
-
-    try {
+  // Post Submission Hook
+  const {
+    isPublishing,
+    setIsPublishing,
+    isStatusModalOpen,
+    setIsStatusModalOpen,
+    uploadProgress,
+    setUploadProgress,
+    createdPostId,
+    handlePublish,
+  } = usePostSubmit({
+    submitFn: async (scheduledAt) => {
+      const activeChs = channels.filter(c => c.selected)
       const mappedPlatforms = activeChs.map(c => c.platform === "x" ? "twitter" : c.platform)
 
       const platformSettings: Record<string, any> = {}
@@ -155,7 +131,7 @@ export function ImageComposer() {
         }
       }
 
-      const response = await publishImagePost({
+      return publishImagePost({
         images: imageFiles,
         caption: caption || "",
         platforms: mappedPlatforms,
@@ -165,20 +141,30 @@ export function ImageComposer() {
         const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || progressEvent.loaded))
         setUploadProgress(percent)
       })
-
-      if (response && response.success && response.data) {
-        setCreatedPostId(response.data.id)
-      } else {
-        throw new Error("Failed to retrieve created post details.")
-      }
-    } catch (err: any) {
-      setIsPublishing(false)
-      setIsStatusModalOpen(false)
-      const errorMsg = err.response?.data?.message || err.message || "Something went wrong while publishing."
-      toast.error("Failed to publish", {
-        description: errorMsg,
-      })
     }
+  })
+
+  const handleBack = () => {
+    router.push("/dashboard/posts")
+  }
+
+  const onPublishClick = async (action: "schedule" | "now") => {
+    const activeChs = channels.filter(c => c.selected)
+    if (activeChs.length === 0) {
+      toast.error("No channels selected", {
+        description: "Please select at least one social media channel to post to.",
+      })
+      return
+    }
+
+    if (imageFiles.length === 0) {
+      toast.error("Images are missing", {
+        description: "Please upload at least one image to compose your post.",
+      })
+      return
+    }
+
+    handlePublish(action, scheduleDate, scheduleTime)
   }
 
   const activeChannel = channels.find(c => c.selected && c.platform === previewPlatform) || channels.find(c => c.selected) || channels[0]
@@ -210,7 +196,7 @@ export function ImageComposer() {
         <div className="flex items-center gap-2">
           <button
             disabled={isPublishing}
-            onClick={() => handlePublish(isScheduled ? "schedule" : "now")}
+            onClick={() => onPublishClick(isScheduled ? "schedule" : "now")}
             className="px-5 py-2 text-xs font-semibold rounded-xl bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-md hover:brightness-105 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPublishing ? "Publishing..." : (isScheduled ? "Schedule Post" : "Publish Now")}
@@ -276,7 +262,7 @@ export function ImageComposer() {
             onChangeIsScheduled={(val) => setValue("isScheduled", val)}
             scheduleDate={scheduleDate}
             scheduleTime={scheduleTime}
-            onPublish={handlePublish}
+            onPublish={onPublishClick}
             disabled={isPublishing}
           />
         </div>

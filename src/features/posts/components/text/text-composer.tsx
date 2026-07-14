@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { toast } from "sonner"
 import { useTargetChannels } from "../../hooks/use-target-channels"
+import { usePostSubmit } from "../../hooks/use-post-submit"
 import { publishTextPost } from "../../api/server"
 import { UploadStatusModal } from "../upload-status-modal"
 import { TargetAccountsSelector } from "../target-accounts-selector"
@@ -19,10 +20,6 @@ export function TextComposer() {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const brand = user?.brand
-  const [isPublishing, setIsPublishing] = React.useState(false)
-  const [isStatusModalOpen, setIsStatusModalOpen] = React.useState(false)
-  const [uploadProgress, setUploadProgress] = React.useState(0)
-  const [createdPostId, setCreatedPostId] = React.useState<string | null>(null)
 
   // Target Accounts using hook
   const { channels, toggleChannel, selectedChannels } = useTargetChannels(
@@ -54,40 +51,19 @@ export function TextComposer() {
   const linkedinCaption = watch("linkedinCaption")
   const xCaption = watch("xCaption")
 
-  const handleBack = () => {
-    router.push("/dashboard/posts")
-  }
-
-  const handlePublish = async (action: "schedule" | "now") => {
-    if (isPublishing) return
-
-    const activeChs = channels.filter((c) => c.selected)
-    if (activeChs.length === 0) {
-      toast.error("No channels selected", {
-        description: "Please select at least one social media channel to post to.",
-      })
-      return
-    }
-
-    if (!caption && !customizePerPlatform) {
-      toast.error("Content is empty", {
-        description: "Please write something before posting.",
-      })
-      return
-    }
-
-    let scheduledAt: string | undefined = undefined
-    if (action === "schedule") {
-      const dt = new Date(`${scheduleDate}T${scheduleTime}:00`)
-      scheduledAt = dt.toISOString()
-    }
-
-    setUploadProgress(0)
-    setCreatedPostId(null)
-    setIsStatusModalOpen(true)
-    setIsPublishing(true)
-
-    try {
+  // Post Submission Hook
+  const {
+    isPublishing,
+    setIsPublishing,
+    isStatusModalOpen,
+    setIsStatusModalOpen,
+    uploadProgress,
+    setUploadProgress,
+    createdPostId,
+    handlePublish,
+  } = usePostSubmit({
+    submitFn: async (scheduledAt) => {
+      const activeChs = channels.filter((c) => c.selected)
       const mappedPlatforms = activeChs.map((c) => (c.platform === "x" ? "twitter" : c.platform))
 
       const platformSettings: Record<string, any> = {}
@@ -103,9 +79,8 @@ export function TextComposer() {
         }
       }
 
-      // Progress bar simulation since there are no actual files uploaded
       setUploadProgress(20)
-      const response = await publishTextPost(
+      return publishTextPost(
         {
           caption: caption || "",
           platforms: mappedPlatforms,
@@ -119,23 +94,30 @@ export function TextComposer() {
           setUploadProgress(percent)
         }
       )
-
-      setUploadProgress(100)
-
-      if (response && response.success && response.data) {
-        setCreatedPostId(response.data.id)
-      } else {
-        throw new Error("Failed to retrieve created post details.")
-      }
-    } catch (err: any) {
-      setIsPublishing(false)
-      setIsStatusModalOpen(false)
-      const errorMsg =
-        err.response?.data?.message || err.message || "Something went wrong while publishing."
-      toast.error("Failed to publish", {
-        description: errorMsg,
-      })
     }
+  })
+
+  const handleBack = () => {
+    router.push("/dashboard/posts")
+  }
+
+  const onPublishClick = async (action: "schedule" | "now") => {
+    const activeChs = channels.filter((c) => c.selected)
+    if (activeChs.length === 0) {
+      toast.error("No channels selected", {
+        description: "Please select at least one social media channel to post to.",
+      })
+      return
+    }
+
+    if (!caption && !customizePerPlatform) {
+      toast.error("Content is empty", {
+        description: "Please write something before posting.",
+      })
+      return
+    }
+
+    handlePublish(action, scheduleDate, scheduleTime)
   }
 
   return (
@@ -205,7 +187,7 @@ export function TextComposer() {
             onChangeIsScheduled={(val) => setValue("isScheduled", val)}
             scheduleDate={scheduleDate}
             scheduleTime={scheduleTime}
-            onPublish={handlePublish}
+            onPublish={onPublishClick}
             disabled={isPublishing}
           />
         </div>

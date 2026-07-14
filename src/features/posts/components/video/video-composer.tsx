@@ -8,6 +8,7 @@ import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
 import { PLATFORM_OPTIONS, PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
 import { useTargetChannels } from "../../hooks/use-target-channels"
+import { usePostSubmit } from "../../hooks/use-post-submit"
 import { publishVideoPost } from "../../api/server"
 import { UploadStatusModal } from "../upload-status-modal"
 
@@ -45,10 +46,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const brand = user?.brand
-  const [isPublishing, setIsPublishing] = React.useState(false)
-  const [isStatusModalOpen, setIsStatusModalOpen] = React.useState(false)
-  const [uploadProgress, setUploadProgress] = React.useState(0)
-  const [createdPostId, setCreatedPostId] = React.useState<string | null>(null)
 
   const handleBack = () => {
     if (onBack) {
@@ -121,6 +118,60 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   // Watch cover timestamp from form
   const coverImageTimestamp = watch("coverImageTimestamp")
 
+  // Post Submission Hook
+  const {
+    isPublishing,
+    setIsPublishing,
+    isStatusModalOpen,
+    setIsStatusModalOpen,
+    uploadProgress,
+    setUploadProgress,
+    createdPostId,
+    handlePublish,
+  } = usePostSubmit({
+    submitFn: async (scheduledAt) => {
+      const activeChs = channels.filter(c => c.selected)
+      const mappedPlatforms = activeChs.map(c => c.platform === "x" ? "twitter" : c.platform)
+
+      const platformSettings: Record<string, any> = {}
+      if (mappedPlatforms.includes("youtube")) {
+        platformSettings.youtube = {
+          title: (customizePerPlatform ? youtubeTitle : title) || title,
+          description: (customizePerPlatform ? youtubeCaption : caption) || caption
+        }
+      }
+
+      if (customizePerPlatform) {
+        if (mappedPlatforms.includes("facebook") && facebookCaption) {
+          platformSettings.facebook = { caption: facebookCaption }
+        }
+        if (mappedPlatforms.includes("instagram") && instagramCaption) {
+          platformSettings.instagram = { caption: instagramCaption }
+        }
+        if (mappedPlatforms.includes("tiktok") && tiktokCaption) {
+          platformSettings.tiktok = { caption: tiktokCaption }
+        }
+        if (mappedPlatforms.includes("linkedin") && linkedinCaption) {
+          platformSettings.linkedin = { caption: linkedinCaption }
+        }
+        if (mappedPlatforms.includes("twitter") && xCaption) {
+          platformSettings.twitter = { caption: xCaption }
+        }
+      }
+
+      return publishVideoPost({
+        video: videoFile!,
+        caption: caption || "",
+        platforms: mappedPlatforms,
+        platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
+        scheduledAt,
+      }, (progressEvent) => {
+        const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || progressEvent.loaded))
+        setUploadProgress(percent)
+      })
+    }
+  })
+
   const handleFileChange = (file: File | null) => {
     if (!file) {
       if (videoSrc) {
@@ -161,9 +212,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     }
   }
 
-  const handlePublish = async (action: "schedule" | "now") => {
-    if (isPublishing) return
-
+  const onPublishClick = async (action: "schedule" | "now") => {
     const activeChs = channels.filter(c => c.selected)
     if (activeChs.length === 0) {
       toast.error("No channels selected", {
@@ -187,71 +236,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       return
     }
 
-    let scheduledAt: string | undefined = undefined
-    if (action === "schedule") {
-      const dt = new Date(`${scheduleDate}T${scheduleTime}:00`)
-      scheduledAt = dt.toISOString()
-    }
-
-    setUploadProgress(0)
-    setCreatedPostId(null)
-    setIsStatusModalOpen(true)
-    setIsPublishing(true)
-
-    try {
-      const mappedPlatforms = activeChs.map(c => c.platform === "x" ? "twitter" : c.platform)
-
-      const platformSettings: Record<string, any> = {}
-      if (mappedPlatforms.includes("youtube")) {
-        platformSettings.youtube = {
-          title: (customizePerPlatform ? youtubeTitle : title) || title,
-          description: (customizePerPlatform ? youtubeCaption : caption) || caption
-        }
-      }
-
-      if (customizePerPlatform) {
-        if (mappedPlatforms.includes("facebook") && facebookCaption) {
-          platformSettings.facebook = { caption: facebookCaption }
-        }
-        if (mappedPlatforms.includes("instagram") && instagramCaption) {
-          platformSettings.instagram = { caption: instagramCaption }
-        }
-        if (mappedPlatforms.includes("tiktok") && tiktokCaption) {
-          platformSettings.tiktok = { caption: tiktokCaption }
-        }
-        if (mappedPlatforms.includes("linkedin") && linkedinCaption) {
-          platformSettings.linkedin = { caption: linkedinCaption }
-        }
-        if (mappedPlatforms.includes("twitter") && xCaption) {
-          platformSettings.twitter = { caption: xCaption }
-        }
-      }
-
-      const response = await publishVideoPost({
-        video: videoFile,
-        caption: caption || "",
-        platforms: mappedPlatforms,
-        platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
-        scheduledAt,
-      }, (progressEvent) => {
-        console.log(progressEvent)
-        const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || progressEvent.loaded))
-        setUploadProgress(percent)
-      })
-
-      if (response && response.success && response.data) {
-        setCreatedPostId(response.data.id)
-      } else {
-        throw new Error("Failed to retrieve created post details.")
-      }
-    } catch (err: any) {
-      setIsPublishing(false)
-      setIsStatusModalOpen(false)
-      const errorMsg = err.response?.data?.message || err.message || "Something went wrong while publishing."
-      toast.error("Failed to publish", {
-        description: errorMsg,
-      })
-    }
+    handlePublish(action, scheduleDate, scheduleTime)
   }
 
   const activeChannel = channels.find(c => c.selected && c.platform === previewPlatform) || channels.find(c => c.selected) || channels[0]
@@ -283,7 +268,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         <div className="flex items-center gap-2">
           <button
             disabled={isPublishing}
-            onClick={() => handlePublish(isScheduled ? "schedule" : "now")}
+            onClick={() => onPublishClick(isScheduled ? "schedule" : "now")}
             className="px-5 py-2 text-xs font-semibold rounded-xl bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-md hover:brightness-105 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPublishing ? "Publishing..." : (isScheduled ? "Schedule Post" : "Publish Now")}
@@ -375,7 +360,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
             onChangeIsScheduled={(val) => setValue("isScheduled", val)}
             scheduleDate={scheduleDate}
             scheduleTime={scheduleTime}
-            onPublish={handlePublish}
+            onPublish={onPublishClick}
             disabled={isPublishing}
           />
 
