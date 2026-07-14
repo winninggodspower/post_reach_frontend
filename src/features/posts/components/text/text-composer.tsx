@@ -260,6 +260,7 @@ export function TextComposer() {
         postId={createdPostId}
         uploadProgress={uploadProgress}
         postType="text"
+        isScheduled={isScheduled}
       />
     </div>
   )

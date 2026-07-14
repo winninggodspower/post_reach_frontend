@@ -10,6 +10,7 @@ import { getPostStatus } from "../api/server"
 import type { PlatformPostStatus } from "../api/server"
 import confetti from "canvas-confetti"
 import { useRouter } from "next/navigation"
+import { SuccessCheckIcon } from "@/components/ui/success-check-icon"
 
 type UploadStatusModalProps = {
   isOpen: boolean
@@ -17,6 +18,7 @@ type UploadStatusModalProps = {
   postId: string | null
   uploadProgress: number
   postType?: "video" | "photo" | "text"
+  isScheduled?: boolean
 }
 
 export function UploadStatusModal({
@@ -25,6 +27,7 @@ export function UploadStatusModal({
   postId,
   uploadProgress,
   postType,
+  isScheduled = false,
 }: UploadStatusModalProps) {
   const router = useRouter()
   const user = useAuth((state) => state.user)
@@ -35,9 +38,10 @@ export function UploadStatusModal({
 
   // Determine terminal states
   const isFinished = React.useMemo(() => {
+    if (isScheduled) return postType === "text" ? !!postId : uploadProgress === 100
     if (platformStatuses.length === 0) return false
     return platformStatuses.every((p) => p.status === "posted" || p.status === "failed")
-  }, [platformStatuses])
+  }, [platformStatuses, isScheduled, uploadProgress, postType, postId])
 
   // Helper to determine success counts
   const publishSummary = React.useMemo(() => {
@@ -62,9 +66,12 @@ export function UploadStatusModal({
     }
   }, [isOpen, postId])
 
-  // Trigger confetti when at least one platform successfully publishes
+  // Trigger confetti when at least one platform successfully publishes or when post is successfully scheduled
   React.useEffect(() => {
-    if (isFinished && publishSummary && publishSummary.postedCount > 0 && !confettiFiredRef.current) {
+    const isScheduledSuccess = isScheduled && (postType === "text" ? !!postId : uploadProgress === 100)
+    const isNormalSuccess = !isScheduled && isFinished && publishSummary && publishSummary.postedCount > 0
+
+    if ((isScheduledSuccess || isNormalSuccess) && !confettiFiredRef.current) {
       confettiFiredRef.current = true
       confetti({
         particleCount: 100,
@@ -72,11 +79,11 @@ export function UploadStatusModal({
         origin: { y: 0.6 }
       })
     }
-  }, [isFinished, publishSummary])
+  }, [isFinished, publishSummary, isScheduled, uploadProgress, postType, postId])
 
   // Poll status endpoint
   React.useEffect(() => {
-    if (!isOpen || !postId || isFinished) return
+    if (!isOpen || !postId || isFinished || isScheduled) return
 
     let isMounted = true
     const pollInterval = setInterval(async () => {
@@ -97,7 +104,7 @@ export function UploadStatusModal({
       isMounted = false
       clearInterval(pollInterval)
     }
-  }, [isOpen, postId, isFinished])
+  }, [isOpen, postId, isFinished, isScheduled])
 
   // Get matching icon and accent for platforms
   const getPlatformMeta = (platformKey: string) => {
@@ -133,43 +140,34 @@ export function UploadStatusModal({
     }
   }
 
-  const renderStatusIcon = (status: PlatformPostStatus["status"]) => {
-    switch (status) {
-      case "posted":
-        return <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
-      case "failed":
-        return <XCircle className="size-5 text-rose-500 shrink-0" />
-      case "uploading":
-      case "pending":
-      default:
-        return <Loader2 className="size-5 text-accent-brand animate-spin shrink-0" />
-    }
-  }
-
   const renderStatusBadge = (status: PlatformPostStatus["status"]) => {
     switch (status) {
       case "posted":
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-250/20 shadow-2xs">
+            <span className="size-1.5 rounded-full bg-emerald-500" />
             Published
           </span>
         )
       case "failed":
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 border border-rose-200/50">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 border border-rose-250/20 shadow-2xs">
+            <span className="size-1.5 rounded-full bg-rose-500" />
             Failed
           </span>
         )
       case "uploading":
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 border border-blue-200/50">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 border border-blue-250/20 shadow-2xs">
+            <Loader2 className="size-3 text-blue-500 dark:text-blue-455 animate-spin shrink-0" />
             Uploading
           </span>
         )
       case "pending":
       default:
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-50 dark:bg-slate-950/20 text-slate-600 dark:text-slate-400 border border-slate-200/50">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-50 dark:bg-slate-950/20 text-slate-650 dark:text-slate-400 border border-slate-205/50 shadow-2xs">
+            <span className="size-1.5 rounded-full bg-slate-405 animate-pulse" />
             Queued
           </span>
         )
@@ -212,7 +210,7 @@ export function UploadStatusModal({
     >
       <div className="space-y-6">
         {/* Upload Progress Section */}
-        {uploadProgress < 100 && (
+        {postType !== "text" && uploadProgress < 100 && (
           <div className="space-y-3">
             <div className="flex justify-between items-center text-xs font-semibold text-slate-500 dark:text-slate-400">
               <span>
@@ -239,11 +237,21 @@ export function UploadStatusModal({
         )}
 
         {/* Polling Multi-platform publishing status */}
-        {uploadProgress === 100 && (
+        {(uploadProgress === 100 || postType === "text") && (
           <div className="space-y-5">
             <div className="py-1">
-              {!isFinished ? (
-                <div className="flex flex-col gap-2 text-center text-xs font-semibold text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-950/20 py-3.5 px-4 rounded-2xl border border-slate-100 dark:border-slate-800/80">
+              {isScheduled ? (
+                <div className="text-center py-6 animate-fade-in space-y-4">
+                  <SuccessCheckIcon />
+                  <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100">
+                    Post successfully scheduled!
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                    Your content has been successfully queued in your publishing calendar. You can view it anytime on the calendar.
+                  </p>
+                </div>
+              ) : !isFinished ? (
+                <div className="flex flex-col gap-2 text-center text-xs font-semibold text-slate-650 dark:text-slate-355 bg-slate-50 dark:bg-slate-950/20 py-3.5 px-4 rounded-2xl border border-slate-100 dark:border-slate-800/80">
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="size-4 text-accent-brand animate-spin" />
                     <span>
@@ -261,17 +269,23 @@ export function UploadStatusModal({
                   </p>
                 </div>
               ) : (
-                <div className="text-center py-3 animate-fade-in">
+                <div className="text-center py-6 animate-fade-in space-y-4">
                   {publishSummary?.failedCount === 0 ? (
-                    <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-bold text-sm shadow-xs">
-                      <span>🎉 Success! Your content is live!</span>
-                    </div>
+                    <>
+                      <SuccessCheckIcon />
+                      <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-100">
+                        Post successfully published!
+                      </h2>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                        🎉 Success! Your content is now live across all platforms!
+                      </p>
+                    </>
                   ) : publishSummary?.postedCount === 0 ? (
-                    <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-400 font-bold text-sm shadow-xs">
+                    <div className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full border border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-400 font-bold text-sm shadow-xs mx-auto">
                       <span>⚠️ Publishing failed</span>
                     </div>
                   ) : (
-                    <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold text-sm shadow-xs">
+                    <div className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold text-sm shadow-xs mx-auto">
                       <span>⚡ Partial success</span>
                     </div>
                   )}
@@ -280,7 +294,7 @@ export function UploadStatusModal({
             </div>
 
             {/* List of Platforms and Statuses */}
-            {platformStatuses.length > 0 && (
+            {!isScheduled && platformStatuses.length > 0 && (
               <div className="space-y-3">
                 {platformStatuses.map((status) => {
                   const matchKey = status.platform === "twitter" ? "x" : status.platform
@@ -329,7 +343,6 @@ export function UploadStatusModal({
                           )}
                           <div className="flex items-center gap-1.5">
                             {renderStatusBadge(status.status)}
-                            {renderStatusIcon(status.status)}
                           </div>
                         </div>
                       </div>

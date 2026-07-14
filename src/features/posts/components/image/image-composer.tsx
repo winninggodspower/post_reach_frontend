@@ -328,6 +328,7 @@ export function ImageComposer() {
         postId={createdPostId}
         uploadProgress={uploadProgress}
         postType="photo"
+        isScheduled={isScheduled}
       />
     </div>
   )

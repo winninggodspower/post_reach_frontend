@@ -426,6 +426,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         postId={createdPostId}
         uploadProgress={uploadProgress}
         postType="video"
+        isScheduled={isScheduled}
       />
     </div>
   )
