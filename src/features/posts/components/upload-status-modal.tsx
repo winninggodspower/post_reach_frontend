@@ -6,7 +6,7 @@ import { ModalShell } from "@/components/ui/modal-shell"
 import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { SocialAccountAvatar } from "@/components/ui/social-account-avatar"
-import { getPostStatus } from "../api/server"
+import { usePostStatus } from "../hooks/use-post-status"
 import type { PlatformPostStatus } from "../api/server"
 import confetti from "canvas-confetti"
 import { useRouter } from "next/navigation"
@@ -32,16 +32,20 @@ export function UploadStatusModal({
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const connectedAccounts = user?.brand?.connected_accounts || []
-  const [platformStatuses, setPlatformStatuses] = React.useState<PlatformPostStatus[]>([])
-  const [contentType, setContentType] = React.useState<"video" | "photo" | "text" | null>(postType || null)
-  const [error, setError] = React.useState<string | null>(null)
+
+  // Use custom status polling hook
+  const { platformStatuses, contentType: polledContentType, isFinished: polledIsFinished } = usePostStatus({
+    postId,
+    enabled: isOpen && !isScheduled,
+  })
+
+  const contentType = polledContentType || postType || null
 
   // Determine terminal states
   const isFinished = React.useMemo(() => {
     if (isScheduled) return postType === "text" ? !!postId : uploadProgress === 100
-    if (platformStatuses.length === 0) return false
-    return platformStatuses.every((p) => p.status === "posted" || p.status === "failed")
-  }, [platformStatuses, isScheduled, uploadProgress, postType, postId])
+    return polledIsFinished
+  }, [isScheduled, uploadProgress, postType, postId, polledIsFinished])
 
   // Helper to determine success counts
   const publishSummary = React.useMemo(() => {
@@ -80,31 +84,6 @@ export function UploadStatusModal({
       })
     }
   }, [isFinished, publishSummary, isScheduled, uploadProgress, postType, postId])
-
-  // Poll status endpoint
-  React.useEffect(() => {
-    if (!isOpen || !postId || isFinished || isScheduled) return
-
-    let isMounted = true
-    const pollInterval = setInterval(async () => {
-      try {
-        const response = await getPostStatus(postId)
-        if (isMounted && response.success && response.data) {
-          setPlatformStatuses(response.data.platforms || [])
-          if (response.data.content_type) {
-            setContentType(response.data.content_type as any)
-          }
-        }
-      } catch (err: any) {
-        console.error("Error polling post status:", err)
-      }
-    }, 2500)
-
-    return () => {
-      isMounted = false
-      clearInterval(pollInterval)
-    }
-  }, [isOpen, postId, isFinished, isScheduled])
 
   // Get matching icon and accent for platforms
   const getPlatformMeta = (platformKey: string) => {

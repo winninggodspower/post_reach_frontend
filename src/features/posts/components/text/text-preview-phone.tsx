@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Eye, Heart, MessageCircle, Share2 } from "lucide-react"
 import type { AccountChannel } from "../target-accounts-selector"
-import { Iphone } from "@/components/ui/iphone"
+import { PhoneMockupWrapper } from "../phone-mockup-wrapper"
 import { PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
 
 type TextPreviewPhoneProps = {
@@ -100,71 +100,51 @@ export function TextPreviewPhone({
       </div>
 
       {/* Smart Phone Wrapper */}
-      <div className="flex justify-center py-2">
-        <div className="w-[300px] relative select-none bg-transparent dark">
-          <Iphone className="w-full bg-transparent iphone-bezel-container" />
-
-          {/* Main Screen Content Overlays */}
-          <div
-            className="absolute z-20 flex flex-col select-none overflow-hidden"
-            style={{
-              left: "4.9076%",
-              top: "2.1825%",
-              width: "89.9538%",
-              height: "95.6349%",
-              borderRadius: "14.3132% / 6.6094%",
-              backgroundColor: "#ffffff",
-            }}
-          >
-            {/* Feed Mock Layout */}
-            <div className="flex flex-col h-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-150 pt-8">
-              {/* Header */}
-              <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-805">
-                <div className="flex items-center gap-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={activeChannel?.avatar || PLAIN_AVATAR}
-                    alt="Avatar"
-                    className="size-7 rounded-full object-cover border border-slate-100 dark:border-slate-800"
-                  />
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10px] font-bold leading-none">
-                      {activeChannel?.name || "Channel Name"}
-                    </span>
-                    <span className="text-[8px] text-slate-400 mt-0.5 leading-none">
-                      {activeChannel?.handle || "@channel"}
-                    </span>
-                  </div>
-                </div>
-                <span className="text-slate-400 text-xs font-bold px-1">•••</span>
-              </div>
-
-              {/* Text Only Content Area (Mocking social post body) */}
-              <div className="flex-1 px-3 py-4 text-left overflow-y-auto max-h-[300px] scrollbar-none">
-                <p className="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-sans leading-normal">
-                  {renderFormattedPreviewCaption(activeCaption)}
-                </p>
-              </div>
-
-              {/* Mock Engagement Bar */}
-              <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-805 flex items-center justify-between text-slate-400 dark:text-slate-500">
-                <div className="flex items-center gap-1.5">
-                  <Heart className="size-3.5" />
-                  <span className="text-[9px] font-medium">Like</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <MessageCircle className="size-3.5" />
-                  <span className="text-[9px] font-medium">Comment</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Share2 className="size-3.5" />
-                  <span className="text-[9px] font-medium">Share</span>
-                </div>
-              </div>
+      <PhoneMockupWrapper>
+        {/* Header */}
+        <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-805">
+          <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={activeChannel?.avatar || PLAIN_AVATAR}
+              alt="Avatar"
+              className="size-7 rounded-full object-cover border border-slate-100 dark:border-slate-800"
+            />
+            <div className="flex flex-col text-left">
+              <span className="text-[10px] font-bold leading-none">
+                {activeChannel?.name || "Channel Name"}
+              </span>
+              <span className="text-[8px] text-slate-400 mt-0.5 leading-none">
+                {activeChannel?.handle || "@channel"}
+              </span>
             </div>
           </div>
+          <span className="text-slate-400 text-xs font-bold px-1">•••</span>
         </div>
-      </div>
+
+        {/* Text Only Content Area (Mocking social post body) */}
+        <div className="flex-1 px-3 py-4 text-left overflow-y-auto max-h-[300px] scrollbar-none">
+          <p className="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-sans leading-normal">
+            {renderFormattedPreviewCaption(activeCaption)}
+          </p>
+        </div>
+
+        {/* Mock Engagement Bar */}
+        <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-805 flex items-center justify-between text-slate-400 dark:text-slate-500">
+          <div className="flex items-center gap-1.5">
+            <Heart className="size-3.5" />
+            <span className="text-[9px] font-medium">Like</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <MessageCircle className="size-3.5" />
+            <span className="text-[9px] font-medium">Comment</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Share2 className="size-3.5" />
+            <span className="text-[9px] font-medium">Share</span>
+          </div>
+        </div>
+      </PhoneMockupWrapper>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
 import { PLATFORM_OPTIONS, PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
+import { useTargetChannels } from "../../hooks/use-target-channels"
 import { publishImagePost } from "../../api/server"
 import { UploadStatusModal } from "../upload-status-modal"
 
@@ -28,33 +29,11 @@ export function ImageComposer() {
   const [uploadProgress, setUploadProgress] = React.useState(0)
   const [createdPostId, setCreatedPostId] = React.useState<string | null>(null)
 
-  // Target Accounts initial state
-  const [channels, setChannels] = React.useState<AccountChannel[]>(() => {
-    if (brand?.connected_accounts && brand.connected_accounts.length > 0) {
-      let firstActiveSelected = false
-      return brand.connected_accounts
-        .filter((conn) => conn.platform.toLowerCase() !== "youtube")
-        .map((conn) => {
-          const isExpired = !!conn.is_expired
-          let shouldSelect = false
-          if (!isExpired && !firstActiveSelected) {
-            shouldSelect = true
-            firstActiveSelected = true
-          }
-
-          return {
-            id: conn.external_id,
-            platform: conn.platform.toLowerCase(),
-            name: conn.account_name,
-            handle: `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}`,
-            avatar: conn.profile_picture_url || PLAIN_AVATAR,
-            selected: shouldSelect,
-            expired: isExpired,
-          }
-        })
-    }
-    return []
-  })
+  // Target Accounts using hook
+  const { channels, toggleChannel, selectedChannels } = useTargetChannels(
+    brand?.connected_accounts,
+    ["facebook", "linkedin", "twitter", "x", "instagram", "tiktok"]
+  )
 
   // Images state
   const [imageFiles, setImageFiles] = React.useState<File[]>([])
@@ -123,20 +102,6 @@ export function ImageComposer() {
 
   const handleBack = () => {
     router.push("/dashboard/posts")
-  }
-
-  const toggleChannel = (id: string) => {
-    const channel = channels.find(c => c.id === id)
-    if (channel?.expired) {
-      toast.error("Account connection expired", {
-        description: `Please reconnect your ${channel.name} account in Connections settings.`,
-      })
-      return
-    }
-
-    setChannels(prev =>
-      prev.map(c => (c.id === id ? { ...c, selected: !c.selected } : c))
-    )
   }
 
   const handlePublish = async (action: "schedule" | "now") => {

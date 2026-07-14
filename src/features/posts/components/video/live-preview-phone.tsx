@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Eye, Heart, MessageCircle, Bookmark, Share2, Music, Plus, ThumbsUp, MessageSquare, Search, MoreVertical, Forward } from "lucide-react"
 import type { AccountChannel } from "../target-accounts-selector"
-import { Iphone } from "../../../../components/ui/iphone"
+import { PhoneMockupWrapper } from "../phone-mockup-wrapper"
 
 type LivePreviewPhoneProps = {
   videoSrc: string
@@ -105,24 +105,12 @@ export function LivePreviewPhone({
       </div>
 
       {/* Smart Phone Wrapper */}
-      <div className="flex justify-center py-2">
-        <div ref={localIphoneRef} className="w-[300px] relative select-none bg-transparent dark">
-          <Iphone
-            videoSrc={videoSrc}
-            className="w-full bg-transparent iphone-bezel-container"
-          />
-          {/* Main Screen Content Overlays */}
-          <div
-            onClick={onTogglePlay}
-            className="absolute z-20 flex flex-col justify-between select-none overflow-hidden cursor-pointer"
-            style={{
-              left: "4.9076%",
-              top: "2.1825%",
-              width: "89.9538%",
-              height: "95.6349%",
-              borderRadius: "14.3132% / 6.6094%",
-            }}
-          >
+      <PhoneMockupWrapper
+        ref={localIphoneRef}
+        bgVideoSrc={videoSrc}
+        onClickInner={onTogglePlay}
+        innerClassName="cursor-pointer justify-between"
+      >
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-linear-to-b from-black/25 via-transparent to-black/60 pointer-events-none z-10" />
 
@@ -269,13 +257,11 @@ export function LivePreviewPhone({
                       alt="Record sound"
                       className="size-full rounded-full object-cover"
                     />
-                  </div>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-      </div>
+            </div>
+          )}
+      </PhoneMockupWrapper>
 
       <p className="text-[10px] text-center text-slate-500 mt-4 leading-normal">
         Previews mock the final layout view template on mobile screens.

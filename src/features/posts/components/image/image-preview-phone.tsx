@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Eye, Heart, MessageCircle, Share2, Plus, Image as LucideImage } from "lucide-react"
 import type { AccountChannel } from "../target-accounts-selector"
-import { Iphone } from "../../../../components/ui/iphone"
+import { PhoneMockupWrapper } from "../phone-mockup-wrapper"
 
 type ImagePreviewPhoneProps = {
   imageSrcs: string[]
@@ -106,27 +106,7 @@ export function ImagePreviewPhone({
       </div>
 
       {/* Smart Phone Wrapper */}
-      <div className="flex justify-center py-2">
-        <div className="w-[300px] relative select-none bg-transparent dark">
-          <Iphone
-            src={imageSrcs[0] || undefined}
-            className="w-full bg-transparent iphone-bezel-container"
-          />
-
-          {/* Main Screen Content Overlays */}
-          <div
-            className="absolute z-20 flex flex-col select-none overflow-hidden"
-            style={{
-              left: "4.9076%",
-              top: "2.1825%",
-              width: "89.9538%",
-              height: "95.6349%",
-              borderRadius: "14.3132% / 6.6094%",
-              backgroundColor: "#ffffff"
-            }}
-          >
-            {/* Feed Mock Layout */}
-            <div className="flex flex-col h-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-150 pt-8">
+      <PhoneMockupWrapper bgMediaSrc={imageSrcs[0] || undefined}>
               {/* Header */}
               <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-805">
                 <div className="flex items-center gap-2">
@@ -230,10 +210,7 @@ export function ImagePreviewPhone({
                   {renderFormattedPreviewCaption(caption)}
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </PhoneMockupWrapper>
 
       <p className="text-[10px] text-center text-slate-500 mt-4 leading-normal">
         Previews mock the final layout feed view on mobile screens.

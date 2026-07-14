@@ -1,12 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { ChevronLeft } from "lucide-react"
-import { toast } from "sonner"
 import { useForm } from "react-hook-form"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
-import { PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
+import { ChevronLeft } from "lucide-react"
+import { toast } from "sonner"
+import { useTargetChannels } from "../../hooks/use-target-channels"
 import { publishTextPost } from "../../api/server"
 import { UploadStatusModal } from "../upload-status-modal"
 import { TargetAccountsSelector } from "../target-accounts-selector"
@@ -24,35 +24,11 @@ export function TextComposer() {
   const [uploadProgress, setUploadProgress] = React.useState(0)
   const [createdPostId, setCreatedPostId] = React.useState<string | null>(null)
 
-  // Target Accounts initial state - Text-only platforms
-  const [channels, setChannels] = React.useState<AccountChannel[]>(() => {
-    if (brand?.connected_accounts && brand.connected_accounts.length > 0) {
-      let firstActiveSelected = false
-      return brand.connected_accounts
-        .filter((conn) => 
-          ["facebook", "linkedin", "twitter", "x"].includes(conn.platform.toLowerCase())
-        )
-        .map((conn) => {
-          const isExpired = !!conn.is_expired
-          let shouldSelect = false
-          if (!isExpired && !firstActiveSelected) {
-            shouldSelect = true
-            firstActiveSelected = true
-          }
-
-          return {
-            id: conn.external_id,
-            platform: conn.platform.toLowerCase(),
-            name: conn.account_name,
-            handle: `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}`,
-            avatar: conn.profile_picture_url || PLAIN_AVATAR,
-            selected: shouldSelect,
-            expired: isExpired,
-          }
-        })
-    }
-    return []
-  })
+  // Target Accounts using hook
+  const { channels, toggleChannel, selectedChannels } = useTargetChannels(
+    brand?.connected_accounts,
+    ["facebook", "linkedin", "twitter", "x"]
+  )
 
   // React Hook Form
   const { register, watch, setValue, getValues } = useForm({
@@ -80,20 +56,6 @@ export function TextComposer() {
 
   const handleBack = () => {
     router.push("/dashboard/posts")
-  }
-
-  const toggleChannel = (id: string) => {
-    const channel = channels.find((c) => c.id === id)
-    if (channel?.expired) {
-      toast.error("Account connection expired", {
-        description: `Please reconnect your ${channel.name} account in Connections settings.`,
-      })
-      return
-    }
-
-    setChannels((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, selected: !c.selected } : c))
-    )
   }
 
   const handlePublish = async (action: "schedule" | "now") => {

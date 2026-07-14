@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
 import { PLATFORM_OPTIONS, PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
+import { useTargetChannels } from "../../hooks/use-target-channels"
 import { publishVideoPost } from "../../api/server"
 import { UploadStatusModal } from "../upload-status-modal"
 
@@ -63,35 +64,11 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     router.push("/dashboard/posts")
   }
 
-  // Target Accounts initial state
-  const [channels, setChannels] = React.useState<AccountChannel[]>(() => {
-    if (brand?.connected_accounts && brand.connected_accounts.length > 0) {
-      let firstActiveSelected = false
-      return brand.connected_accounts.map((conn) => {
-        const opt = PLATFORM_OPTIONS.find((p) => p.id.toLowerCase() === conn.platform.toLowerCase())
-
-        // Select only the first active/non-expired channel by default
-        const isExpired = !!conn.is_expired
-        let shouldSelect = false
-        if (!isExpired && !firstActiveSelected) {
-          shouldSelect = true
-          firstActiveSelected = true
-        }
-
-        return {
-          id: conn.external_id,
-          platform: conn.platform.toLowerCase(),
-          name: conn.account_name,
-          handle: `@${conn.account_name.toLowerCase().replace(/\s+/g, "")}`,
-          avatar: conn.profile_picture_url || PLAIN_AVATAR,
-          selected: shouldSelect,
-          expired: isExpired,
-        }
-      })
-    }
-
-    return []
-  })
+  // Target Accounts using hook
+  const { channels, toggleChannel, selectedChannels } = useTargetChannels(
+    brand?.connected_accounts,
+    ["youtube", "instagram", "tiktok", "facebook", "linkedin", "twitter", "x"]
+  )
 
   // React Hook Form
   const { register, watch, setValue } = useForm<VideoPostFormValues>({
@@ -143,20 +120,6 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
 
   // Watch cover timestamp from form
   const coverImageTimestamp = watch("coverImageTimestamp")
-
-  const toggleChannel = (id: string) => {
-    const channel = channels.find(c => c.id === id)
-    if (channel?.expired) {
-      toast.error("Account connection expired", {
-        description: `Please reconnect your ${channel.name} account in Connections settings.`,
-      })
-      return
-    }
-
-    setChannels(prev =>
-      prev.map(c => (c.id === id ? { ...c, selected: !c.selected } : c))
-    )
-  }
 
   const handleFileChange = (file: File | null) => {
     if (!file) {
