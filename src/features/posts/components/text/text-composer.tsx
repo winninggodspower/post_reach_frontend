@@ -114,11 +114,10 @@ export function TextComposer() {
       return
     }
 
+    let scheduledAt: string | undefined = undefined
     if (action === "schedule") {
-      toast.error("Scheduling not supported yet", {
-        description: "Scheduled posting is not supported in this version. Please select 'Publish Now'.",
-      })
-      return
+      const dt = new Date(`${scheduleDate}T${scheduleTime}:00`)
+      scheduledAt = dt.toISOString()
     }
 
     setUploadProgress(0)
@@ -149,6 +148,7 @@ export function TextComposer() {
           caption: caption || "",
           platforms: mappedPlatforms,
           platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
+          scheduledAt,
         },
         (progressEvent) => {
           const percent = Math.round(

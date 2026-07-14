@@ -7,6 +7,7 @@ export type PublishVideoPayload = {
   caption: string
   platforms: string[]
   platformSettings?: Record<string, any>
+  scheduledAt?: string
 }
 
 export type PlatformPostStatus = {
@@ -38,6 +39,7 @@ export type PublishImagePayload = {
   caption: string
   platforms: string[]
   platformSettings?: Record<string, any>
+  scheduledAt?: string
 }
 
 export const publishVideoPost = async (
@@ -54,6 +56,10 @@ export const publishVideoPost = async (
 
   if (payload.platformSettings) {
     formData.append("platform_settings", JSON.stringify(payload.platformSettings))
+  }
+
+  if (payload.scheduledAt) {
+    formData.append("scheduled_at", payload.scheduledAt)
   }
 
   const { data } = await api.post(POSTS_ENDPOINTS.createVideo, formData, {
@@ -84,6 +90,10 @@ export const publishImagePost = async (
     formData.append("platform_settings", JSON.stringify(payload.platformSettings))
   }
 
+  if (payload.scheduledAt) {
+    formData.append("scheduled_at", payload.scheduledAt)
+  }
+
   const { data } = await api.post(POSTS_ENDPOINTS.createImage, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -98,6 +108,7 @@ export type PublishTextPayload = {
   caption: string
   platforms: string[]
   platformSettings?: Record<string, any>
+  scheduledAt?: string
 }
 
 export const publishTextPost = async (
@@ -115,6 +126,10 @@ export const publishTextPost = async (
     formData.append("platform_settings", JSON.stringify(payload.platformSettings))
   }
 
+  if (payload.scheduledAt) {
+    formData.append("scheduled_at", payload.scheduledAt)
+  }
+
   const { data } = await api.post(POSTS_ENDPOINTS.createText, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -127,5 +142,44 @@ export const publishTextPost = async (
 
 export const getPostStatus = async (id: string): Promise<PostStatusResponse> => {
   const { data } = await api.get<PostStatusResponse>(`/content/posts/${id}/`)
+  return data
+}
+
+export type CalendarItemPlatform = {
+  id: number
+  platform: string
+  status: "scheduled" | "posted" | "failed" | "pending" | "uploading"
+  platform_post_id: string | null
+  error_message: string | null
+  title: string
+  caption: string
+  created_at: string
+  updated_at: string
+}
+
+export type CalendarItem = {
+  id: string
+  caption: string
+  content_type: "video" | "photo" | "text"
+  scheduled_at: string | null
+  platforms: CalendarItemPlatform[]
+  created_at: string
+  updated_at: string
+}
+
+export type CalendarResponse = {
+  success: boolean
+  data: CalendarItem[]
+}
+
+export const getCalendarItems = async (
+  startDate?: string,
+  endDate?: string
+): Promise<CalendarResponse> => {
+  const params: Record<string, string> = {}
+  if (startDate) params.start_date = startDate
+  if (endDate) params.end_date = endDate
+
+  const { data } = await api.get<CalendarResponse>(POSTS_ENDPOINTS.calendar, { params })
   return data
 }
