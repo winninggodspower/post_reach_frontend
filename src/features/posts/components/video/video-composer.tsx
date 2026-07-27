@@ -42,6 +42,18 @@ type VideoComposerProps = {
   onBack?: () => void
 }
 
+function dataURLtoFile(dataUrl: string, filename: string): File {
+  const arr = dataUrl.split(",")
+  const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg"
+  const bstr = atob(arr[1])
+  let n = bstr.length
+  const u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new File([u8arr], filename, { type: mime })
+}
+
 export function VideoComposer({ onBack }: VideoComposerProps) {
   const router = useRouter()
   const user = useAuth((state) => state.user)
@@ -159,12 +171,23 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         }
       }
 
+      let thumbnailFile: File | undefined = undefined
+      if (thumbnailDataUrl) {
+        try {
+          thumbnailFile = dataURLtoFile(thumbnailDataUrl, "thumbnail.jpg")
+        } catch (error) {
+          console.error("Error converting thumbnail data URL to File:", error)
+        }
+      }
+
       return publishVideoPost({
         video: videoFile!,
         caption: caption || "",
         platforms: mappedPlatforms,
         platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
         scheduledAt,
+        thumbnail: thumbnailFile,
+        video_thumbnail_offset: coverImageTimestamp,
       }, (progressEvent) => {
         const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || progressEvent.loaded))
         setUploadProgress(percent)
@@ -304,6 +327,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
             <ThumbnailPickerModal
               videoSrc={videoSrc}
               currentThumbnail={thumbnailDataUrl}
+              initialTimestamp={coverImageTimestamp ? coverImageTimestamp / 1000 : undefined}
               onSelect={(dataUrl, timestamp) => {
                 setThumbnailDataUrl(dataUrl)
                 setValue("coverImageTimestamp", timestamp)

@@ -8,6 +8,8 @@ export type PublishVideoPayload = {
   platforms: string[]
   platformSettings?: Record<string, any>
   scheduledAt?: string
+  thumbnail?: File
+  video_thumbnail_offset?: number
 }
 
 export type PlatformPostStatus = {
@@ -60,6 +62,13 @@ export const publishVideoPost = async (
 
   if (payload.scheduledAt) {
     formData.append("scheduled_at", payload.scheduledAt)
+  }
+
+  if (payload.thumbnail) {
+    formData.append("thumbnail", payload.thumbnail)
+  }
+  if (payload.video_thumbnail_offset !== undefined && payload.video_thumbnail_offset !== null) {
+    formData.append("video_thumbnail_offset", payload.video_thumbnail_offset.toString())
   }
 
   const { data } = await api.post(POSTS_ENDPOINTS.createVideo, formData, {

@@ -6,6 +6,7 @@ import { ModalShell } from "@/components/ui/modal-shell"
 type ThumbnailPickerModalProps = {
   videoSrc: string
   currentThumbnail: string
+  initialTimestamp?: number
   onSelect: (dataUrl: string, timestamp: number) => void
   onClose: () => void
 }
@@ -13,45 +14,16 @@ type ThumbnailPickerModalProps = {
 export function ThumbnailPickerModal({
   videoSrc,
   currentThumbnail,
+  initialTimestamp = 0,
   onSelect,
   onClose,
 }: ThumbnailPickerModalProps) {
   const videoRef = React.useRef<HTMLVideoElement>(null)
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
-  const [sliderValue, setSliderValue] = React.useState(0)
+  const [sliderValue, setSliderValue] = React.useState(initialTimestamp)
   const [duration, setDuration] = React.useState(0)
-  const [previewDataUrl, setPreviewDataUrl] = React.useState("")
   const [isReady, setIsReady] = React.useState(false)
   const [aspectRatio, setAspectRatio] = React.useState<number>(16 / 9) // Default fallback
-
-  const seekTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
-
-  const captureFrame = React.useCallback((isFullRes = false) => {
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    if (!video || !canvas || video.videoWidth === 0) return
-
-    // Scale down image size for preview to speed up canvas.toDataURL encoding
-    const maxDim = isFullRes ? 1280 : 640
-    let w = video.videoWidth
-    let h = video.videoHeight
-    if (w > maxDim || h > maxDim) {
-      if (w > h) {
-        h = Math.round((h * maxDim) / w)
-        w = maxDim
-      } else {
-        w = Math.round((w * maxDim) / h)
-        h = maxDim
-      }
-    }
-
-    canvas.width = w
-    canvas.height = h
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-    ctx.drawImage(video, 0, 0, w, h)
-    setPreviewDataUrl(canvas.toDataURL("image/jpeg", 0.8))
-  }, [])
 
   const handleLoadedData = () => {
     const video = videoRef.current
@@ -60,36 +32,17 @@ export function ThumbnailPickerModal({
     if (video.videoWidth && video.videoHeight) {
       setAspectRatio(video.videoWidth / video.videoHeight)
     }
+    video.currentTime = initialTimestamp
     setIsReady(true)
-    captureFrame()
-  }
-
-  const handleSeeked = () => {
-    captureFrame()
   }
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value)
     setSliderValue(val)
-
-    if (seekTimeoutRef.current) {
-      clearTimeout(seekTimeoutRef.current)
+    if (videoRef.current) {
+      videoRef.current.currentTime = val
     }
-
-    // 40ms debounce to prevent browser video decoder overload
-    seekTimeoutRef.current = setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.currentTime = val
-      }
-    }, 40)
   }
-
-  // Cleanup timeout on unmount
-  React.useEffect(() => {
-    return () => {
-      if (seekTimeoutRef.current) clearTimeout(seekTimeoutRef.current)
-    }
-  }, [])
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60)
@@ -110,7 +63,8 @@ export function ThumbnailPickerModal({
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
         const fullResDataUrl = canvas.toDataURL("image/jpeg", 0.9)
-        onSelect(fullResDataUrl, sliderValue)
+        const offsetInMs = Math.round(sliderValue * 1000)
+        onSelect(fullResDataUrl, offsetInMs)
       }
     }
     onClose()
@@ -126,7 +80,7 @@ export function ThumbnailPickerModal({
       </button>
       <button
         onClick={handleSetCover}
-        disabled={!previewDataUrl}
+        disabled={!isReady}
         className="px-4 py-2 text-xs font-semibold rounded-xl bg-accent-brand text-white hover:bg-accent-dark transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Set as Cover
@@ -145,54 +99,42 @@ export function ThumbnailPickerModal({
     >
       <div className="space-y-5">
         {/* Dynamic layout depending on if a current thumbnail exists */}
-        <div className={currentThumbnail ? "grid grid-cols-2 gap-6" : "flex justify-center"}>
+        <div className={currentThumbnail ? "grid grid-cols-2 gap-6" : "flex justify-center w-full"}>
           {/* New frame preview */}
-          <div className={`space-y-2 ${currentThumbnail ? "" : "w-full max-w-xs"}`}>
-            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+          <div className={`space-y-2 flex flex-col items-center ${currentThumbnail ? "" : "w-full"}`}>
+            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide self-start">
               New cover image
             </p>
-            <div
-              className="rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-slate-800 relative w-full max-h-[45vh]"
+            {/* eslint-disable-next-line @next/next/no-html-video-element */}
+            <video
+              ref={videoRef}
+              src={videoSrc}
+              className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 w-auto h-auto max-h-[45vh] max-w-full"
               style={{ aspectRatio: `${aspectRatio}` }}
-            >
-              {previewDataUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={previewDataUrl} alt="Selected frame" className="w-full h-full max-h-[45vh] object-contain" />
-              ) : (
-                <div className="text-slate-600 text-xs animate-pulse">Loading...</div>
-              )}
-            </div>
+              preload="auto"
+              muted
+              playsInline
+              onLoadedData={handleLoadedData}
+            />
           </div>
 
           {/* Current cover */}
           {currentThumbnail && (
-            <div className="space-y-2">
-              <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+            <div className="space-y-2 flex flex-col items-center">
+              <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide self-start">
                 Current cover
               </p>
-              <div
-                className="rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-slate-800 w-full max-h-[45vh]"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={currentThumbnail}
+                alt="Current thumbnail"
+                className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 w-auto h-auto max-h-[45vh] max-w-full"
                 style={{ aspectRatio: `${aspectRatio}` }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={currentThumbnail} alt="Current thumbnail" className="w-full h-full max-h-[45vh] object-contain" />
-              </div>
+              />
             </div>
           )}
         </div>
 
-        {/* Hidden video + canvas for frame capture */}
-        {/* eslint-disable-next-line @next/next/no-html-video-element */}
-        <video
-          ref={videoRef}
-          src={videoSrc}
-          className="hidden"
-          preload="auto"
-          muted
-          playsInline
-          onLoadedData={handleLoadedData}
-          onSeeked={handleSeeked}
-        />
         <canvas ref={canvasRef} className="hidden" />
 
         {/* Scrub slider */}

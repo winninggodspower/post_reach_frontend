@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -47,9 +48,6 @@ interface NavItemsProps {
 function NavItems({ showDashboard, onItemClick, isMobile = false }: NavItemsProps) {
   return (
     <div className={isMobile ? "flex flex-col gap-4" : "flex items-center"}>
-      <NavLink href="/tools" onClick={onItemClick} isMobile={isMobile} type="link">
-        Tools
-      </NavLink>
 
       {showDashboard ? (
         <NavLink href="/dashboard" onClick={onItemClick} isMobile={isMobile} type="button-primary">
@@ -85,14 +83,15 @@ export default function Navbar() {
     <header className="sticky top-0 z-30 mx-auto w-full border-b border-black/10 bg-white/30 px-6 py-4 backdrop-blur-xl sm:px-10">
       <nav className="mx-auto flex w-full max-w-7xl flex-col sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between w-full sm:w-auto">
-          <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-r from-accent-dark to-accent-brand font-bold text-white shadow-sm">
-              PR
-            </div>
-
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-semibold uppercase tracking-widest text-black">PostReach</span>
-            </div>
+          <div className="flex items-center gap-3">
+            {/* <Image
+              src="/postglee-logo.png"
+              alt="PostReach logo"
+              width={36}
+              height={36}
+              className="rounded-lg w-28"
+            /> */}
+            <img src="/postglee-logo.png" className="w-28" alt="" />
           </div>
 
           {/* Mobile hamburger menu toggle button */}

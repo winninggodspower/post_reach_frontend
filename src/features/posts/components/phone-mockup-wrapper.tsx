@@ -13,7 +13,7 @@ export const PhoneMockupWrapper = React.forwardRef<HTMLDivElement, PhoneMockupWr
   ({ children, bgMediaSrc, bgVideoSrc, onClickInner, innerClassName = "" }, ref) => {
     return (
       <div ref={ref} className="flex justify-center py-2">
-        <div className="w-[300px] relative select-none bg-transparent dark">
+        <div className="w-75 relative select-none bg-transparent dark">
           <Iphone
             src={bgMediaSrc}
             videoSrc={bgVideoSrc}
