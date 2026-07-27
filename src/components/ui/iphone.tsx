@@ -52,12 +52,13 @@ export function Iphone({
           }}
         >
           <video
-            className="block size-full object-contain"
+            key={videoSrc}
+            className="block w-full h-full object-contain"
             src={videoSrc}
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="auto"
           />
         </div>
       )}
