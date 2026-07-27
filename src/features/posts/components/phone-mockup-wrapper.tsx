@@ -34,7 +34,7 @@ export const PhoneMockupWrapper = React.forwardRef<HTMLDivElement, PhoneMockupWr
             }}
           >
             {/* Feed Mock Layout */}
-            <div className="flex flex-col h-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-150 pt-8">
+            <div className={`flex flex-col h-full text-slate-900 dark:text-slate-150 pt-8 ${bgVideoSrc || bgMediaSrc ? "bg-transparent" : "bg-white dark:bg-slate-950"}`}>
               {children}
             </div>
           </div>

@@ -46,7 +46,7 @@ export function LivePreviewPhone({
         }
       }
     }
-  }, [isPlaying, videoSrc, previewVideoRef])
+  }, [isPlaying, videoSrc, previewVideoRef, previewPlatform])
 
   const selectedPlatforms = channels.filter(c => c.selected).map(c => c.platform)
   const previewTabs = [

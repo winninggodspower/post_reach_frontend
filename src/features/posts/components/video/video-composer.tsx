@@ -211,7 +211,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     setVideoFile(file)
     const url = URL.createObjectURL(file)
     setVideoSrc(url)
-    setIsPlaying(true)
+    setIsPlaying(false)
 
     // Clear cover image when media is replaced/updated
     setThumbnailDataUrl("")
