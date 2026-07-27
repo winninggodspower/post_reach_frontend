@@ -24,6 +24,8 @@ export function ThumbnailPickerModal({
   const [duration, setDuration] = React.useState(0)
   const [isReady, setIsReady] = React.useState(false)
   const [aspectRatio, setAspectRatio] = React.useState<number>(16 / 9) // Default fallback
+  const isSeekingRef = React.useRef(false)
+  const pendingTimeRef = React.useRef<number | null>(null)
 
   const handleLoadedData = () => {
     const video = videoRef.current
@@ -40,7 +42,22 @@ export function ThumbnailPickerModal({
     const val = parseFloat(e.target.value)
     setSliderValue(val)
     if (videoRef.current) {
-      videoRef.current.currentTime = val
+      if (!isSeekingRef.current) {
+        isSeekingRef.current = true
+        videoRef.current.currentTime = val
+      } else {
+        pendingTimeRef.current = val
+      }
+    }
+  }
+
+  const handleSeeked = () => {
+    isSeekingRef.current = false
+    if (pendingTimeRef.current !== null && videoRef.current) {
+      const nextTime = pendingTimeRef.current
+      pendingTimeRef.current = null
+      isSeekingRef.current = true
+      videoRef.current.currentTime = nextTime
     }
   }
 
@@ -115,6 +132,7 @@ export function ThumbnailPickerModal({
               muted
               playsInline
               onLoadedData={handleLoadedData}
+              onSeeked={handleSeeked}
             />
           </div>
 
