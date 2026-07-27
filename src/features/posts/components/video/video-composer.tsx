@@ -129,6 +129,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
 
   // Watch cover timestamp from form
   const coverImageTimestamp = watch("coverImageTimestamp")
+  const [isHorizontal, setIsHorizontal] = React.useState(false)
 
   // Post Submission Hook
   const {
@@ -205,6 +206,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       setIsPlaying(false)
       setThumbnailDataUrl("")
       setValue("coverImageTimestamp", undefined)
+      setIsHorizontal(false)
       return
     }
 
@@ -317,9 +319,16 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
             isPlaying={isPlaying}
             videoRef={videoRef}
             thumbnailDataUrl={thumbnailDataUrl}
+            coverImageTimestamp={coverImageTimestamp}
             onTogglePlay={togglePlay}
             onFileChange={handleFileChange}
             onOpenThumbnailPicker={() => setShowThumbnailPicker(true)}
+            onThumbnailSelect={(dataUrl) => {
+              setThumbnailDataUrl(dataUrl)
+              setValue("coverImageTimestamp", undefined)
+            }}
+            isHorizontalVideo={isHorizontal}
+            onVideoMetadataLoaded={({ isHorizontal }) => setIsHorizontal(isHorizontal)}
           />
 
           {/* Thumbnail Picker Modal */}

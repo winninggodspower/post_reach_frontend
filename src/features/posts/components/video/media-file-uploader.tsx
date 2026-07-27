@@ -10,9 +10,13 @@ type MediaFileUploaderProps = {
   isPlaying: boolean
   videoRef: React.RefObject<HTMLVideoElement | null>
   thumbnailDataUrl: string
+  coverImageTimestamp?: number
   onTogglePlay: () => void
   onFileChange: (file: File | null) => void
   onOpenThumbnailPicker: () => void
+  onThumbnailSelect?: (dataUrl: string) => void
+  isHorizontalVideo?: boolean
+  onVideoMetadataLoaded?: (metadata: { isHorizontal: boolean }) => void
 }
 
 export function MediaFileUploader({
@@ -21,12 +25,30 @@ export function MediaFileUploader({
   isPlaying,
   videoRef,
   thumbnailDataUrl,
+  coverImageTimestamp,
   onTogglePlay,
   onFileChange,
   onOpenThumbnailPicker,
+  onThumbnailSelect,
+  isHorizontalVideo,
+  onVideoMetadataLoaded,
 }: MediaFileUploaderProps) {
   const [videoDuration, setVideoDuration] = React.useState("0:00")
   const [videoSize, setVideoSize] = React.useState("")
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
+  const dropdownRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   React.useEffect(() => {
     if (videoFile) {
@@ -43,6 +65,8 @@ export function MediaFileUploader({
     const minutes = Math.floor(video.duration / 60)
     const seconds = Math.floor(video.duration % 60)
     setVideoDuration(`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`)
+    const isHorizontal = video.videoWidth > video.videoHeight
+    onVideoMetadataLoaded?.({ isHorizontal })
   }
 
   const triggerFileSelect = () => {
@@ -73,6 +97,19 @@ export function MediaFileUploader({
     }
   }
 
+  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        if (event.target?.result && typeof event.target.result === "string") {
+          onThumbnailSelect?.(event.target.result)
+        }
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
@@ -84,6 +121,14 @@ export function MediaFileUploader({
         id="video-upload-input"
         accept="video/*"
         onChange={handleInputChange}
+        className="hidden"
+      />
+
+      <input
+        type="file"
+        id="thumbnail-upload-input"
+        accept="image/jpeg,image/png,image/webp"
+        onChange={handleThumbnailUpload}
         className="hidden"
       />
 
@@ -169,23 +214,75 @@ export function MediaFileUploader({
                 Replace Media
               </button>
 
-              <button
-                onClick={onOpenThumbnailPicker}
-                className="px-3.5 py-2 text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer transition border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/80"
-              >
-                {thumbnailDataUrl ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={thumbnailDataUrl} alt="Cover" className="size-5 rounded object-cover border border-slate-300 dark:border-slate-600" />
-                    <span className="text-slate-700 dark:text-slate-300">Change Cover</span>
-                  </>
-                ) : (
-                  <>
-                    <LucideImage className="size-3.5 text-slate-500" />
-                    <span className="text-slate-700 dark:text-slate-300">Set Cover</span>
-                  </>
-                )}
-              </button>
+              {!isHorizontalVideo ? (
+                <button
+                  type="button"
+                  onClick={onOpenThumbnailPicker}
+                  className="px-3.5 py-2 text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer transition border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/80"
+                >
+                  {thumbnailDataUrl ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={thumbnailDataUrl} alt="Cover" className="size-5 rounded object-cover border border-slate-300 dark:border-slate-600" />
+                      <span className="text-slate-700 dark:text-slate-300">Change Cover</span>
+                    </>
+                  ) : (
+                    <>
+                      <LucideImage className="size-3.5 text-slate-500" />
+                      <span className="text-slate-700 dark:text-slate-300">Set Cover</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="px-3.5 py-2 text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer transition border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-300"
+                  >
+                    {thumbnailDataUrl ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={thumbnailDataUrl} alt="Cover" className="size-5 rounded object-cover border border-slate-300 dark:border-slate-600" />
+                        <span>Change Thumbnail ▾</span>
+                      </>
+                    ) : (
+                      <>
+                        <LucideImage className="size-3.5 text-slate-500" />
+                        <span>Set Thumbnail ▾</span>
+                      </>
+                    )}
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute left-0 mt-1 w-48 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg py-1 z-50 animate-in fade-in-0 slide-in-from-top-1 duration-100">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsDropdownOpen(false)
+                          onOpenThumbnailPicker()
+                        }}
+                        className="w-full text-left px-4 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center gap-2 cursor-pointer font-medium"
+                      >
+                        <Play className="size-3.5 text-slate-400" />
+                        Choose from video
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsDropdownOpen(false)
+                          document.getElementById("thumbnail-upload-input")?.click()
+                        }}
+                        className="w-full text-left px-4 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center gap-2 cursor-pointer font-medium"
+                      >
+                        <LucideImage className="size-3.5 text-slate-400" />
+                        Upload custom image
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
 
             <button
