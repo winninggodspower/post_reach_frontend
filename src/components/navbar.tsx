@@ -1,36 +1,35 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuthStatus } from "@/features/auth/hooks/use-auth-status";
 
 interface NavLinkProps {
   href: string;
   onClick?: () => void;
   isMobile: boolean;
-  type: "link" | "button-primary" | "button-secondary";
+  type: "button-primary" | "button-secondary";
   children: React.ReactNode;
 }
 
 function NavLink({ href, onClick, isMobile, type, children }: NavLinkProps) {
-  let className = "";
-
-  if (type === "link") {
-    className = isMobile
-      ? "text-base font-medium text-black/70 hover:text-black px-3 py-2 rounded-lg hover:bg-black/5 transition"
-      : "text-sm font-medium text-black/70 transition hover:text-black mr-4";
-  } else if (type === "button-primary") {
-    className = isMobile
-      ? "w-full text-center rounded-full bg-linear-to-r from-accent-dark to-accent-brand px-5 py-2.5 text-base font-semibold text-white shadow-sm transition hover:opacity-95 block"
-      : "rounded-full bg-linear-to-r from-accent-dark to-accent-brand px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-95";
-  } else if (type === "button-secondary") {
-    className = isMobile
-      ? "w-full text-center rounded-full px-4 py-2.5 text-base font-medium text-black/75 hover:bg-black/5 hover:text-black transition block"
-      : "rounded-full px-4 py-2 text-sm font-medium text-black/75 transition hover:text-black";
-  }
+  const className =
+    type === "button-primary"
+      ? isMobile
+        ? "w-full text-center rounded-full bg-linear-to-r from-accent-dark to-accent-brand px-5 py-2.5 text-base font-semibold text-white shadow-sm transition hover:opacity-95 block"
+        : "rounded-full bg-linear-to-r from-accent-dark to-accent-brand px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
+      : isMobile
+        ? "w-full text-center rounded-full px-4 py-2.5 text-base font-medium text-black/75 hover:bg-black/5 hover:text-black transition block"
+        : "rounded-full px-4 py-2 text-sm font-medium text-black/75 transition hover:text-black";
 
   return (
     <Link href={href} onClick={onClick} className={className}>
@@ -39,31 +38,67 @@ function NavLink({ href, onClick, isMobile, type, children }: NavLinkProps) {
   );
 }
 
-interface NavItemsProps {
-  showDashboard: boolean;
-  onItemClick?: () => void;
-  isMobile?: boolean;
+interface NavDropdownProps {
+  isMobile: boolean;
+  onNavigate?: () => void;
+  align?: "start" | "center" | "end";
 }
 
-function NavItems({ showDashboard, onItemClick, isMobile = false }: NavItemsProps) {
-  return (
-    <div className={isMobile ? "flex flex-col gap-4" : "flex items-center"}>
+function NavDropdown({ isMobile, onNavigate, align = "center" }: NavDropdownProps) {
+  if (isMobile) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="inline-flex w-full items-center justify-between rounded-full px-4 py-2.5 text-base font-medium text-black/75 transition hover:bg-black/5 hover:text-black"
+          >
+            More
+            <ChevronDown className="size-4" />
+          </button>
+        </DropdownMenuTrigger>
 
-      {showDashboard ? (
-        <NavLink href="/dashboard" onClick={onItemClick} isMobile={isMobile} type="button-primary">
-          Dashboard
-        </NavLink>
-      ) : (
-        <div className={isMobile ? "flex flex-col gap-2 pt-2 border-t border-black/5" : "flex items-center gap-3"}>
-          <NavLink href="/signin" onClick={onItemClick} isMobile={isMobile} type="button-secondary">
-            Sign in
-          </NavLink>
-          <NavLink href="/signup" onClick={onItemClick} isMobile={isMobile} type="button-primary">
-            Create account
-          </NavLink>
-        </div>
-      )}
-    </div>
+        <DropdownMenuContent align="start" className="w-[calc(100vw-3rem)] max-w-72">
+          <DropdownMenuItem asChild>
+            <Link href="/privacy-policy" onClick={onNavigate}>
+              Privacy policy
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/terms-of-service" onClick={onNavigate}>
+              Terms of service
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-black/75 transition hover:bg-black/5 hover:text-black"
+        >
+          More
+          <ChevronDown className="size-4" />
+        </button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align={align}>
+        <DropdownMenuItem asChild>
+          <Link href="/privacy-policy" onClick={onNavigate}>
+            Privacy policy
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/terms-of-service" onClick={onNavigate}>
+            Terms of service
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -83,7 +118,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-30 mx-auto w-full border-b border-black/10 bg-white/30 px-6 py-4 backdrop-blur-xl sm:px-10">
       <nav className="mx-auto flex w-full max-w-7xl flex-col sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between w-full sm:w-auto">
-          <div className="flex items-center gap-3">
+          <Link href={'/'} className="flex items-center gap-3">
             <Image
               src="/postglee-logo.png"
               alt="PostGlee logo"
@@ -91,7 +126,7 @@ export default function Navbar() {
               height={120}
               className="rounded-lg w-28"
             />
-          </div>
+          </Link>
 
           {/* Mobile hamburger menu toggle button */}
           <div className="flex sm:hidden">
@@ -112,15 +147,47 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Desktop Buttons & Links */}
-        <div className="hidden sm:flex items-center">
-          <NavItems showDashboard={showDashboard} />
+        <div className="hidden sm:grid flex-1 grid-cols-[1fr_auto_1fr] items-center">
+          <div />
+
+          {!showDashboard ? (
+            <div className="justify-self-center">
+              <NavDropdown isMobile={false} align="center" />
+            </div>
+          ) : (
+            <div />
+          )}
+
+          <div className="justify-self-end">
+            {showDashboard ? (
+              <NavLink href="/dashboard" isMobile={false} type="button-primary">
+                Dashboard
+              </NavLink>
+            ) : (
+              <NavLink href="/signin" isMobile={false} type="button-primary">
+                Sign in
+              </NavLink>
+            )}
+          </div>
         </div>
 
         {/* Mobile menu, show/hide based on menu state */}
         {isMenuOpen && (
           <div className="sm:hidden mt-4 border-t border-black/5 pt-4 pb-2" id="mobile-menu">
-            <NavItems showDashboard={showDashboard} onItemClick={() => setIsMenuOpen(false)} isMobile />
+            <div className="flex flex-col gap-2 pt-2 border-black/5">
+              {!showDashboard ? (
+                <NavDropdown isMobile onNavigate={() => setIsMenuOpen(false)} />
+              ) : null}
+              {showDashboard ? (
+                <NavLink href="/dashboard" onClick={() => setIsMenuOpen(false)} isMobile type="button-primary">
+                  Dashboard
+                </NavLink>
+              ) : (
+                <NavLink href="/signin" onClick={() => setIsMenuOpen(false)} isMobile type="button-primary">
+                  Sign in
+                </NavLink>
+              )}
+            </div>
           </div>
         )}
       </nav>
