@@ -383,6 +383,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
                   : caption
               }
               channels={channels}
+              thumbnailDataUrl={thumbnailDataUrl}
             />
           )}
 

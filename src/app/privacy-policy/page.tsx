@@ -3,13 +3,13 @@ import Link from "next/link";
 import Navbar from "@/components/navbar";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | PostReach",
+  title: "Privacy Policy | PostGlee",
   description:
-    "Learn how PostReach collects, uses, and protects your personal data and social media information.",
+    "Learn how PostGlee collects, uses, and protects your personal data and social media information.",
 };
 
 const LAST_UPDATED = "July 16, 2025";
-const CONTACT_EMAIL = "privacy@postreach.app";
+const CONTACT_EMAIL = "winninggodspower@gmial.com";
 
 interface SectionProps {
   id: string;
@@ -86,7 +86,7 @@ export default function PrivacyPolicyPage() {
         <div className="min-w-0 flex-1">
           <div className="mb-10 rounded-2xl border border-orange-200 bg-orange-50 px-6 py-5">
             <p className="text-sm text-black/70">
-              PostReach (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) is a social media management platform.
+              PostGlee (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) is a social media management platform.
               This Privacy Policy explains how we collect, use, disclose, and safeguard your
               information when you use our service. Please read it carefully.
             </p>
@@ -148,13 +148,13 @@ export default function PrivacyPolicyPage() {
           <Section id="social-media-data" title="3. Social Media Data">
             <p>
               When you connect a social media account (e.g. Instagram, Facebook, X, TikTok,
-              YouTube) to PostReach, we request OAuth access tokens from that platform. We use
+              YouTube) to PostGlee, we request OAuth access tokens from that platform. We use
               these tokens solely to:
             </p>
             <ul className="ml-5 mt-2 list-disc space-y-1.5">
               <li>Publish, schedule, and manage posts on your behalf</li>
               <li>Retrieve basic profile information (username, profile picture, follower count)</li>
-              <li>Fetch analytics and performance data for posts you have published via PostReach</li>
+              <li>Fetch analytics and performance data for posts you have published via PostGlee</li>
             </ul>
             <p className="mt-3">
               We do not read, store, or share your private messages, contacts, or any data beyond
@@ -162,7 +162,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <p className="mt-3">
               Access tokens are encrypted at rest and in transit. You can revoke our access at any
-              time from the connected platform&apos;s own settings, or from your PostReach account
+              time from the connected platform&apos;s own settings, or from your PostGlee account
               under <strong>Settings → Connected Accounts</strong>.
             </p>
           </Section>
@@ -182,7 +182,7 @@ export default function PrivacyPolicyPage() {
               </li>
               <li>
                 <strong>Legal compliance:</strong> If required by law or to protect the rights,
-                property, or safety of PostReach, our users, or others.
+                property, or safety of PostGlee, our users, or others.
               </li>
               <li>
                 <strong>Business transfers:</strong> In connection with a merger, acquisition, or
@@ -270,10 +270,10 @@ export default function PrivacyPolicyPage() {
               No method of transmission over the internet is 100% secure. If you discover a
               security vulnerability, please report it to{" "}
               <a
-                href="mailto:security@postreach.app"
+                href="mailto:security@postglee.app"
                 className="font-medium text-accent-brand underline"
               >
-                security@postreach.app
+                security@postglee.app
               </a>
               .
             </p>
@@ -313,7 +313,7 @@ export default function PrivacyPolicyPage() {
 
           <Section id="children" title="10. Children's Privacy">
             <p>
-              PostReach is not directed to children under the age of 13 (or 16 in the EU/EEA). We
+              PostGlee is not directed to children under the age of 13 (or 16 in the EU/EEA). We
               do not knowingly collect personal information from children. If you believe we have
               collected data from a child, please contact us immediately at{" "}
               <a
@@ -341,7 +341,7 @@ export default function PrivacyPolicyPage() {
               please contact us:
             </p>
             <div className="mt-4 rounded-xl border border-black/10 bg-black/[0.02] px-5 py-4">
-              <p className="font-semibold text-black">PostReach</p>
+              <p className="font-semibold text-black">PostGlee</p>
               <p className="mt-1">
                 Email:{" "}
                 <a
@@ -372,7 +372,7 @@ export default function PrivacyPolicyPage() {
             Home
           </Link>
         </div>
-        <p className="mt-4">© {new Date().getFullYear()} PostReach. All rights reserved.</p>
+        <p className="mt-4">© {new Date().getFullYear()} PostGlee. All rights reserved.</p>
       </footer>
     </main>
   );

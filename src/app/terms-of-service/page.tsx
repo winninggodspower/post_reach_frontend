@@ -3,13 +3,13 @@ import Link from "next/link";
 import Navbar from "@/components/navbar";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | PostReach",
+  title: "Terms of Service | PostGlee",
   description:
-    "Read the Terms of Service governing your use of PostReach — the social media management platform.",
+    "Read the Terms of Service governing your use of PostGlee — the social media management platform.",
 };
 
 const LAST_UPDATED = "July 16, 2025";
-const CONTACT_EMAIL = "legal@postreach.app";
+const CONTACT_EMAIL = "winninggodspower@gmial.com";
 
 interface SectionProps {
   id: string;
@@ -88,15 +88,15 @@ export default function TermsOfServicePage() {
         <div className="min-w-0 flex-1">
           <div className="mb-10 rounded-2xl border border-orange-200 bg-orange-50 px-6 py-5">
             <p className="text-sm text-black/70">
-              These Terms of Service (&quot;Terms&quot;) govern your access to and use of PostReach
-              (&quot;Service&quot;), operated by PostReach (&quot;Company,&quot; &quot;we,&quot; or &quot;us&quot;).
+              These Terms of Service (&quot;Terms&quot;) govern your access to and use of PostGlee
+              (&quot;Service&quot;), operated by PostGlee (&quot;Company,&quot; &quot;we,&quot; or &quot;us&quot;).
               By accessing or using our Service, you agree to be bound by these Terms.
             </p>
           </div>
 
           <Section id="acceptance" title="1. Acceptance of Terms">
             <p>
-              By creating an account, accessing, or using PostReach, you confirm that you have
+              By creating an account, accessing, or using PostGlee, you confirm that you have
               read, understood, and agree to be bound by these Terms and our{" "}
               <Link href="/privacy-policy" className="font-medium text-accent-brand underline">
                 Privacy Policy
@@ -106,7 +106,7 @@ export default function TermsOfServicePage() {
           </Section>
 
           <Section id="eligibility" title="2. Eligibility">
-            <p>You must meet all of the following to use PostReach:</p>
+            <p>You must meet all of the following to use PostGlee:</p>
             <ul className="ml-5 mt-2 list-disc space-y-1.5">
               <li>Be at least 13 years old (or 16 in the EU/EEA)</li>
               <li>
@@ -141,7 +141,7 @@ export default function TermsOfServicePage() {
 
           <Section id="service" title="4. Use of the Service">
             <p>
-              You agree to use PostReach only for lawful purposes and in accordance with these
+              You agree to use PostGlee only for lawful purposes and in accordance with these
               Terms. You must <strong>not</strong>:
             </p>
             <ul className="ml-5 mt-2 list-disc space-y-1.5">
@@ -166,7 +166,7 @@ export default function TermsOfServicePage() {
                 Resell or sublicense the Service without our written consent
               </li>
               <li>
-                Use the Service in a way that could harm PostReach, our users, or third parties
+                Use the Service in a way that could harm PostGlee, our users, or third parties
               </li>
             </ul>
           </Section>
@@ -174,7 +174,7 @@ export default function TermsOfServicePage() {
           <Section id="content" title="5. Your Content">
             <p>
               You retain ownership of all content you submit, upload, or publish through
-              PostReach (&quot;Your Content&quot;). By using the Service, you grant PostReach a
+              PostGlee (&quot;Your Content&quot;). By using the Service, you grant PostGlee a
               limited, non-exclusive, royalty-free licence to:
             </p>
             <ul className="ml-5 mt-2 list-disc space-y-1.5">
@@ -184,7 +184,7 @@ export default function TermsOfServicePage() {
             <p className="mt-3">You represent and warrant that:</p>
             <ul className="ml-5 mt-2 list-disc space-y-1.5">
               <li>
-                You own or have the rights to all content you post through PostReach
+                You own or have the rights to all content you post through PostGlee
               </li>
               <li>
                 Your Content does not infringe any third party&apos;s intellectual property, privacy,
@@ -202,25 +202,25 @@ export default function TermsOfServicePage() {
 
           <Section id="social-accounts" title="6. Connected Social Accounts">
             <p>
-              PostReach allows you to connect third-party social media accounts. By connecting an
+              PostGlee allows you to connect third-party social media accounts. By connecting an
               account you:
             </p>
             <ul className="ml-5 mt-2 list-disc space-y-1.5">
               <li>
-                Authorise PostReach to act on your behalf as permitted by the respective
+                Authorise PostGlee to act on your behalf as permitted by the respective
                 platform&apos;s API
               </li>
               <li>
                 Agree to comply with the terms of service of each connected platform
               </li>
               <li>
-                Acknowledge that PostReach is not affiliated with or endorsed by any social
+                Acknowledge that PostGlee is not affiliated with or endorsed by any social
                 media platform
               </li>
             </ul>
             <p className="mt-3">
               You may disconnect a social account at any time from{" "}
-              <strong>Settings → Connected Accounts</strong>. PostReach will immediately cease
+              <strong>Settings → Connected Accounts</strong>. PostGlee will immediately cease
               publishing to that account and revoke the stored access token.
             </p>
             <p className="mt-3">
@@ -231,7 +231,7 @@ export default function TermsOfServicePage() {
 
           <Section id="payment" title="7. Payment & Subscriptions">
             <p>
-              Some features of PostReach require a paid subscription. By subscribing you agree
+              Some features of PostGlee require a paid subscription. By subscribing you agree
               that:
             </p>
             <ul className="ml-5 mt-2 list-disc space-y-1.5">
@@ -289,7 +289,7 @@ export default function TermsOfServicePage() {
 
           <Section id="limitation" title="10. Limitation of Liability">
             <p>
-              TO THE FULLEST EXTENT PERMITTED BY LAW, POSTREACH SHALL NOT BE LIABLE FOR ANY
+              TO THE FULLEST EXTENT PERMITTED BY LAW, POSTGLEE SHALL NOT BE LIABLE FOR ANY
               INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS
               OF PROFITS, DATA, OR GOODWILL, ARISING FROM:
             </p>
@@ -309,7 +309,7 @@ export default function TermsOfServicePage() {
 
           <Section id="indemnification" title="11. Indemnification">
             <p>
-              You agree to indemnify, defend, and hold harmless PostReach and its officers,
+              You agree to indemnify, defend, and hold harmless PostGlee and its officers,
               directors, employees, and agents from any claims, damages, losses, or expenses
               (including legal fees) arising from:
             </p>
@@ -343,7 +343,7 @@ export default function TermsOfServicePage() {
               If you have any questions about these Terms, please contact us:
             </p>
             <div className="mt-4 rounded-xl border border-black/10 bg-black/[0.02] px-5 py-4">
-              <p className="font-semibold text-black">PostReach</p>
+              <p className="font-semibold text-black">PostGlee</p>
               <p className="mt-1">
                 Email:{" "}
                 <a
@@ -374,7 +374,7 @@ export default function TermsOfServicePage() {
             Home
           </Link>
         </div>
-        <p className="mt-4">© {new Date().getFullYear()} PostReach. All rights reserved.</p>
+        <p className="mt-4">© {new Date().getFullYear()} PostGlee. All rights reserved.</p>
       </footer>
     </main>
   );

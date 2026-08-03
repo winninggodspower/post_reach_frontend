@@ -17,7 +17,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "PostReach | Social media management made simple",
+  title: "PostGlee | Social media management made simple",
   description: "Plan, schedule, and post across multiple social media apps from one workspace.",
 };
 

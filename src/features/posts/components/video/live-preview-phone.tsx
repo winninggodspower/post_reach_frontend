@@ -16,6 +16,7 @@ type LivePreviewPhoneProps = {
   title: string
   caption: string
   channels: AccountChannel[]
+  thumbnailDataUrl?: string
 }
 
 export function LivePreviewPhone({
@@ -29,8 +30,16 @@ export function LivePreviewPhone({
   title,
   caption,
   channels,
+  thumbnailDataUrl,
 }: LivePreviewPhoneProps) {
   const localIphoneRef = React.useRef<HTMLDivElement>(null)
+  const [previewMode, setPreviewMode] = React.useState<"video" | "cover">("video")
+
+  React.useEffect(() => {
+    if (!thumbnailDataUrl && previewMode === "cover") {
+      setPreviewMode("video")
+    }
+  }, [thumbnailDataUrl, previewMode])
 
   React.useEffect(() => {
     if (localIphoneRef.current) {
@@ -39,14 +48,21 @@ export function LivePreviewPhone({
         if (previewVideoRef) {
           (previewVideoRef as any).current = videoEl
         }
-        if (isPlaying) {
+        if (isPlaying && previewMode === "video") {
           videoEl.play().catch(() => { })
         } else {
           videoEl.pause()
         }
       }
     }
-  }, [isPlaying, videoSrc, previewVideoRef, previewPlatform])
+  }, [isPlaying, videoSrc, previewVideoRef, previewPlatform, previewMode])
+
+  const handleCoverClick = () => {
+    setPreviewMode("video")
+    if (!isPlaying) {
+      onTogglePlay()
+    }
+  }
 
   const selectedPlatforms = channels.filter(c => c.selected).map(c => c.platform)
   const previewTabs = [
@@ -80,12 +96,13 @@ export function LivePreviewPhone({
     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-[1.75rem] p-6 shadow-xs relative text-slate-800 dark:text-slate-200 animate-fade-in">
 
       {/* Top tabs */}
-      <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800/80 pb-3 gap-2">
+      <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800/80 pb-3 gap-2 flex-wrap sm:flex-nowrap">
         <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-sans flex items-center gap-1.5 shrink-0 whitespace-nowrap">
           <Eye className="size-4 text-accent-brand" />
           Live Preview
         </h3>
 
+        {/* Platform Tabs */}
         {tabsToRender.length > 0 && (
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-850 shrink-0">
             {tabsToRender.map((tab) => (
@@ -104,11 +121,34 @@ export function LivePreviewPhone({
         )}
       </div>
 
+      {/* Video vs Cover Preview Mode Toggle (Sliding Switch) */}
+      {thumbnailDataUrl && (
+        <div className="flex justify-center items-center gap-3 mb-4 mt-2 text-xs font-semibold text-slate-550 dark:text-slate-450 select-none">
+          <span className={previewMode === "video" ? "text-slate-900 dark:text-slate-100 transition duration-200" : "transition duration-200"}>Video</span>
+          <button
+            type="button"
+            onClick={() => setPreviewMode(previewMode === "video" ? "cover" : "video")}
+            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-250 ease-in-out outline-hidden ${
+              previewMode === "cover" ? "bg-accent-brand" : "bg-slate-200 dark:bg-slate-800"
+            }`}
+            aria-label="Toggle cover preview"
+          >
+            <span
+              className={`pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-xs ring-0 transition duration-250 ease-in-out ${
+                previewMode === "cover" ? "translate-x-4" : "translate-x-0"
+              }`}
+            />
+          </button>
+          <span className={previewMode === "cover" ? "text-slate-900 dark:text-slate-100 transition duration-200" : "transition duration-200"}>Cover</span>
+        </div>
+      )}
+
       {/* Smart Phone Wrapper */}
       <PhoneMockupWrapper
         ref={localIphoneRef}
-        bgVideoSrc={videoSrc}
-        onClickInner={onTogglePlay}
+        bgVideoSrc={previewMode === "video" ? videoSrc : undefined}
+        bgMediaSrc={previewMode === "cover" ? thumbnailDataUrl : undefined}
+        onClickInner={previewMode === "video" ? onTogglePlay : handleCoverClick}
         innerClassName="cursor-pointer justify-between"
       >
         {/* Gradient Overlay */}

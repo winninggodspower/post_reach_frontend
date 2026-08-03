@@ -84,14 +84,13 @@ export default function Navbar() {
       <nav className="mx-auto flex w-full max-w-7xl flex-col sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between w-full sm:w-auto">
           <div className="flex items-center gap-3">
-            {/* <Image
+            <Image
               src="/postglee-logo.png"
               alt="PostReach logo"
-              width={36}
-              height={36}
+              width={120}
+              height={120}
               className="rounded-lg w-28"
-            /> */}
-            <img src="/postglee-logo.png" className="w-28" alt="" />
+            />
           </div>
 
           {/* Mobile hamburger menu toggle button */}

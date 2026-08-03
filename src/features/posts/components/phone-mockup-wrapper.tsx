@@ -5,12 +5,13 @@ type PhoneMockupWrapperProps = {
   children: React.ReactNode
   bgMediaSrc?: string
   bgVideoSrc?: string
+  bgVideoPoster?: string
   onClickInner?: () => void
   innerClassName?: string
 }
 
 export const PhoneMockupWrapper = React.forwardRef<HTMLDivElement, PhoneMockupWrapperProps>(
-  ({ children, bgMediaSrc, bgVideoSrc, onClickInner, innerClassName = "" }, ref) => {
+  ({ children, bgMediaSrc, bgVideoSrc, bgVideoPoster, onClickInner, innerClassName = "" }, ref) => {
     return (
       <div ref={ref} className="flex justify-center py-2">
         <div className="w-75 relative select-none bg-transparent dark">
@@ -37,7 +38,8 @@ export const PhoneMockupWrapper = React.forwardRef<HTMLDivElement, PhoneMockupWr
                 <video
                   key={bgVideoSrc}
                   className="block w-full h-full object-contain"
-                  src={bgVideoSrc}
+                  src={`${bgVideoSrc}#t=0.01`}
+                  poster={bgVideoPoster}
                   loop
                   muted
                   playsInline
@@ -48,12 +50,12 @@ export const PhoneMockupWrapper = React.forwardRef<HTMLDivElement, PhoneMockupWr
 
             {/* Background Image Layer */}
             {!bgVideoSrc && bgMediaSrc && (
-              <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-black">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={bgMediaSrc}
                   alt=""
-                  className="block w-full h-full object-cover object-top"
+                  className="block w-full h-full object-contain"
                 />
               </div>
             )}
@@ -64,7 +66,7 @@ export const PhoneMockupWrapper = React.forwardRef<HTMLDivElement, PhoneMockupWr
             )}
 
             {/* Feed Mock Layout */}
-            <div 
+            <div
               className="flex flex-col h-full text-slate-900 dark:text-slate-150 pt-8 relative z-10 bg-transparent"
             >
               {children}
