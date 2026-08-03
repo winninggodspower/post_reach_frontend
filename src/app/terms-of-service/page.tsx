@@ -1,381 +1,209 @@
-import { Metadata } from "next";
-import Link from "next/link";
-import Navbar from "@/components/navbar";
+import { Metadata } from "next"
+import Link from "next/link"
+
+import Navbar from "@/components/navbar"
 
 export const metadata: Metadata = {
   title: "Terms of Service | PostGlee",
-  description:
-    "Read the Terms of Service governing your use of PostGlee — the social media management platform.",
-};
+  description: "Read the terms that apply when you use PostGlee.",
+}
 
-const LAST_UPDATED = "July 16, 2025";
-const CONTACT_EMAIL = "winninggodspower@gmial.com";
+const LAST_UPDATED = "August 3, 2026"
+const CONTACT_EMAIL = "privacy@postglee.app"
 
 interface SectionProps {
-  id: string;
-  title: string;
-  children: React.ReactNode;
+  id: string
+  title: string
+  children: React.ReactNode
 }
 
 function Section({ id, title, children }: SectionProps) {
   return (
-    <section id={id} className="mb-10 scroll-mt-24">
-      <h2 className="mb-4 text-xl font-bold text-black">{title}</h2>
-      <div className="space-y-3 text-[15px] leading-relaxed text-black/70">
-        {children}
-      </div>
+    <section id={id} className="scroll-mt-24">
+      <h2 className="text-xl font-semibold text-black">{title}</h2>
+      <div className="mt-4 space-y-3 text-[15px] leading-7 text-black/70">{children}</div>
     </section>
-  );
+  )
 }
-
-const TOC = [
-  { id: "acceptance", label: "Acceptance of Terms" },
-  { id: "eligibility", label: "Eligibility" },
-  { id: "account", label: "Your Account" },
-  { id: "service", label: "Use of the Service" },
-  { id: "content", label: "Your Content" },
-  { id: "social-accounts", label: "Connected Social Accounts" },
-  { id: "payment", label: "Payment & Subscriptions" },
-  { id: "termination", label: "Termination" },
-  { id: "disclaimers", label: "Disclaimers" },
-  { id: "limitation", label: "Limitation of Liability" },
-  { id: "indemnification", label: "Indemnification" },
-  { id: "governing-law", label: "Governing Law" },
-  { id: "changes", label: "Changes to Terms" },
-  { id: "contact", label: "Contact Us" },
-];
 
 export default function TermsOfServicePage() {
   return (
     <main className="flex min-h-screen flex-col text-foreground">
       <Navbar />
 
-      {/* Hero */}
-      <div className="border-b border-black/10 bg-gradient-to-b from-orange-50 to-white px-6 py-16 text-center">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-accent-brand">
+      <section className="border-b border-black/8 bg-[linear-gradient(180deg,#fff8f1_0%,#fffdf9_55%,#ffffff_100%)] px-6 py-16 text-center">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-accent-brand">
           Legal
         </p>
-        <h1 className="text-4xl font-bold text-black md:text-5xl">
+        <h1 className="text-4xl font-semibold tracking-tight text-black md:text-5xl">
           Terms of Service
         </h1>
-        <p className="mt-4 text-base text-black/50">
-          Last updated: {LAST_UPDATED}
+        <p className="mt-4 text-sm text-black/45">Last updated: {LAST_UPDATED}</p>
+      </section>
+
+      <div className="mx-auto grid w-full max-w-4xl gap-10 px-6 py-12">
+        <p className="text-[15px] leading-7 text-black/70">
+          PostGlee is a content scheduling platform. These terms explain how the service works,
+          what you can expect from us, and what we expect from you.
         </p>
+
+        <p className="text-[15px] leading-7 text-black/70">
+          When you use PostGlee, you agree to these terms and our{" "}
+          <Link href="/privacy-policy" className="font-medium text-accent-brand underline">
+            Privacy Policy
+          </Link>
+          . If these terms are not a fit, you should not use the service.
+        </p>
+
+        <Section id="acceptance" title="Acceptance">
+          <p>By creating an account, accessing the site, or using the service, you agree to these terms.</p>
+        </Section>
+
+        <Section id="eligibility" title="Eligibility">
+          <p>You need to be old enough to enter a contract where you live, and at least 13 years old.</p>
+          <p>
+            If you use PostGlee for a company or a team, you need permission to agree to these
+            terms on their behalf.
+          </p>
+        </Section>
+
+        <Section id="account" title="Your Account">
+          <p>Keep your account details accurate and your login private.</p>
+          <ul className="ml-5 list-disc space-y-1.5">
+            <li>Use a real name and email address when you sign up.</li>
+            <li>Do not share your login with other people.</li>
+            <li>Tell us right away if you think someone else has access to your account.</li>
+            <li>Do not create extra accounts to dodge limits or restrictions.</li>
+          </ul>
+          <p>We may suspend or close accounts that break these terms.</p>
+        </Section>
+
+        <Section id="service" title="Using the Service">
+          <p>
+            Use PostGlee for lawful purposes and in line with the platforms you connect.
+          </p>
+          <ul className="ml-5 list-disc space-y-1.5">
+            <li>Spam, misleading content, hate speech, and illegal material are not allowed.</li>
+            <li>Do not try to break into accounts or systems you are not allowed to access.</li>
+            <li>Do not scrape, reverse engineer, or copy the service without permission.</li>
+            <li>Do not resell or sublicense the service.</li>
+            <li>Do not use the service in a way that harms PostGlee, our users, or third parties.</li>
+          </ul>
+        </Section>
+
+        <Section id="content" title="Your Content">
+          <p>
+            You own the content you upload or schedule through PostGlee. We only get the limited
+            right we need to store, process, and send that content where you ask us to.
+          </p>
+          <p>You promise that:</p>
+          <ul className="ml-5 list-disc space-y-1.5">
+            <li>You have the rights needed to use the content you submit.</li>
+            <li>Your content does not violate someone else&apos;s rights or the law.</li>
+            <li>Your content follows these terms and any platform rules that apply.</li>
+          </ul>
+          <p>We may remove content that breaks these terms.</p>
+        </Section>
+
+        <Section id="social-accounts" title="Connected Accounts">
+          <p>
+            PostGlee lets you connect third-party social accounts so you can publish and schedule
+            content from one place.
+          </p>
+          <ul className="ml-5 list-disc space-y-1.5">
+            <li>You allow us to act on your behalf only as needed for the connected feature.</li>
+            <li>You agree to follow the terms of each platform you connect.</li>
+            <li>You can disconnect an account anytime from your settings.</li>
+          </ul>
+          <p>If a platform changes its rules or API, that may affect features we can offer.</p>
+        </Section>
+
+        <Section id="payment" title="Payments">
+          <p>Some parts of PostGlee may require a paid subscription.</p>
+          <ul className="ml-5 list-disc space-y-1.5">
+            <li>Fees are billed in advance on a recurring monthly or yearly basis.</li>
+            <li>Fees are non-refundable unless the law says otherwise or we say otherwise.</li>
+            <li>We may change pricing with reasonable notice.</li>
+            <li>If payment fails, your account may be suspended or downgraded.</li>
+          </ul>
+        </Section>
+
+        <Section id="termination" title="Termination">
+          <p>You can stop using PostGlee at any time by closing your account.</p>
+          <p>We may suspend or end access if:</p>
+          <ul className="ml-5 list-disc space-y-1.5">
+            <li>you break these terms</li>
+            <li>we are required to do so by law</li>
+            <li>we stop offering the service</li>
+          </ul>
+          <p>
+            If your account ends, your right to use the service ends too. Data deletion is handled
+            under our{" "}
+            <Link href="/privacy-policy" className="font-medium text-accent-brand underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        </Section>
+
+        <Section id="disclaimers" title="Disclaimers">
+          <p>
+            PostGlee is provided on an &quot;as is&quot; and &quot;as available&quot; basis. We do not promise
+            the service will always be uninterrupted, error-free, or free from bugs.
+          </p>
+          <p>
+            We also do not guarantee that analytics, reports, or third-party platform data will
+            always be complete or accurate.
+          </p>
+        </Section>
+
+        <Section id="liability" title="Limitation of Liability">
+          <p>
+            To the fullest extent allowed by law, PostGlee will not be liable for indirect,
+            incidental, special, consequential, or punitive damages.
+          </p>
+          <p>This includes loss of profits, data, goodwill, or business opportunities.</p>
+          <p>
+            Our total liability for any claim will not exceed the greater of the amount you paid
+            us in the 12 months before the claim or $100.
+          </p>
+        </Section>
+
+        <Section id="changes" title="Changes to These Terms">
+          <p>
+            We may update these terms from time to time. If we make a material change, we will let
+            you know in the app or by email before it takes effect.
+          </p>
+        </Section>
+
+        <Section id="contact" title="Contact">
+          <p>
+            If you have questions about these terms, email{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-accent-brand underline">
+              {CONTACT_EMAIL}
+            </a>
+            .
+          </p>
+        </Section>
       </div>
 
-      <div className="mx-auto w-full max-w-7xl px-6 py-14 lg:flex lg:gap-16">
-        {/* Sticky sidebar TOC */}
-        <aside className="hidden lg:block lg:w-64 shrink-0">
-          <div className="sticky top-28">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-black/40">
-              On this page
-            </p>
-            <nav className="space-y-1">
-              {TOC.map((item) => (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  className="block rounded-lg px-3 py-1.5 text-sm text-black/60 transition hover:bg-orange-50 hover:text-accent-brand"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <div className="min-w-0 flex-1">
-          <div className="mb-10 rounded-2xl border border-orange-200 bg-orange-50 px-6 py-5">
-            <p className="text-sm text-black/70">
-              These Terms of Service (&quot;Terms&quot;) govern your access to and use of PostGlee
-              (&quot;Service&quot;), operated by PostGlee (&quot;Company,&quot; &quot;we,&quot; or &quot;us&quot;).
-              By accessing or using our Service, you agree to be bound by these Terms.
-            </p>
-          </div>
-
-          <Section id="acceptance" title="1. Acceptance of Terms">
-            <p>
-              By creating an account, accessing, or using PostGlee, you confirm that you have
-              read, understood, and agree to be bound by these Terms and our{" "}
-              <Link href="/privacy-policy" className="font-medium text-accent-brand underline">
-                Privacy Policy
-              </Link>
-              . If you do not agree, you must not use the Service.
-            </p>
-          </Section>
-
-          <Section id="eligibility" title="2. Eligibility">
-            <p>You must meet all of the following to use PostGlee:</p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>Be at least 13 years old (or 16 in the EU/EEA)</li>
-              <li>
-                Have the legal capacity to enter into a binding contract in your jurisdiction
-              </li>
-              <li>Not be prohibited from using our Service under applicable laws</li>
-              <li>
-                If using on behalf of an organisation, have authority to bind that organisation
-                to these Terms
-              </li>
-            </ul>
-          </Section>
-
-          <Section id="account" title="3. Your Account">
-            <p>
-              You are responsible for maintaining the confidentiality of your account credentials
-              and for all activity that occurs under your account. You agree to:
-            </p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>Provide accurate and complete information when registering</li>
-              <li>Keep your password secure and not share it with others</li>
-              <li>Notify us immediately of any unauthorised use of your account</li>
-              <li>
-                Not create multiple accounts for the purpose of circumventing restrictions or
-                bans
-              </li>
-            </ul>
-            <p className="mt-3">
-              We reserve the right to suspend or terminate accounts that violate these Terms.
-            </p>
-          </Section>
-
-          <Section id="service" title="4. Use of the Service">
-            <p>
-              You agree to use PostGlee only for lawful purposes and in accordance with these
-              Terms. You must <strong>not</strong>:
-            </p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>
-                Violate any applicable law, regulation, or the terms of service of connected
-                social media platforms
-              </li>
-              <li>
-                Post, schedule, or distribute spam, misleading content, hate speech, or illegal
-                material
-              </li>
-              <li>
-                Attempt to gain unauthorised access to our systems or other users&apos; accounts
-              </li>
-              <li>
-                Reverse engineer, decompile, or disassemble any part of the Service
-              </li>
-              <li>
-                Use automated tools (other than our own API) to access or scrape the Service
-              </li>
-              <li>
-                Resell or sublicense the Service without our written consent
-              </li>
-              <li>
-                Use the Service in a way that could harm PostGlee, our users, or third parties
-              </li>
-            </ul>
-          </Section>
-
-          <Section id="content" title="5. Your Content">
-            <p>
-              You retain ownership of all content you submit, upload, or publish through
-              PostGlee (&quot;Your Content&quot;). By using the Service, you grant PostGlee a
-              limited, non-exclusive, royalty-free licence to:
-            </p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>Store and process Your Content to provide the Service</li>
-              <li>Transmit Your Content to connected social media platforms on your behalf</li>
-            </ul>
-            <p className="mt-3">You represent and warrant that:</p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>
-                You own or have the rights to all content you post through PostGlee
-              </li>
-              <li>
-                Your Content does not infringe any third party&apos;s intellectual property, privacy,
-                or other rights
-              </li>
-              <li>
-                Your Content complies with these Terms and all applicable laws
-              </li>
-            </ul>
-            <p className="mt-3">
-              We reserve the right to remove any content that violates these Terms without
-              notice.
-            </p>
-          </Section>
-
-          <Section id="social-accounts" title="6. Connected Social Accounts">
-            <p>
-              PostGlee allows you to connect third-party social media accounts. By connecting an
-              account you:
-            </p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>
-                Authorise PostGlee to act on your behalf as permitted by the respective
-                platform&apos;s API
-              </li>
-              <li>
-                Agree to comply with the terms of service of each connected platform
-              </li>
-              <li>
-                Acknowledge that PostGlee is not affiliated with or endorsed by any social
-                media platform
-              </li>
-            </ul>
-            <p className="mt-3">
-              You may disconnect a social account at any time from{" "}
-              <strong>Settings → Connected Accounts</strong>. PostGlee will immediately cease
-              publishing to that account and revoke the stored access token.
-            </p>
-            <p className="mt-3">
-              We are not responsible for changes to third-party platform APIs, policies, or
-              availability that may affect our ability to provide the Service.
-            </p>
-          </Section>
-
-          <Section id="payment" title="7. Payment & Subscriptions">
-            <p>
-              Some features of PostGlee require a paid subscription. By subscribing you agree
-              that:
-            </p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>
-                Subscription fees are billed in advance on a recurring basis (monthly or
-                annually)
-              </li>
-              <li>
-                All fees are non-refundable unless required by applicable law or explicitly
-                stated in our refund policy
-              </li>
-              <li>
-                We may change pricing at any time with at least 30 days&apos; notice to existing
-                subscribers
-              </li>
-              <li>
-                Failure to pay may result in suspension or downgrade of your account
-              </li>
-            </ul>
-          </Section>
-
-          <Section id="termination" title="8. Termination">
-            <p>
-              Either party may terminate the agreement at any time. You may close your account
-              through <strong>Settings → Account</strong>. We may suspend or terminate your
-              account without notice if:
-            </p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>You breach these Terms</li>
-              <li>We are required to do so by law</li>
-              <li>We discontinue the Service</li>
-            </ul>
-            <p className="mt-3">
-              Upon termination, your right to use the Service immediately ceases. Data deletion
-              will follow the timeline described in our{" "}
-              <Link href="/privacy-policy" className="font-medium text-accent-brand underline">
-                Privacy Policy
-              </Link>
-              .
-            </p>
-          </Section>
-
-          <Section id="disclaimers" title="9. Disclaimers">
-            <p>
-              THE SERVICE IS PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; WITHOUT WARRANTIES OF ANY
-              KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
-              MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
-            </p>
-            <p className="mt-3">
-              We do not warrant that the Service will be uninterrupted, error-free, or free from
-              viruses. We make no guarantees about the accuracy or completeness of any analytics
-              or data provided through the Service.
-            </p>
-          </Section>
-
-          <Section id="limitation" title="10. Limitation of Liability">
-            <p>
-              TO THE FULLEST EXTENT PERMITTED BY LAW, POSTGLEE SHALL NOT BE LIABLE FOR ANY
-              INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS
-              OF PROFITS, DATA, OR GOODWILL, ARISING FROM:
-            </p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>Your use of or inability to use the Service</li>
-              <li>Any changes to or discontinuation of the Service</li>
-              <li>Unauthorised access to your account or data</li>
-              <li>
-                Actions of third-party social media platforms affecting your content or account
-              </li>
-            </ul>
-            <p className="mt-3">
-              Our total aggregate liability shall not exceed the greater of (a) the amount you
-              paid us in the 12 months prior to the event giving rise to the claim, or (b) £100.
-            </p>
-          </Section>
-
-          <Section id="indemnification" title="11. Indemnification">
-            <p>
-              You agree to indemnify, defend, and hold harmless PostGlee and its officers,
-              directors, employees, and agents from any claims, damages, losses, or expenses
-              (including legal fees) arising from:
-            </p>
-            <ul className="ml-5 mt-2 list-disc space-y-1.5">
-              <li>Your use of the Service</li>
-              <li>Your Content</li>
-              <li>Your violation of these Terms or applicable law</li>
-              <li>Your infringement of any third-party rights</li>
-            </ul>
-          </Section>
-
-          <Section id="governing-law" title="12. Governing Law">
-            <p>
-              These Terms shall be governed by and construed in accordance with applicable law.
-              Any disputes arising from these Terms or your use of the Service shall be subject
-              to the exclusive jurisdiction of the competent courts in the applicable territory.
-            </p>
-          </Section>
-
-          <Section id="changes" title="13. Changes to Terms">
-            <p>
-              We reserve the right to modify these Terms at any time. We will notify you of
-              material changes by email or through an in-app notification at least 14 days before
-              they take effect. Your continued use of the Service after the effective date
-              constitutes acceptance of the updated Terms.
-            </p>
-          </Section>
-
-          <Section id="contact" title="14. Contact Us">
-            <p>
-              If you have any questions about these Terms, please contact us:
-            </p>
-            <div className="mt-4 rounded-xl border border-black/10 bg-black/[0.02] px-5 py-4">
-              <p className="font-semibold text-black">PostGlee</p>
-              <p className="mt-1">
-                Email:{" "}
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="font-medium text-accent-brand underline"
-                >
-                  {CONTACT_EMAIL}
-                </a>
-              </p>
-            </div>
-          </Section>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t border-black/10 bg-white px-6 py-8 text-center text-sm text-black/40">
+      <footer className="border-t border-black/8 bg-white px-6 py-8 text-center text-sm text-black/40">
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-6">
-          <Link href="/privacy-policy" className="hover:text-black transition">
+          <Link href="/privacy-policy" className="transition hover:text-black">
             Privacy Policy
           </Link>
           <Link href="/terms-of-service" className="font-medium text-accent-brand">
             Terms of Service
           </Link>
-          <Link href="/data-deletion" className="hover:text-black transition">
+          <Link href="/data-deletion" className="transition hover:text-black">
             Data Deletion
           </Link>
-          <Link href="/" className="hover:text-black transition">
+          <Link href="/" className="transition hover:text-black">
             Home
           </Link>
         </div>
         <p className="mt-4">© {new Date().getFullYear()} PostGlee. All rights reserved.</p>
       </footer>
     </main>
-  );
+  )
 }
