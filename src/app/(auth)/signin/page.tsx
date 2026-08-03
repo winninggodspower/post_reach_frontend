@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/card"
 
 export const metadata = {
-  title: "Sign In | PostReach",
+  title: "Sign In | PostGlee",
   description:
-    "Sign in to PostReach and continue managing content, publishing, and social accounts from one dashboard.",
+    "Sign in to PostGlee and continue managing content, publishing, and social accounts from one dashboard.",
 }
 
 export default function SignInPage() {

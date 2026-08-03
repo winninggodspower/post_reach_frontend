@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/card"
 
 export const metadata = {
-  title: "Create Account | PostReach",
+  title: "Create Account | PostGlee",
   description:
-    "Create your PostReach account and manage publishing, workspaces, and social content from one dashboard.",
+    "Create your PostGlee account and manage publishing, workspaces, and social content from one dashboard.",
 }
 
 export default function SignUpPage() {

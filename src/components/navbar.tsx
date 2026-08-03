@@ -86,7 +86,7 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <Image
               src="/postglee-logo.png"
-              alt="PostReach logo"
+              alt="PostGlee logo"
               width={120}
               height={120}
               className="rounded-lg w-28"

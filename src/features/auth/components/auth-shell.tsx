@@ -38,7 +38,7 @@ export function AuthShell({
               PR
             </span>
             <span className="text-sm font-semibold uppercase tracking-[0.3em] text-black/70">
-              PostReach
+              PostGlee
             </span>
           </Link>
 
@@ -78,7 +78,7 @@ export function AuthShell({
         <div className="relative h-full w-full">
           <Image
             src="/auth-shell-visual.svg"
-            alt="An abstract dashboard preview for the PostReach workspace"
+            alt="An abstract dashboard preview for the PostGlee workspace"
             fill
             priority
             className="object-cover"

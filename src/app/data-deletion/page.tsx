@@ -4,9 +4,9 @@ import { Mail, Clock, CheckCircle, AlertCircle, Trash2 } from "lucide-react";
 import Navbar from "@/components/navbar";
 
 export const metadata: Metadata = {
-  title: "Data Deletion Request | PostReach",
+  title: "Data Deletion Request | PostGlee",
   description:
-    "Request deletion of your PostReach account data or your Facebook/Instagram data collected through our app.",
+    "Request deletion of your PostGlee account data or your Facebook/Instagram data collected through our app.",
 };
 
 const CONTACT_EMAIL = "privacy@postreach.app";
@@ -75,7 +75,7 @@ export default function DataDeletionPage() {
           Data Deletion Request
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-base text-black/50">
-          You have the right to request deletion of your personal data from PostReach at any
+          You have the right to request deletion of your personal data from PostGlee at any
           time. This page explains how.
         </p>
       </div>
@@ -90,7 +90,7 @@ export default function DataDeletionPage() {
               <div>
                 <p className="font-semibold text-blue-900">Facebook / Instagram Users</p>
                 <p className="mt-1 text-sm text-blue-800/80">
-                  If you connected your Facebook or Instagram account to PostReach and would like
+                  If you connected your Facebook or Instagram account to PostGlee and would like
                   to remove the data we collected through the Facebook Login, send us a deletion
                   request using the steps below. We will process it within {RESPONSE_DAYS} days
                   and confirm by email once complete.
@@ -152,7 +152,7 @@ export default function DataDeletionPage() {
               <Step
                 number={2}
                 title="Include your account email"
-                description="Provide the email address associated with your PostReach account so we can locate your data."
+                description="Provide the email address associated with your PostGlee account so we can locate your data."
               />
               <Step
                 number={3}
@@ -185,7 +185,7 @@ export default function DataDeletionPage() {
               </p>
               <a
                 id="data-deletion-email-cta"
-                href={`mailto:${CONTACT_EMAIL}?subject=Data Deletion Request&body=Hello PostReach team,%0A%0AI would like to request deletion of my data.%0A%0AAccount email: %0AData to delete (all / Facebook only / other): %0A%0AThank you`}
+                href={`mailto:${CONTACT_EMAIL}?subject=Data Deletion Request&body=Hello PostGlee team,%0A%0AI would like to request deletion of my data.%0A%0AAccount email: %0AData to delete (all / Facebook only / other): %0A%0AThank you`}
                 className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3 text-sm font-semibold text-accent-dark shadow-sm transition hover:shadow-md hover:opacity-95"
               >
                 <Mail className="h-4 w-4" />
@@ -279,7 +279,7 @@ export default function DataDeletionPage() {
             Home
           </Link>
         </div>
-        <p className="mt-4">© {new Date().getFullYear()} PostReach. All rights reserved.</p>
+        <p className="mt-4">© {new Date().getFullYear()} PostGlee. All rights reserved.</p>
       </footer>
     </main>
   );
