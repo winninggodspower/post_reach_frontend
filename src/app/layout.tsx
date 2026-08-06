@@ -2,6 +2,7 @@ import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 
 import { Toaster } from "sonner";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 import { AuthBootstrapper } from "@/features/auth/components/auth-bootstrapper";
 import { GoogleAuthProvider } from "@/features/auth/components/google-auth-provider";
@@ -41,6 +42,7 @@ export default function RootLayout({
           theme="dark"
           toastOptions={{ duration: 5000 }}
         />
+        <GoogleAnalytics gaId="G-HQWEXW0R62" />
       </body>
     </html>
   );
