@@ -122,8 +122,8 @@ export default function Navbar() {
             <Image
               src="/postglee-logo.png"
               alt="PostGlee logo"
-              width={120}
-              height={120}
+              width={112}
+              height={112}
               className="rounded-lg w-28"
             />
           </Link>
