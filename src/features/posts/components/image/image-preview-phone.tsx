@@ -1,9 +1,17 @@
 "use client"
 
 import * as React from "react"
-import { Eye, Heart, MessageCircle, Share2, Plus, Image as LucideImage } from "lucide-react"
+import { Eye, Image as LucideImage } from "lucide-react"
+
 import type { AccountChannel } from "../target-accounts-selector"
 import { PhoneMockupWrapper } from "../phone-mockup-wrapper"
+
+// Import platform specific preview components
+import { InstagramPostPreview } from "../previews/instagram-post-preview"
+import { XPostPreview } from "../previews/x-post-preview"
+import { FacebookPostPreview } from "../previews/facebook-post-preview"
+import { LinkedInPostPreview } from "../previews/linkedin-post-preview"
+import { TikTokPostPreview } from "../previews/tiktok-post-preview"
 
 type ImagePreviewPhoneProps = {
   imageSrcs: string[]
@@ -41,27 +49,11 @@ export function ImagePreviewPhone({
 
   const tabsToRender = previewTabs.length > 0 ? previewTabs : []
 
-
   React.useEffect(() => {
     if (tabsToRender.length > 0 && !tabsToRender.some(t => t.id === previewPlatform)) {
       onChangePreviewPlatform(tabsToRender[0].id as any)
     }
   }, [tabsToRender, previewPlatform, onChangePreviewPlatform])
-
-  const renderFormattedPreviewCaption = (text: string) => {
-    if (!text) return "Enter your caption here..."
-    const words = text.split(" ")
-    return words.map((word, i) => {
-      if (word.startsWith("#") || word.startsWith("@")) {
-        return (
-          <span key={i} className="text-sky-400 font-medium hover:underline cursor-pointer">
-            {word}{" "}
-          </span>
-        )
-      }
-      return word + " "
-    })
-  }
 
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -75,6 +67,66 @@ export function ImagePreviewPhone({
     if (activeImageIndex > 0) {
       setActiveImageIndex(prev => prev - 1)
     }
+  }
+
+  // Reusable component to render post media inside layout templates
+  const renderMedia = (aspectRatioClass: string = "aspect-square") => {
+    return (
+      <div className={`relative ${aspectRatioClass} w-full bg-slate-50 dark:bg-slate-900 border-t border-b border-slate-100 dark:border-slate-800 flex items-center justify-center overflow-hidden shrink-0`}>
+        {imageSrcs.length > 0 ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageSrcs[activeImageIndex]}
+              alt={`Slide ${activeImageIndex + 1}`}
+              className="w-full h-full object-cover"
+            />
+
+            {/* Carousel Navigation Arrows */}
+            {imageSrcs.length > 1 && (
+              <>
+                {activeImageIndex > 0 && (
+                  <button
+                    type="button"
+                    onClick={prevImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 size-5 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-[10px] font-bold cursor-pointer z-10"
+                  >
+                    ‹
+                  </button>
+                )}
+                {activeImageIndex < imageSrcs.length - 1 && (
+                  <button
+                    type="button"
+                    onClick={nextImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 size-5 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-[10px] font-bold cursor-pointer z-10"
+                  >
+                    ›
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Dots Indicator */}
+            {imageSrcs.length > 1 && (
+              <div className="absolute bottom-2.5 inset-x-0 flex items-center justify-center gap-1 z-10">
+                {imageSrcs.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`size-1.5 rounded-full transition-all duration-200 ${i === activeImageIndex ? "bg-accent-brand scale-110 w-2" : "bg-white/60"
+                      }`}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-slate-400 dark:text-slate-650 flex flex-col items-center gap-1.5 p-6">
+            <LucideImage className="size-8 text-slate-350" />
+            <span className="text-[10px]">No images selected</span>
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -107,109 +159,54 @@ export function ImagePreviewPhone({
 
       {/* Smart Phone Wrapper */}
       <PhoneMockupWrapper>
-              {/* Header */}
-              <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-805">
-                <div className="flex items-center gap-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={activeChannel?.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"}
-                    alt="Avatar"
-                    className="size-7 rounded-full object-cover border border-slate-100 dark:border-slate-800"
-                  />
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10px] font-bold leading-none">
-                      {activeChannel?.handle || "@channel"}
-                    </span>
-                    <span className="text-[8px] text-slate-400 mt-0.5 leading-none">Sponsored</span>
-                  </div>
-                </div>
-                <span className="text-slate-400 text-xs font-bold px-1">•••</span>
-              </div>
+        {previewPlatform === "instagram" && (
+          <InstagramPostPreview
+            avatar={activeChannel?.avatar}
+            handle={activeChannel?.handle || "@channel"}
+            caption={caption}
+            media={renderMedia("aspect-square")}
+          />
+        )}
 
-              {/* Media Display */}
-              <div className="relative aspect-square w-full bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-center overflow-hidden">
-                {imageSrcs.length > 0 ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={imageSrcs[activeImageIndex]}
-                      alt={`Slide ${activeImageIndex + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+        {previewPlatform === "x" && (
+          <XPostPreview
+            avatar={activeChannel?.avatar}
+            name={activeChannel?.name || "Channel"}
+            handle={activeChannel?.handle || "@channel"}
+            caption={caption}
+            media={renderMedia("aspect-[16/10]")}
+          />
+        )}
 
-                    {/* Carousel Navigation Arrows */}
-                    {imageSrcs.length > 1 && (
-                      <>
-                        {activeImageIndex > 0 && (
-                          <button
-                            type="button"
-                            onClick={prevImage}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 size-5 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-[10px] font-bold cursor-pointer"
-                          >
-                            ‹
-                          </button>
-                        )}
-                        {activeImageIndex < imageSrcs.length - 1 && (
-                          <button
-                            type="button"
-                            onClick={nextImage}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 size-5 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-[10px] font-bold cursor-pointer"
-                          >
-                            ›
-                          </button>
-                        )}
-                      </>
-                    )}
+        {previewPlatform === "facebook" && (
+          <FacebookPostPreview
+            avatar={activeChannel?.avatar}
+            name={activeChannel?.name || "Channel"}
+            caption={caption}
+            media={renderMedia("aspect-[1.91/1]")}
+          />
+        )}
 
-                    {/* Dots Indicator */}
-                    {imageSrcs.length > 1 && (
-                      <div className="absolute bottom-2.5 inset-x-0 flex items-center justify-center gap-1">
-                        {imageSrcs.map((_, i) => (
-                          <span
-                            key={i}
-                            className={`size-1.5 rounded-full transition-all duration-200 ${i === activeImageIndex ? "bg-accent-brand scale-110 w-2" : "bg-white/60"
-                              }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-slate-400 dark:text-slate-650 flex flex-col items-center gap-1.5">
-                    <LucideImage className="size-8" />
-                    <span className="text-[10px]">No images selected</span>
-                  </div>
-                )}
-              </div>
+        {previewPlatform === "linkedin" && (
+          <LinkedInPostPreview
+            avatar={activeChannel?.avatar}
+            name={activeChannel?.name || "Channel"}
+            caption={caption}
+            media={renderMedia("aspect-[1.91/1]")}
+          />
+        )}
 
-              {/* Feed Controls */}
-              <div className="px-3 py-2 flex items-center justify-between text-slate-800 dark:text-slate-200">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs">❤️</span>
-                  <span className="text-xs">💬</span>
-                  <span className="text-xs">✈️</span>
-                </div>
-                {imageSrcs.length > 1 && (
-                  <div className="flex gap-0.5">
-                    {imageSrcs.map((_, i) => (
-                      <span
-                        key={i}
-                        className={`size-1 rounded-full ${i === activeImageIndex ? "bg-sky-500" : "bg-slate-300 dark:bg-slate-700"}`}
-                      />
-                    ))}
-                  </div>
-                )}
-                <span className="text-xs">🔖</span>
-              </div>
-
-              {/* Feed Details */}
-              <div className="px-3 pb-3 space-y-1 text-left flex-1 overflow-y-auto">
-                <p className="text-[10px] font-bold leading-none">9,425 likes</p>
-                <p className="text-[10px] leading-snug break-words">
-                  <span className="font-bold mr-1.5">{activeChannel?.handle || "@channel"}</span>
-                  {renderFormattedPreviewCaption(caption)}
-                </p>
-              </div>
+        {previewPlatform === "tiktok" && (
+          <TikTokPostPreview
+            avatar={activeChannel?.avatar}
+            handle={activeChannel?.handle || "@channel"}
+            caption={caption}
+            imageSrcs={imageSrcs}
+            activeImageIndex={activeImageIndex}
+            onNextImage={nextImage}
+            onPrevImage={prevImage}
+          />
+        )}
       </PhoneMockupWrapper>
 
       <p className="text-[10px] text-center text-slate-500 mt-4 leading-normal">
