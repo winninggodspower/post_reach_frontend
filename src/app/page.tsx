@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react"
 import FloatingSocialIcons from "@/components/floating-social-icons"
 import Navbar from "@/components/navbar"
 import { GridPattern } from "@/components/ui/grid-pattern"
+import FeaturesStack from "@/features/landing/components/features-stack"
 
 export default function Home() {
   return (
@@ -36,6 +37,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <FeaturesStack />
     </main>
   )
 }

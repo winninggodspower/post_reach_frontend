@@ -1,4 +1,4 @@
-import { Sora, Inter } from "next/font/google";
+import { Sora, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 import { Toaster } from "sonner";
@@ -17,6 +17,12 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  style: ["italic"],
+});
+
 export const metadata = {
   title: "PostGlee | Social media management made simple",
   description: "Plan, schedule, and post across multiple social media apps from one workspace.",
@@ -30,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sora.variable} ${inter.variable} ${inter.className} h-full antialiased`}
+      className={`${sora.variable} ${inter.variable} ${playfair.variable} ${inter.className} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <AuthBootstrapper />
