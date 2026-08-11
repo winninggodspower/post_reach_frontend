@@ -5,10 +5,12 @@ import FloatingSocialIcons from "@/components/floating-social-icons"
 import Navbar from "@/components/navbar"
 import { GridPattern } from "@/components/ui/grid-pattern"
 import FeaturesStack from "@/features/landing/components/features-stack"
+import { FaqSection } from "@/features/landing/components/faq-section"
+import { CtaFooter } from "@/features/landing/components/cta-footer"
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col text-foreground">
+    <main className="flex min-h-screen flex-col text-foreground bg-white">
       <Navbar />
 
       <section className="overflow-hidden px-6 py-24 text-center">
@@ -39,6 +41,8 @@ export default function Home() {
       </section>
 
       <FeaturesStack />
+      <FaqSection />
+      <CtaFooter />
     </main>
   )
 }
