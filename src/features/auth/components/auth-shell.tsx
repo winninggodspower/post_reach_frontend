@@ -5,7 +5,6 @@ import type { ReactNode } from "react"
 import { GridPattern } from "@/components/ui/grid-pattern"
 
 type AuthShellProps = {
-  eyebrow: string
   title: string
   description?: string
   footer: ReactNode
@@ -13,7 +12,6 @@ type AuthShellProps = {
 }
 
 export function AuthShell({
-  eyebrow,
   title,
   description,
   footer,
@@ -33,13 +31,14 @@ export function AuthShell({
      
       <div className="scrollbar-thin relative flex w-full flex-col overflow-y-auto px-6 py-8 lg:w-[45%] lg:px-10 lg:py-10">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="inline-flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-r from-accent-dark to-accent-brand text-sm font-bold text-white shadow-lg shadow-orange-200/70">
-              PR
-            </span>
-            <span className="text-sm font-semibold uppercase tracking-[0.3em] text-black/70">
-              PostGlee
-            </span>
+          <Link href="/" className="inline-flex items-center">
+            <Image
+              src="/postglee-logo.png"
+              alt="PostGlee logo"
+              width={112}
+              height={112}
+              className="rounded-lg w-28 h-auto object-contain"
+            />
           </Link>
 
           <Link
@@ -52,20 +51,17 @@ export function AuthShell({
 
         <div className="flex flex-1 items-center py-8 lg:py-12">
           <div className="w-full max-w-md mx-auto">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-accent-dark">
-              {eyebrow}
-            </p>
-            <h1 className="mt-4 text-4xl leading-tight text-black md:text-5xl">
+            <h1 className="text-2xl leading-tight text-black md:text-3xl">
               {title}
             </h1>
             {description ? (
-              <p className="mt-4 max-w-md text-base leading-7 text-slate-600">
+              <p className="mt-1.5 max-w-md text-sm leading-6 text-slate-500">
                 {description}
               </p>
             ) : null}
 
-            <div className={description ? "mt-8" : "mt-6"}>{children}</div>
-            <div className="mt-6 text-sm text-slate-600">{footer}</div>
+            <div className={description ? "mt-4" : "mt-4"}>{children}</div>
+            <div className="mt-4 text-sm text-slate-600">{footer}</div>
           </div>
         </div>
       </div>
