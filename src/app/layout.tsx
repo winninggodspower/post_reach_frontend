@@ -6,6 +6,7 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 
 import { AuthBootstrapper } from "@/features/auth/components/auth-bootstrapper";
 import { GoogleAuthProvider } from "@/features/auth/components/google-auth-provider";
+import { ClickBurst } from "@/components/ui/click-burst";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -40,6 +41,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AuthBootstrapper />
+        <ClickBurst />
         <GoogleAuthProvider>{children}</GoogleAuthProvider>
         <Toaster
           position="top-center"
