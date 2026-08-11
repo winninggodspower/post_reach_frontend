@@ -9,6 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-playfair: var(--font-playfair);
   --color-accent: var(--accent);
   --color-accent-dark: var(--accent-dark);
   --color-accent-brand: var(--accent-brand);
