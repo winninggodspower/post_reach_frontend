@@ -88,10 +88,57 @@ export default function PrivacyPolicyPage() {
               publish or sync content to them.
             </li>
             <li>
-              <strong>Legal reasons:</strong> if the law requires it or if we need to protect users,
-              the product, or the public.
+              <strong>Legal reasons:</strong> if required by a legally-binding request from public authorities (such as law enforcement or a court order). We strictly review the legality of all requests, challenge them if they are considered unlawful, practice data minimization to disclose only the minimum information necessary, and document all requests along with our responses.
+            </li>
+
+          </ul>
+        </Section>
+
+        <Section id="data-security" title="Data Security & Protection">
+          <p>
+            Security procedures are in place to protect the confidentiality of your data. We take the
+            security of your personal and sensitive information seriously and use industry-standard
+            technical and organizational measures to keep it safe:
+          </p>
+          <ul className="ml-5 list-disc space-y-1.5">
+            <li>
+              <strong>Encryption:</strong> We use encryption to protect your information. All data transmitted
+              between your browser and our servers is secured using HTTPS/TLS encryption. Sensitive data, such as
+              social media credentials and OAuth access tokens, is encrypted at rest using industry-standard
+              cryptographic protocols.
+            </li>
+            <li>
+              <strong>Access Control:</strong> Access to personal and sensitive data is strictly restricted to
+              authorized systems and personnel who require it to run and maintain the service.
+            </li>
+            <li>
+              <strong>Secure Storage & Audits:</strong> Your data is stored on secure cloud servers. We regularly
+              monitor our infrastructure to identify vulnerabilities, prevent unauthorized access, and ensure security compliance.
+            </li>
+            <li>
+              <strong>No Sale of Data:</strong> We do not sell, rent, or trade your personal or sensitive data, including
+              any information received from connected third-party platforms or Google APIs, to any third parties.
             </li>
           </ul>
+        </Section>
+
+        <Section id="google-api-data" title="Google API Services User Data">
+          <p>
+            If you connect your Google or YouTube account to PostGlee to publish or schedule content, we access and
+            process only the specific data necessary to perform those actions.
+          </p>
+          <p>
+            PostGlee&apos;s use and transfer of information received from Google APIs to any other app will adhere to the{" "}
+            <a
+              href="https://developers.google.com/terms/api-services-user-data-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-accent-brand underline"
+            >
+              Google API Services User Data Policy
+            </a>
+            , including the Limited Use requirements.
+          </p>
         </Section>
 
         <Section id="retention" title="How Long We Keep It">
