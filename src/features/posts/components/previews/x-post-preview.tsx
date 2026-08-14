@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { MessageCircle, Repeat, Heart, BarChart2, Share, MoreHorizontal } from "lucide-react"
+import { ChannelAvatar } from "../channel-avatar"
 
 type XPostPreviewProps = {
   avatar?: string
@@ -46,11 +47,11 @@ export function XPostPreview({
         {/* Profile info */}
         <div className="flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={avatar || "/placeholder-avatar.svg"}
+            <ChannelAvatar
+              src={avatar || ""}
+              platform="twitter"
               alt="Avatar"
-              className="size-8 rounded-full object-cover border border-slate-100 dark:border-slate-800"
+              className="size-8 rounded-full object-cover border border-slate-100 dark:border-slate-800 shrink-0"
             />
             <div className="text-left">
               <p className="font-bold text-[11.5px] leading-tight flex items-center gap-0.5">

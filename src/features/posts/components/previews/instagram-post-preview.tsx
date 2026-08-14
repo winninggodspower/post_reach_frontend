@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react"
+import { ChannelAvatar } from "../channel-avatar"
 
 type InstagramPostPreviewProps = {
   avatar?: string
@@ -36,11 +37,11 @@ export function InstagramPostPreview({
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-900 shrink-0">
         <div className="flex items-center gap-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={avatar || "/placeholder-avatar.svg"}
+          <ChannelAvatar
+            src={avatar || ""}
+            platform="instagram"
             alt="Avatar"
-            className="size-7 rounded-full object-cover border border-slate-100 dark:border-slate-800"
+            className="size-7.5 rounded-full object-cover border border-slate-100 dark:border-slate-800"
           />
           <div className="flex flex-col text-left">
             <span className="text-[10px] font-bold leading-none">{handle}</span>

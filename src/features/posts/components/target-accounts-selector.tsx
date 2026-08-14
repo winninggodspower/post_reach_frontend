@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Check, Plus, AlertTriangle } from "lucide-react"
 import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
+import { ChannelAvatar } from "./channel-avatar"
 
 export type AccountChannel = {
   id: string
@@ -51,25 +52,23 @@ export function TargetAccountsSelector({
             >
               <div className="relative">
                 <div
-                  className={`size-11 rounded-full transition-all duration-300 ${
-                    isExpired
+                  className={`size-11 rounded-full transition-all duration-300 ${isExpired
                       ? "ring-2 ring-rose-500 ring-offset-2 dark:ring-offset-slate-950 opacity-65"
                       : channel.selected
                         ? "ring-1 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-950 scale-105"
                         : "group-hover:scale-102"
-                  }`}
+                    }`}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <ChannelAvatar
                     src={channel.avatar}
+                    platform={channel.platform}
                     alt={channel.name}
-                    className={`size-full object-cover rounded-full border border-white dark:border-slate-900 shadow-sm transition duration-300 ${
-                      isExpired
+                    className={`size-full object-cover rounded-full border border-white dark:border-slate-900 shadow-sm transition duration-300 ${isExpired
                         ? "grayscale"
                         : channel.selected
                           ? "grayscale-0"
                           : "grayscale opacity-75 group-hover:grayscale-0 group-hover:opacity-100"
-                    }`}
+                      }`}
                   />
                 </div>
 

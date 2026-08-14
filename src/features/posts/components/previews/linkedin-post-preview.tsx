@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ThumbsUp, MessageSquare, Repeat, Send, Globe, MoreHorizontal } from "lucide-react"
+import { ChannelAvatar } from "../channel-avatar"
 
 type LinkedInPostPreviewProps = {
   avatar?: string
@@ -40,13 +41,13 @@ export function LinkedInPostPreview({
       </div>
 
       {/* Post Card */}
-      <div className="flex-1 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-850 overflow-y-auto scrollbar-thin flex flex-col justify-between">
+      <div className="flex-1 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-850 overflow-y-auto scrollbar-thin flex flex-col">
         <div>
           {/* Profile Header */}
           <div className="px-3 pt-3 pb-2 flex items-start gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={avatar || "/placeholder-avatar.svg"}
+            <ChannelAvatar
+              src={avatar || ""}
+              platform="linkedin"
               alt="Avatar"
               className="size-8 rounded-md object-cover border border-slate-100 dark:border-slate-800"
             />

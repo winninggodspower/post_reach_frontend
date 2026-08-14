@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Heart, MessageCircle, Bookmark, Share2, Image as LucideImage } from "lucide-react"
+import { Heart, MessageCircle, Bookmark, Share2, Music, Image as LucideImage } from "lucide-react"
+import { ChannelAvatar } from "../channel-avatar"
 
 type TikTokPostPreviewProps = {
   avatar?: string
@@ -75,9 +76,9 @@ export function TikTokPostPreview({
       <div className="absolute right-2 bottom-20 z-10 flex flex-col items-center gap-3.5 select-none text-white drop-shadow-md">
         {/* Creator avatar */}
         <div className="relative mb-1">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={avatar || "/placeholder-avatar.svg"}
+          <ChannelAvatar
+            src={avatar || ""}
+            platform="tiktok"
             alt=""
             className="size-9 rounded-full object-cover border border-white"
           />

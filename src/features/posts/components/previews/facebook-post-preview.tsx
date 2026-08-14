@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ThumbsUp, MessageSquare, Share2, Globe, MoreHorizontal } from "lucide-react"
+import { ChannelAvatar } from "../channel-avatar"
 
 type FacebookPostPreviewProps = {
   avatar?: string
@@ -39,14 +40,14 @@ export function FacebookPostPreview({
         <span className="text-[9px] text-blue-600 font-bold bg-blue-50 dark:bg-blue-955/40 px-1.5 py-0.5 rounded">Facebook</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-thin flex flex-col justify-between">
+      <div className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">
         <div>
           {/* Profile row */}
           <div className="px-3 pt-3 pb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={avatar || "/placeholder-avatar.svg"}
+              <ChannelAvatar
+                src={avatar || ""}
+                platform="facebook"
                 alt="Avatar"
                 className="size-7.5 rounded-full object-cover border border-slate-100 dark:border-slate-800"
               />
