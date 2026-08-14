@@ -3,7 +3,6 @@ import { Suspense } from "react"
 
 import { AuthShell } from "@/features/auth/components/auth-shell"
 import { SignUpForm } from "@/features/auth/components/signup-form"
-import { Card } from "@/components/ui/card"
 
 export const metadata = {
   title: "Create Account | PostGlee",
@@ -15,7 +14,7 @@ export default function SignUpPage() {
   return (
     <AuthShell
       title="Ready to post smarter?"
-      description="One workspace, every channel, zero tab-switching chaos."
+      description="Create a free PostGlee account to seamlessly manage your social content across platforms."
       footer={
         <p>
           Already have an account?{" "}
@@ -25,17 +24,16 @@ export default function SignUpPage() {
         </p>
       }
     >
-      <Card className="rounded-2xl border border-black/8 bg-white/90 p-6 shadow-lg shadow-black/5 backdrop-blur">
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-950" />
-            </div>
-          }
-        >
-          <SignUpForm />
-        </Suspense>
-      </Card>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-950" />
+          </div>
+        }
+      >
+        <SignUpForm />
+      </Suspense>
     </AuthShell>
   )
 }
+

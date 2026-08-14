@@ -28,7 +28,7 @@ export function AuthShell({
           [12, 7],
         ]}
       />
-     
+
       <div className="scrollbar-thin relative flex w-full flex-col overflow-y-auto px-6 py-8 lg:w-[45%] lg:px-10 lg:py-10">
         <div className="flex items-center justify-between gap-4">
           <Link href="/" className="inline-flex items-center">
@@ -49,19 +49,23 @@ export function AuthShell({
           </Link>
         </div>
 
-        <div className="flex flex-1 items-center py-8 lg:py-12">
+        <div className="flex flex-1 items-center justify-center py-8 lg:py-12">
           <div className="w-full max-w-md mx-auto">
-            <h1 className="text-2xl leading-tight text-black md:text-3xl">
-              {title}
-            </h1>
-            {description ? (
-              <p className="mt-1.5 max-w-md text-sm leading-6 text-slate-500">
-                {description}
-              </p>
-            ) : null}
+            <div className="mb-6 px-2">
+              <h1 className="text-3xl font-medium leading-tight text-black">
+                {title}
+              </h1>
+              {description ? (
+                <p className="mt-1.5 max-w-md text-sm leading-6 text-slate-600">
+                  {description}
+                </p>
+              ) : null}
+            </div>
 
-            <div className={description ? "mt-4" : "mt-4"}>{children}</div>
-            <div className="mt-4 text-sm text-slate-600">{footer}</div>
+            <div className="rounded-2xl border border-black/8 bg-white/90 p-8 shadow-lg shadow-black/5 backdrop-blur">
+              <div>{children}</div>
+              <div className="mt-6 text-sm text-slate-600">{footer}</div>
+            </div>
           </div>
         </div>
       </div>
