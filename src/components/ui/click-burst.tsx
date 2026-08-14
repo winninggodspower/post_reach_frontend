@@ -60,8 +60,8 @@ function BurstInstance({ x, y, onComplete }: BurstInstanceProps) {
             i % 3 === 0
               ? "var(--accent-brand, #fb923c)"
               : i % 3 === 1
-              ? "var(--accent-dark, #ea580c)"
-              : "#fbbf24"; // golden-yellow
+                ? "var(--accent-dark, #ea580c)"
+                : "#fbbf24"; // golden-yellow
 
           return (
             <g key={i} transform={`rotate(${angle} 40 40)`}>

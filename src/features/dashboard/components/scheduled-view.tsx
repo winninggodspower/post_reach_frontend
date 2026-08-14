@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ScheduledQueue, type ScheduledPost } from "@/features/dashboard/components/scheduled-queue"
+import { ScheduledContent, type ScheduledPost } from "@/features/dashboard/components/scheduled-content"
 
 export function ScheduledView() {
   const [mounted, setMounted] = useState(false)
@@ -48,10 +48,10 @@ export function ScheduledView() {
         </p>
       </div>
 
-      <div className="border border-black/5 bg-slate-50/50 rounded-2xl p-6 sm:p-8">
-        <ScheduledQueue
+      <div className="rounded-2xl">
+        <ScheduledContent
           posts={scheduledPosts}
-          onClear={handleClearQueue}
+          hideTitle
         />
       </div>
     </main>

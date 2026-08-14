@@ -76,8 +76,9 @@ export function DashboardSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-accent-brand text-primary-foreground">
-                  <GalleryVerticalEnd className="size-4" />
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-slate-100 overflow-hidden border border-black/5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/icon.png" alt="Logo" className="size-full object-cover" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">{brandName}</span>
@@ -89,7 +90,7 @@ export function DashboardSidebar() {
         </SidebarMenu>
 
         {/* Prominent CTA button */}
-        <div className="px-2.5 py-1.5 flex justify-center">
+        <div className="px-3 pt-4 pb-2 flex justify-center">
           {isCollapsed ? (
             <Link href="/dashboard/posts">
               <Button size="icon" className="size-8 bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-xs hover:brightness-95 transition-all duration-300 font-semibold cursor-pointer rounded-lg">
@@ -107,19 +108,20 @@ export function DashboardSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="gap-4 pt-2 px-3">
         <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
-          <SidebarMenu>
+          <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Main</SidebarGroupLabel>
+          <SidebarMenu className="gap-1">
             {mainNavItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === item.url}
                   tooltip={item.title}
+                  className="font-medium text-slate-600 hover:text-slate-900"
                 >
                   <Link href={item.url}>
-                    <item.icon />
+                    <item.icon className="size-4" />
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -128,20 +130,19 @@ export function DashboardSidebar() {
           </SidebarMenu>
         </SidebarGroup>
 
-        <SidebarSeparator />
-
         <SidebarGroup>
-          <SidebarGroupLabel>Configuration</SidebarGroupLabel>
-          <SidebarMenu>
+          <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Configuration</SidebarGroupLabel>
+          <SidebarMenu className="gap-1">
             {configNavItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === item.url}
                   tooltip={item.title}
+                  className="font-medium text-slate-600 hover:text-slate-900"
                 >
                   <Link href={item.url}>
-                    <item.icon />
+                    <item.icon className="size-4" />
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -151,7 +152,7 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="px-3 pb-2">
         <SidebarSeparator />
         <SidebarMenu>
           <SidebarMenuItem>

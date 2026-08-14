@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { DashboardHeader } from "@/features/dashboard/components/dashboard-header"
 import { DashboardStats } from "@/features/dashboard/components/dashboard-stats"
-import { ScheduledQueue, type ScheduledPost } from "@/features/dashboard/components/scheduled-queue"
+import { ScheduledContent, type ScheduledPost } from "@/features/dashboard/components/scheduled-content"
 
 export default function DashboardPage() {
   const user = useAuth((state) => state.user)
@@ -26,13 +26,8 @@ export default function DashboardPage() {
   const brand = user?.brand
   const connectedAccountsCount = brand?.connected_accounts?.length ?? 0
 
-  const handleClearQueue = () => {
-    localStorage.removeItem("postreach-scheduled-posts")
-    setScheduledPosts([])
-  }
-
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-8 min-w-0 overflow-x-hidden space-y-8">
+    <main className="mx-auto w-full max-w-5xl px-6 py-10 min-w-0 overflow-x-hidden space-y-12">
       {/* Header Greeting & Action buttons */}
       <DashboardHeader
         userName={user?.first_name || "Creator"}
@@ -42,9 +37,8 @@ export default function DashboardPage() {
 
       {/* Empty State Banner (Only shown if queue is empty, before Stats Cards) */}
       {scheduledPosts.length === 0 && (
-        <ScheduledQueue
+        <ScheduledContent
           posts={scheduledPosts}
-          onClear={handleClearQueue}
         />
       )}
 
@@ -56,9 +50,8 @@ export default function DashboardPage() {
 
       {/* Scheduled Queue section (Only shown if queue has active posts, after Stats Cards) */}
       {scheduledPosts.length > 0 && (
-        <ScheduledQueue
+        <ScheduledContent
           posts={scheduledPosts}
-          onClear={handleClearQueue}
         />
       )}
     </main>

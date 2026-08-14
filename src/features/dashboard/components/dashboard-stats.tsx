@@ -1,5 +1,7 @@
 "use client"
 
+import { Calendar, Link2 } from "lucide-react"
+
 interface DashboardStatsProps {
   scheduledCount: number
   connectedCount: number
@@ -7,43 +9,63 @@ interface DashboardStatsProps {
 
 export function DashboardStats({ scheduledCount, connectedCount }: DashboardStatsProps) {
   return (
-    <section className="grid gap-4 grid-cols-1 lg:grid-cols-3">
+    <section className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-3">
       {/* Card 1: Scheduled Posts */}
-      <article className="rounded-2xl border border-black/8 bg-white p-5 shadow-xs transition hover:shadow-md duration-200">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Scheduled Posts</h2>
-        <p className="mt-2.5 text-3xl font-bold text-slate-950">{scheduledCount}</p>
-        <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
-          <span className="inline-flex size-1.5 rounded-full bg-emerald-500 animate-ping" />
-          <span>Active queue</span>
+      <article className="group relative overflow-hidden rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300 flex flex-col justify-between">
+        <div className="relative z-10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">Scheduled Posts</h2>
+            <div className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+              <Calendar className="size-3.5 sm:size-4" />
+            </div>
+          </div>
+          <div className="mt-1.5 sm:mt-2 flex items-center gap-3">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-none">{scheduledCount}</p>
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+              <span className="inline-flex size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Active queue</span>
+            </div>
+          </div>
         </div>
       </article>
 
       {/* Card 2: Connected Channels */}
-      <article className="rounded-2xl border border-black/8 bg-white p-5 shadow-xs transition hover:shadow-md duration-200">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Connected Channels</h2>
-        <p className="mt-2.5 text-3xl font-bold text-slate-950">{connectedCount}</p>
-        <div className="mt-3 text-[11px] font-medium text-slate-500">
-          {connectedCount > 0 ? "Channels active" : "No channels linked"}
+      <article className="group relative overflow-hidden rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300 flex flex-col justify-between">
+        <div className="relative z-10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">Connected Channels</h2>
+            <div className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+              <Link2 className="size-3.5 sm:size-4" />
+            </div>
+          </div>
+          <div className="mt-1.5 sm:mt-2 flex items-center gap-3">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-none">{connectedCount}</p>
+            <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
+              {connectedCount > 0 ? "Channels active" : "None linked"}
+            </div>
+          </div>
         </div>
       </article>
 
       {/* Card 3: Time Saved */}
-      <article className="rounded-2xl border border-black/8 bg-white p-5 shadow-xs transition hover:shadow-md duration-200 flex flex-col justify-between min-h-[120px]">
-        <div>
+      <article className="group relative overflow-hidden rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300 flex flex-col justify-between">
+        <div className="relative z-10">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Time Saved</h2>
-            <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+            <h2 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">Time Saved</h2>
+            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-emerald-600 border border-emerald-100/50">
               +18%
             </span>
           </div>
-          <p className="mt-1.5 text-3xl font-bold text-slate-950">14.5 hrs</p>
+          <p className="mt-1.5 sm:mt-2 text-2xl sm:text-3xl font-extrabold text-slate-900">
+            14.5<span className="text-sm sm:text-lg text-slate-400 font-bold ml-1">hrs</span>
+          </p>
         </div>
         {/* Sparkline SVG Chart */}
-        <div className="mt-3 h-6 w-full shrink-0">
+        <div className="absolute bottom-0 left-0 right-0 h-12 w-full opacity-30 group-hover:opacity-70 transition-opacity duration-300">
           <svg className="h-full w-full" viewBox="0 0 100 30" preserveAspectRatio="none">
             <defs>
               <linearGradient id="sparklineGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(251, 146, 60, 0.25)" />
+                <stop offset="0%" stopColor="rgba(251, 146, 60, 0.4)" />
                 <stop offset="100%" stopColor="rgba(251, 146, 60, 0.0)" />
               </linearGradient>
             </defs>
