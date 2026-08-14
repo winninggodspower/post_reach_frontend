@@ -3,6 +3,7 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { GridPattern } from "@/components/ui/grid-pattern"
+import { AuthCarousel } from "./auth-carousel"
 
 type AuthShellProps = {
   title: string
@@ -70,21 +71,9 @@ export function AuthShell({
         </div>
       </div>
 
-      {/* Right side - full viewport height image, no padding */}
+      {/* Right side - full viewport height animated visual, no padding */}
       <aside className="relative hidden h-screen w-[55%] shrink-0 overflow-hidden lg:block">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,146,60,0.35),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.28),transparent_36%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_28%,rgba(255,255,255,0.03))]" />
-
-        <div className="relative h-full w-full">
-          <Image
-            src="/auth-shell-visual.svg"
-            alt="An abstract dashboard preview for the PostGlee workspace"
-            fill
-            priority
-            className="object-cover"
-            sizes="(min-width: 1024px) 55vw, 0px"
-          />
-        </div>
+        <AuthCarousel />
       </aside>
     </div>
   )
