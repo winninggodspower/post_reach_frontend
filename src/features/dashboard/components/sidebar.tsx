@@ -80,7 +80,7 @@ export function DashboardSidebar() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/icon.png" alt="Logo" className="size-full object-cover" />
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none">
+                <div className="flex flex-col gap-0.5 leading-none group-data-[collapsible=icon]:hidden">
                   <span className="font-semibold">{brandName}</span>
                   <span className="text-xs text-muted-foreground">Dashboard</span>
                 </div>
@@ -90,7 +90,7 @@ export function DashboardSidebar() {
         </SidebarMenu>
 
         {/* Prominent CTA button */}
-        <div className="px-3 pt-4 pb-2 flex justify-center">
+        <div className="pt-4 pb-2 px-3 group-data-[collapsible=icon]:px-0 flex justify-center">
           {isCollapsed ? (
             <Link href="/dashboard/posts">
               <Button size="icon" className="size-8 bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-xs hover:brightness-95 transition-all duration-300 font-semibold cursor-pointer rounded-lg">
@@ -108,7 +108,7 @@ export function DashboardSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="gap-4 pt-2 px-3">
+      <SidebarContent className="gap-4 pt-2 px-3 group-data-[collapsible=icon]:px-0">
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Main</SidebarGroupLabel>
           <SidebarMenu className="gap-1">
@@ -152,7 +152,7 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="px-3 pb-2">
+      <SidebarFooter className="pb-2 px-3 group-data-[collapsible=icon]:px-0">
         <SidebarSeparator />
         <SidebarMenu>
           <SidebarMenuItem>
