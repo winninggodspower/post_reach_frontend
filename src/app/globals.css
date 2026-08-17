@@ -382,3 +382,53 @@ html body [data-sonner-toast] [data-close-button]:hover {
   animation: float-fast 13s ease-in-out infinite;
   animation-delay: 2.5s;
 }
+
+/* ── Custom Floating Pill Loader ── */
+#nprogress .floating-pill-loader {
+  position: fixed;
+  z-index: 1031;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-radius: 99px;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.dark #nprogress .floating-pill-loader {
+  background-color: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+#nprogress .floating-pill-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--accent-brand);
+  border-right-color: var(--accent-brand);
+  animation: nprogress-spinner 0.6s linear infinite;
+}
+
+#nprogress .floating-pill-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.dark #nprogress .floating-pill-text {
+  color: #e2e8f0;
+}
+
+/* Hide the default bar from view but keep it for logic if needed */
+#nprogress .bar {
+  opacity: 0;
+  pointer-events: none;
+}
