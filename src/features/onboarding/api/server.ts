@@ -3,6 +3,7 @@ import {
   ONBOARDING_ENDPOINTS,
   AUTH_URL_ENDPOINTS,
   CONNECT_ENDPOINTS,
+  FACEBOOK_PAGES_ENDPOINT,
 } from "@/features/onboarding/api/endpoints"
 import type { OnboardingPlatform, OnboardingSubmission } from "@/features/onboarding/types"
 
@@ -33,6 +34,19 @@ type ConnectResponse = {
     is_connected: boolean
   }
   message?: string
+}
+
+export type FacebookPage = {
+  id: string
+  name: string
+  picture_url: string
+}
+
+type FacebookPagesResponse = {
+  success: boolean
+  data: {
+    pages: FacebookPage[]
+  }
 }
 
 export const submitOnboardingProfile = async (
@@ -112,6 +126,7 @@ export const exchangeOAuthCode = async (payload: {
   code: string
   state: string
   redirect_uri: string
+  page_id?: string
 }): Promise<ConnectResponse> => {
   try {
     const endpoint = CONNECT_ENDPOINTS[payload.platform]
@@ -120,6 +135,7 @@ export const exchangeOAuthCode = async (payload: {
       code: payload.code,
       state: payload.state,
       redirect_uri: payload.redirect_uri,
+      ...(payload.page_id ? { page_id: payload.page_id } : {}),
     })
 
     if (!data.success) {
@@ -139,6 +155,29 @@ export const exchangeOAuthCode = async (payload: {
     const axiosError = err as { response?: { data?: { message?: string } } }
     const message =
       axiosError.response?.data?.message || `Unable to connect ${payload.platform} account.`
+
+    throw new Error(JSON.stringify({ message }))
+  }
+}
+
+export const getFacebookPages = async (
+  code: string,
+  redirectUri: string
+): Promise<FacebookPagesResponse> => {
+  try {
+    const { data } = await api.post<FacebookPagesResponse>(FACEBOOK_PAGES_ENDPOINT, {
+      code,
+      redirect_uri: redirectUri,
+    })
+    return data
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      throw err
+    }
+
+    const axiosError = err as { response?: { data?: { message?: string } } }
+    const message =
+      axiosError.response?.data?.message || "Unable to fetch Facebook pages."
 
     throw new Error(JSON.stringify({ message }))
   }

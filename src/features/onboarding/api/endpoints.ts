@@ -13,6 +13,8 @@ export const AUTH_URL_ENDPOINTS: Record<OnboardingPlatform, string> = {
   linkedin: "/social_accounts/linkedin/auth-url/",
 }
 
+export const FACEBOOK_PAGES_ENDPOINT = "/social_accounts/facebook/pages/"
+
 export const CONNECT_ENDPOINTS: Record<OnboardingPlatform, string> = {
   youtube: "/social_accounts/youtube/connect/",
   facebook: "/social_accounts/facebook/connect/",
