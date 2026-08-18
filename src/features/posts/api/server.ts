@@ -15,7 +15,7 @@ export type PublishVideoPayload = {
 export type PlatformPostStatus = {
   id: number
   platform: string
-  status: "pending" | "scheduled" | "uploading" | "posted" | "failed"
+  status: "pending" | "scheduled" | "uploading" | "processing" | "posted" | "failed"
   platform_post_id: string | null
   error_message: string | null
   title: string
@@ -157,7 +157,7 @@ export const getPostStatus = async (id: string): Promise<PostStatusResponse> => 
 export type CalendarItemPlatform = {
   id: number
   platform: string
-  status: "scheduled" | "posted" | "failed" | "pending" | "uploading"
+  status: "scheduled" | "posted" | "failed" | "pending" | "uploading" | "processing"
   platform_post_id: string | null
   error_message: string | null
   title: string

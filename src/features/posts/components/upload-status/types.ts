@@ -6,7 +6,7 @@ export type PlatformMeta = {
 export type DisplayPlatform = {
   id: string | number;
   platform: string;
-  status: "pending" | "uploading" | "posted" | "failed" | "scheduled";
+  status: "pending" | "uploading" | "processing" | "posted" | "failed" | "scheduled";
   url: string | null;
   meta: PlatformMeta;
 }

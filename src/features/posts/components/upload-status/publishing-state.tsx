@@ -101,6 +101,7 @@ export function PublishingState({
             const isRealSuccess = p.status === "posted" || p.status === "scheduled" || isScheduled
             const isFailed = p.status === "failed"
             const isUploadingPlatform = p.status === "uploading"
+            const isProcessingPlatform = p.status === "processing"
             
             return (
               <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
@@ -113,11 +114,13 @@ export function PublishingState({
                     <span className={`text-[11px] font-medium ${
                       isRealSuccess ? 'text-emerald-600' : 
                       isFailed ? 'text-rose-500' : 
-                      isUploadingPlatform ? 'text-slate-500 italic' : 'text-slate-400'
+                      isUploadingPlatform ? 'text-slate-500 italic' : 
+                      isProcessingPlatform ? 'text-slate-500 italic' : 'text-slate-400'
                     }`}>
                       {isRealSuccess ? 'Success' : 
                        isFailed ? 'Failed' : 
-                       isUploadingPlatform ? 'Uploading media...' : 'Processing...'}
+                       isUploadingPlatform ? 'Uploading media...' : 
+                       isProcessingPlatform ? 'Processing on platform...' : 'Processing...'}
                     </span>
                   </div>
                 </div>
@@ -125,7 +128,8 @@ export function PublishingState({
                   {isRealSuccess && <Check className="w-4 h-4 text-emerald-500 stroke-[3]" />}
                   {isFailed && <XIcon className="w-4 h-4 text-rose-500" />}
                   {isUploadingPlatform && <RefreshCw className="w-4 h-4 text-orange-400 animate-spin" />}
-                  {(!isRealSuccess && !isFailed && !isUploadingPlatform) && <MoreHorizontal className="w-5 h-5 text-slate-300" />}
+                  {isProcessingPlatform && <RefreshCw className="w-4 h-4 text-blue-400 animate-spin" />}
+                  {(!isRealSuccess && !isFailed && !isUploadingPlatform && !isProcessingPlatform) && <MoreHorizontal className="w-5 h-5 text-slate-300" />}
                 </div>
               </div>
             )
