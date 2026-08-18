@@ -413,7 +413,8 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         previewData={{
           title: watch("title"),
           caption: watch("caption"),
-          imageSrc: thumbnailDataUrl || undefined
+          imageSrc: thumbnailDataUrl || undefined,
+          videoSrc: videoFile ? URL.createObjectURL(videoFile) : undefined
         }}
         fileSizeBytes={videoFile?.size}
       />

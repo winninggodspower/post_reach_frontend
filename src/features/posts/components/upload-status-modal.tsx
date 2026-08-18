@@ -8,6 +8,7 @@ import { PlatformPostStatus } from "../api/server"
 import { UploadingState } from "./upload-status/uploading-state"
 import { PublishingState } from "./upload-status/publishing-state"
 import { FinishedState } from "./upload-status/finished-state"
+import { PreviewData } from "./upload-status/types"
 
 type UploadStatusModalProps = {
   isOpen: boolean
@@ -17,11 +18,7 @@ type UploadStatusModalProps = {
   postType?: "video" | "photo" | "text"
   isScheduled?: boolean
   selectedPlatforms?: string[]
-  previewData?: {
-    title: string
-    caption: string
-    imageSrc?: string
-  }
+  previewData?: PreviewData
   fileSizeBytes?: number
 }
 

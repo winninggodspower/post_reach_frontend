@@ -4,6 +4,7 @@ import { getPlatformMeta, getPostUrl } from "./utils"
 import { PreviewData } from "./types"
 import { usePostStatus } from "../../hooks/use-post-status"
 import { PlatformPostStatus } from "../../api/server"
+import { PostPreview } from "./post-preview"
 
 type PublishingStateProps = {
   postId: string | null
@@ -75,38 +76,21 @@ export function PublishingState({
       </div>
 
       {/* Post Preview */}
-      {previewData && (previewData.title || previewData.caption || previewData.imageSrc) && (
-        <div className="flex gap-4 p-4 bg-slate-50 rounded-xl mb-6 border border-slate-100/60 items-center">
-          {previewData.imageSrc && (
-            <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-slate-200 relative border border-slate-200">
-              <img src={previewData.imageSrc} alt="Preview" className="w-full h-full object-cover" />
-            </div>
-          )}
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] font-bold text-orange-600 tracking-wider uppercase mb-1">Post Preview</span>
-            {previewData.title && (
-              <h4 className="text-sm font-bold text-slate-900 truncate">{previewData.title}</h4>
-            )}
-            {previewData.caption && (
-              <p className={`text-sm text-slate-600 line-clamp-2 ${!previewData.title ? 'font-medium text-slate-800' : ''}`}>
-                {previewData.caption}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+      <PostPreview previewData={previewData} />
 
-      {/* Overall Progress */}
-      <div className="space-y-2 mb-6">
-        <div className="flex justify-between items-end">
-          <span className="text-sm font-medium text-slate-700">Overall Progress</span>
-          <span className="text-sm font-medium text-orange-500">{syncProgress}%</span>
+      {/* Overall Status Indicator */}
+      <div className="flex items-center gap-3 mb-6 bg-indigo-50/50 border border-indigo-100/50 p-3.5 rounded-xl shadow-sm">
+        <div className="relative flex h-3 w-3 flex-shrink-0 mt-0.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
         </div>
-        <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-orange-500 transition-all duration-500 ease-out rounded-full"
-            style={{ width: `${syncProgress}%` }}
-          />
+        <div className="flex flex-col">
+          <span className="text-sm font-semibold text-indigo-900">
+            Publishing to {displayPlatforms.length} {displayPlatforms.length === 1 ? 'platform' : 'platforms'}...
+          </span>
+          <span className="text-xs font-medium text-indigo-700/80">
+            Please wait while we distribute your content.
+          </span>
         </div>
       </div>
 
@@ -150,10 +134,7 @@ export function PublishingState({
       )}
 
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-        <button onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-          Cancel
-        </button>
-        <button onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors shadow-sm">
+        <button onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors shadow-sm">
           Minimize
         </button>
       </div>

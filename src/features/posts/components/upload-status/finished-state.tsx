@@ -1,8 +1,9 @@
 import * as React from "react"
-import { Check, ExternalLink } from "lucide-react"
+import { Check, ExternalLink, X, AlertTriangle } from "lucide-react"
 import { getPlatformMeta, getPostUrl } from "./utils"
 import { PreviewData } from "./types"
 import { PlatformPostStatus } from "../../api/server"
+import { PostPreview } from "./post-preview"
 
 type FinishedStateProps = {
   isScheduled?: boolean
@@ -23,6 +24,11 @@ export function FinishedState({
   onClose,
   onViewPost,
 }: FinishedStateProps) {
+  const failedCount = finalStatuses ? finalStatuses.filter(s => s.status === "failed").length : 0;
+  const totalCount = finalStatuses ? finalStatuses.length : selectedPlatforms.length;
+  const isAllFailed = totalCount > 0 && failedCount === totalCount;
+  const isPartialSuccess = failedCount > 0 && failedCount < totalCount;
+  const isAllSuccess = failedCount === 0;
   const displayPlatforms = (finalStatuses && finalStatuses.length > 0)
     ? finalStatuses.map(p => ({
       id: p.id,
@@ -41,50 +47,53 @@ export function FinishedState({
   return (
     <div className="flex flex-col p-8 pt-10">
       {/* Header Icon */}
-      <div className="mx-auto mb-5 w-14 h-14 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center border-4 border-emerald-500/10">
-        <Check className="w-8 h-8 stroke-[3]" />
-      </div>
+      {isAllSuccess && (
+        <div className="mx-auto mb-5 w-14 h-14 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center border-4 border-emerald-500/10">
+          <Check className="w-8 h-8 stroke-[3]" />
+        </div>
+      )}
+      {isAllFailed && (
+        <div className="mx-auto mb-5 w-14 h-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center border-4 border-rose-500/10">
+          <X className="w-8 h-8 stroke-[3]" />
+        </div>
+      )}
+      {isPartialSuccess && (
+        <div className="mx-auto mb-5 w-14 h-14 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center border-4 border-orange-500/10">
+          <AlertTriangle className="w-8 h-8 stroke-[3]" />
+        </div>
+      )}
 
       <div className="text-center space-y-2 mb-6">
         <h2 className="text-2xl font-bold text-slate-900">
-          {isScheduled ? "Post Scheduled Successfully!" : "Post Published Successfully!"}
+          {isAllSuccess
+            ? (isScheduled ? "Post Scheduled Successfully!" : "Post Published Successfully!")
+            : isAllFailed
+            ? "Failed to Publish Post"
+            : "Partially Published Post"}
         </h2>
-        <div className="flex items-center justify-center gap-1.5 text-sm font-medium text-emerald-600">
-          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-          <span>All platforms synced successfully</span>
+        <div className={`flex items-center justify-center gap-1.5 text-sm font-medium ${isAllSuccess ? 'text-emerald-600' : isAllFailed ? 'text-rose-600' : 'text-orange-600'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${isAllSuccess ? 'bg-emerald-500' : isAllFailed ? 'bg-rose-500' : 'bg-orange-500'}`}></span>
+          <span>
+            {isAllSuccess
+              ? "All platforms synced successfully"
+              : isAllFailed
+              ? "Failed on all selected platforms"
+              : `${totalCount - failedCount} of ${totalCount} platforms successful`}
+          </span>
         </div>
       </div>
 
       {/* Post Preview (mockup) */}
-      {previewData && (previewData.title || previewData.caption || previewData.imageSrc) && (
-        <div className="flex gap-4 p-4 bg-slate-50 rounded-xl mb-6 border border-slate-100/60 items-center">
-          {previewData.imageSrc && (
-            <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-slate-200 relative border border-slate-200">
-              <img src={previewData.imageSrc} alt="Preview" className="w-full h-full object-cover" />
-            </div>
-          )}
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="text-[10px] font-bold text-orange-600 tracking-wider uppercase mb-1">Post Preview</span>
-            {previewData.title && (
-              <h4 className="text-sm font-bold text-slate-900 truncate">{previewData.title}</h4>
-            )}
-            {previewData.caption && (
-              <p className={`text-sm text-slate-600 line-clamp-2 ${!previewData.title ? 'font-medium text-slate-800' : ''}`}>
-                {previewData.caption}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+      <PostPreview previewData={previewData} />
 
       {/* Overall Progress */}
       <div className="space-y-2 mb-6">
         <div className="flex justify-between items-end">
           <span className="text-sm font-medium text-slate-700">Overall Progress</span>
-          <span className="text-sm font-medium text-emerald-600">100%</span>
+          <span className={`text-sm font-medium ${isAllFailed ? 'text-rose-600' : isPartialSuccess ? 'text-orange-600' : 'text-emerald-600'}`}>100%</span>
         </div>
-        <div className="h-2.5 w-full bg-emerald-50 rounded-full overflow-hidden">
-          <div className="h-full bg-emerald-500 w-full rounded-full" />
+        <div className={`h-2.5 w-full rounded-full overflow-hidden ${isAllFailed ? 'bg-rose-50' : isPartialSuccess ? 'bg-orange-50' : 'bg-emerald-50'}`}>
+          <div className={`h-full w-full rounded-full ${isAllFailed ? 'bg-rose-500' : isPartialSuccess ? 'bg-orange-500' : 'bg-emerald-500'}`} />
         </div>
       </div>
 

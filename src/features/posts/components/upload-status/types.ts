@@ -15,4 +15,5 @@ export type PreviewData = {
   title: string;
   caption: string;
   imageSrc?: string;
+  videoSrc?: string;
 }
