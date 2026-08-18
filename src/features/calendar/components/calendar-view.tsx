@@ -165,8 +165,7 @@ export function CalendarView() {
 
   const getPostsForDate = (date: Date) => {
     return scheduledPosts.filter((post) => {
-      if (!post.scheduled_at) return false
-      const postDate = new Date(post.scheduled_at)
+      const postDate = new Date(post.scheduled_at || post.created_at)
       return (
         postDate.getDate() === date.getDate() &&
         postDate.getMonth() === date.getMonth() &&
@@ -285,7 +284,7 @@ export function CalendarView() {
                       >
                         <div className="flex items-center justify-between w-full">
                           <span className="text-[10px] font-bold text-slate-500">
-                            {new Date(post.scheduled_at!).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                            {new Date(post.scheduled_at || post.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                           </span>
                           <div className="text-slate-400 group-hover:text-accent-dark transition-colors">
                             {getContentTypeIcon(post.content_type)}
@@ -340,7 +339,7 @@ export function CalendarView() {
                             }`}
                         >
                           <span className="opacity-75 mr-1 hidden md:inline">
-                            {new Date(post.scheduled_at!).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).replace(' ', '')}
+                            {new Date(post.scheduled_at || post.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).replace(' ', '')}
                           </span>
                           {post.caption}
                         </button>
@@ -371,7 +370,7 @@ export function CalendarView() {
                 {selectedPost.content_type}
               </span>
               <span className="text-xs font-bold text-slate-400">
-                {new Date(selectedPost.scheduled_at!).toLocaleDateString(undefined, {
+                {new Date(selectedPost.scheduled_at || selectedPost.created_at).toLocaleDateString(undefined, {
                   weekday: "long",
                   month: "long",
                   day: "numeric",
@@ -386,7 +385,7 @@ export function CalendarView() {
             <div className="pt-2 flex items-center justify-between text-xs text-slate-500 font-bold">
               <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
                 <Clock className="size-3.5" />
-                {new Date(selectedPost.scheduled_at!).toLocaleTimeString([], {
+                {new Date(selectedPost.scheduled_at || selectedPost.created_at).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
