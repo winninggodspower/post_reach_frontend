@@ -205,6 +205,11 @@ export function TextComposer() {
         uploadProgress={uploadProgress}
         postType="text"
         isScheduled={isScheduled}
+        selectedPlatforms={selectedChannels.map(c => c.platform)}
+        previewData={{
+          title: "Text Post",
+          caption: caption,
+        }}
       />
     </div>
   )

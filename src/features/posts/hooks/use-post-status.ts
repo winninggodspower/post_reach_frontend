@@ -8,7 +8,7 @@ type UsePostStatusProps = {
   intervalMs?: number
 }
 
-export function usePostStatus({ postId, enabled, intervalMs = 2500 }: UsePostStatusProps) {
+export function usePostStatus({ postId, enabled, intervalMs = 7000 }: UsePostStatusProps) {
   const [platformStatuses, setPlatformStatuses] = useState<PlatformPostStatus[]>([])
   const [contentType, setContentType] = useState<"video" | "photo" | "text" | null>(null)
   const [error, setError] = useState<string | null>(null)

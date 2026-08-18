@@ -409,6 +409,13 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         uploadProgress={uploadProgress}
         postType="video"
         isScheduled={isScheduled}
+        selectedPlatforms={selectedChannels.map(c => c.platform)}
+        previewData={{
+          title: watch("title"),
+          caption: watch("caption"),
+          imageSrc: thumbnailDataUrl || undefined
+        }}
+        fileSizeBytes={videoFile?.size}
       />
     </div>
   )

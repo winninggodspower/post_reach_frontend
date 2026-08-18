@@ -15,7 +15,7 @@ export type PublishVideoPayload = {
 export type PlatformPostStatus = {
   id: number
   platform: string
-  status: "pending" | "uploading" | "posted" | "failed"
+  status: "pending" | "scheduled" | "uploading" | "posted" | "failed"
   platform_post_id: string | null
   error_message: string | null
   title: string

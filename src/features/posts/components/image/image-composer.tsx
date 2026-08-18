@@ -280,6 +280,13 @@ export function ImageComposer() {
         uploadProgress={uploadProgress}
         postType="photo"
         isScheduled={isScheduled}
+        selectedPlatforms={selectedChannels.map(c => c.platform)}
+        previewData={{
+          title: title,
+          caption: caption,
+          imageSrc: imageSrcs?.[0] || undefined
+        }}
+        fileSizeBytes={imageFiles.reduce((acc, file) => acc + file.size, 0)}
       />
     </div>
   )
