@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp } from "lucide-react"
 import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
 import type { VideoPostFormValues } from "./video/video-composer"
 import type { AccountChannel } from "./target-accounts-selector"
+import { TiktokAdvancedSettings } from "./tiktok-advanced-settings"
 
 type CompositionDetailsProps = {
   register: UseFormRegister<VideoPostFormValues>
@@ -136,10 +137,10 @@ export function CompositionDetails({
         <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 transition-all duration-300">
           <div className="space-y-0.5 pr-4 text-left">
             <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
-              Customize caption per platform
+              Customize per platform
             </h4>
             <p className="text-[10px] text-slate-400 leading-normal">
-              Customize the caption specifically for each channel.
+              Customize the content and settings specifically for each channel.
             </p>
           </div>
           <button
@@ -314,6 +315,11 @@ export function CompositionDetails({
                             </button>
                           )}
                         </div>
+                        
+                        {/* TikTok Specific Settings */}
+                        {channel.platform === "tiktok" && (
+                          <TiktokAdvancedSettings register={register} watch={watch} />
+                        )}
                       </div>
                     </div>
                   </div>

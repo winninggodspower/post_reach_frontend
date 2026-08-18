@@ -6,7 +6,6 @@ import { toast } from "sonner"
 import { useForm } from "react-hook-form"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
-import { PLATFORM_OPTIONS, PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
 import { useTargetChannels } from "../../hooks/use-target-channels"
 import { usePostSubmit } from "../../hooks/use-post-submit"
 import { publishVideoPost } from "../../api/server"
@@ -14,7 +13,6 @@ import { UploadStatusModal } from "../upload-status-modal"
 
 // Sub-components
 import { TargetAccountsSelector } from "../target-accounts-selector"
-import type { AccountChannel } from "../target-accounts-selector"
 import { MediaFileUploader } from "./media-file-uploader"
 import { CompositionDetails } from "../composition-details"
 import { LivePreviewPhone } from "./live-preview-phone"
@@ -35,6 +33,12 @@ export interface VideoPostFormValues {
   facebookCaption?: string
   linkedinCaption?: string
   xCaption?: string
+  tiktokPrivacyLevel: "PUBLIC_TO_EVERYONE" | "MUTUAL_FRIENDS" | "SELF_ONLY"
+  tiktokAllowComments: boolean
+  tiktokAllowDuet: boolean
+  tiktokAllowStitch: boolean
+  tiktokBrandContentToggle: boolean
+  tiktokBrandOrganicToggle: boolean
   coverImageTimestamp?: number
 }
 
@@ -80,7 +84,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   )
 
   // React Hook Form
-  const { register, watch, setValue } = useForm<VideoPostFormValues>({
+  const { register, watch, setValue, getValues } = useForm<VideoPostFormValues>({
     defaultValues: {
       title: "",
       caption: "",
@@ -95,6 +99,12 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       facebookCaption: "",
       linkedinCaption: "",
       xCaption: "",
+      tiktokPrivacyLevel: "PUBLIC_TO_EVERYONE",
+      tiktokAllowComments: true,
+      tiktokAllowDuet: true,
+      tiktokAllowStitch: true,
+      tiktokBrandContentToggle: false,
+      tiktokBrandOrganicToggle: false,
     },
   })
 
@@ -146,7 +156,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       const activeChs = channels.filter(c => c.selected)
       const mappedPlatforms = activeChs.map(c => c.platform === "x" ? "twitter" : c.platform)
 
-      const platformSettings: Record<string, any> = {}
+      const platformSettings: Record<string, unknown> = {}
       if (mappedPlatforms.includes("youtube")) {
         platformSettings.youtube = {
           title: (customizePerPlatform ? youtubeTitle : title) || title,
@@ -169,6 +179,19 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         }
         if (mappedPlatforms.includes("twitter") && xCaption) {
           platformSettings.twitter = { caption: xCaption }
+        }
+      }
+
+      if (mappedPlatforms.includes("tiktok")) {
+        const vals = getValues()
+        platformSettings.tiktok = {
+          ...(platformSettings.tiktok || {}),
+          privacy_level: vals.tiktokPrivacyLevel,
+          disable_comment: !vals.tiktokAllowComments,
+          disable_duet: !vals.tiktokAllowDuet,
+          disable_stitch: !vals.tiktokAllowStitch,
+          brand_content_toggle: vals.tiktokBrandContentToggle,
+          brand_organic_toggle: vals.tiktokBrandOrganicToggle,
         }
       }
 
@@ -237,7 +260,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
     }
   }
 
-  const onPublishClick = async (action: "schedule" | "now") => {
+  const onPublishClick = (action: "schedule" | "now") => {
     const activeChs = channels.filter(c => c.selected)
     if (activeChs.length === 0) {
       toast.error("No channels selected", {
