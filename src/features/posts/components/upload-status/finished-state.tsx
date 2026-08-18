@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Check, ExternalLink, X, AlertTriangle } from "lucide-react"
-import { getPlatformMeta, getPostUrl } from "./utils"
+import { getPlatformMeta } from "./utils"
 import { PreviewData } from "./types"
 import { PlatformPostStatus } from "../../api/server"
 import { PostPreview } from "./post-preview"
@@ -34,7 +34,7 @@ export function FinishedState({
       id: p.id,
       platform: p.platform,
       status: p.status,
-      url: getPostUrl(p.platform, p.platform_post_id, contentType),
+      url: p.post_url,
       meta: getPlatformMeta(p.platform)
     }))
     : selectedPlatforms.map((p, idx) => ({

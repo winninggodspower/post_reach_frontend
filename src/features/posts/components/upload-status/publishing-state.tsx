@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Check, X as XIcon, RefreshCw, MoreHorizontal } from "lucide-react"
-import { getPlatformMeta, getPostUrl } from "./utils"
+import { getPlatformMeta } from "./utils"
 import { PreviewData } from "./types"
 import { usePostStatus } from "../../hooks/use-post-status"
 import { PlatformPostStatus } from "../../api/server"
@@ -39,7 +39,7 @@ export function PublishingState({
       id: p.id,
       platform: p.platform,
       status: p.status,
-      url: getPostUrl(p.platform, p.platform_post_id, contentType),
+      url: p.post_url,
       meta: getPlatformMeta(p.platform)
     }))
     : selectedPlatforms.map((p, idx) => ({
@@ -50,23 +50,12 @@ export function PublishingState({
       meta: getPlatformMeta(p)
     }));
 
-  const syncProgress = React.useMemo(() => {
-    if (displayPlatforms.length === 0) return 0
-    let total = 0
-    displayPlatforms.forEach(p => {
-      if (p.status === "posted" || p.status === "scheduled" || p.status === "failed") total += 100
-      else if (p.status === "uploading") total += 50
-      else total += 10 // pending
-    })
-    return Math.round(total / displayPlatforms.length)
-  }, [displayPlatforms])
-
   return (
     <div className="flex flex-col p-8 pt-10 relative">
       <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
         <XIcon className="w-5 h-5" />
       </button>
-      
+
       <div className="space-y-2 mb-6">
         <h2 className="text-2xl font-bold text-slate-900">Publishing Your Post</h2>
         <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -102,7 +91,7 @@ export function PublishingState({
             const isFailed = p.status === "failed"
             const isUploadingPlatform = p.status === "uploading"
             const isProcessingPlatform = p.status === "processing"
-            
+
             return (
               <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
                 <div className="flex items-center gap-3">
@@ -111,16 +100,15 @@ export function PublishingState({
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-slate-900">{p.meta.label}</span>
-                    <span className={`text-[11px] font-medium ${
-                      isRealSuccess ? 'text-emerald-600' : 
-                      isFailed ? 'text-rose-500' : 
-                      isUploadingPlatform ? 'text-slate-500 italic' : 
-                      isProcessingPlatform ? 'text-slate-500 italic' : 'text-slate-400'
-                    }`}>
-                      {isRealSuccess ? 'Success' : 
-                       isFailed ? 'Failed' : 
-                       isUploadingPlatform ? 'Uploading media...' : 
-                       isProcessingPlatform ? 'Processing on platform...' : 'Processing...'}
+                    <span className={`text-[11px] font-medium ${isRealSuccess ? 'text-emerald-600' :
+                        isFailed ? 'text-rose-500' :
+                          isUploadingPlatform ? 'text-slate-500 italic' :
+                            isProcessingPlatform ? 'text-slate-500 italic' : 'text-slate-400'
+                      }`}>
+                      {isRealSuccess ? 'Success' :
+                        isFailed ? 'Failed' :
+                          isUploadingPlatform ? 'Uploading media...' :
+                            isProcessingPlatform ? 'Processing on platform...' : 'Processing...'}
                     </span>
                   </div>
                 </div>

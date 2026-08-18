@@ -18,6 +18,7 @@ export type PlatformPostStatus = {
   status: "pending" | "scheduled" | "uploading" | "processing" | "posted" | "failed"
   platform_post_id: string | null
   error_message: string | null
+  post_url: string | null
   title: string
   caption: string
   created_at: string
@@ -160,6 +161,7 @@ export type CalendarItemPlatform = {
   status: "scheduled" | "posted" | "failed" | "pending" | "uploading" | "processing"
   platform_post_id: string | null
   error_message: string | null
+  post_url: string | null
   title: string
   caption: string
   created_at: string
