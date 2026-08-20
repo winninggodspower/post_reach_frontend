@@ -7,6 +7,7 @@ import { GridPattern } from "@/components/ui/grid-pattern"
 import FeaturesStack from "@/features/landing/components/features-stack"
 import { FaqSection } from "@/features/landing/components/faq-section"
 import { CtaFooter } from "@/features/landing/components/cta-footer"
+import { WaitlistForm } from "@/features/landing/components/waitlist-form"
 
 export default function Home() {
   return (
@@ -28,14 +29,15 @@ export default function Home() {
             Save hours every week by managing all your brands and social channels simultaneously
           </p>
 
-          <div className="mt-10">
-            <Link
+          <div className="mt-10 w-full">
+            <WaitlistForm />
+            {/* <Link
               href="/signup"
               className="btn-primary hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-orange-300 inline-flex items-center gap-1.5"
             >
               <span>Start For Free</span>
               <ArrowRight className="size-4" />
-            </Link>
+            </Link> */}
           </div>
         </div>
       </section>
