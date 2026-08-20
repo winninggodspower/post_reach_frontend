@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, Film, Image as ImageIcon, FileText, CheckCircle2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, Film, Image as ImageIcon, FileText } from "lucide-react"
 
 import { getCalendarItems } from "@/features/posts/api/server"
 import type { CalendarItem } from "@/features/posts/api/server"
-import { ModalShell } from "@/components/ui/modal-shell"
-
+import { CalendarPostDetails } from "./calendar-post-details"
+import { getPlatformMeta } from "@/features/posts/components/upload-status/utils"
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 const MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -196,7 +196,7 @@ export function CalendarView() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 md:px-8 py-10 space-y-8 animate-fade-in text-slate-805 dark:text-slate-200 flex flex-col min-h-screen">
+    <main className="mx-auto w-full max-w-6xl px-6 md:px-8 py-10 space-y-8 animate-fade-in text-slate-805 dark:text-slate-200 flex flex-col">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-4">
@@ -247,7 +247,7 @@ export function CalendarView() {
       </div>
 
       {/* Grid Container */}
-      <div className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl overflow-hidden shadow-sm flex flex-col min-h-[600px]">
+      <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl overflow-hidden shadow-sm flex flex-col">
         {/* Days Header */}
         <div className="grid grid-cols-7 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 shrink-0">
           {WEEKDAYS.map((day, idx) => {
@@ -265,7 +265,7 @@ export function CalendarView() {
 
         {/* Calendar Body */}
         {viewMode === "week" ? (
-          <div className="flex-1 grid grid-cols-7 divide-x divide-slate-100 dark:divide-slate-800/80 overflow-y-auto">
+          <div className="grid grid-cols-7 divide-x divide-slate-100 dark:divide-slate-800/80 overflow-y-auto min-h-[400px]">
             {daysOfWeek.map((date, idx) => {
               const posts = getPostsForDate(date)
               const today = isToday(date)
@@ -291,12 +291,28 @@ export function CalendarView() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1">
-                          {post.platforms.map(p => (
-                            <span key={p.id} className="text-[8px] font-extrabold uppercase bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded-sm text-slate-700 dark:text-slate-300">
-                              {p.platform.slice(0, 2)}
-                            </span>
-                          ))}
+                        <div className="flex items-center -space-x-1.5 mt-1">
+                          {post.platforms.map((p, i) => {
+                            const meta = getPlatformMeta(p.platform)
+                            return (
+                              <div 
+                                key={p.id} 
+                                className={`relative z-10 w-5 h-5 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm overflow-hidden ring-1 ring-slate-100 dark:ring-slate-800 ${
+                                  p.post_url ? "cursor-pointer hover:z-20 hover:scale-110 transition-transform" : ""
+                                }`}
+                                style={{ zIndex: post.platforms.length - i }}
+                                title={p.post_url ? `View on ${meta.label}` : meta.label}
+                                onClick={(e) => {
+                                  if (p.post_url) {
+                                    e.stopPropagation()
+                                    window.open(p.post_url, "_blank")
+                                  }
+                                }}
+                              >
+                                <img src={meta.icon} alt={meta.label} className="w-3 h-3 object-contain" />
+                              </div>
+                            )
+                          })}
                         </div>
 
                         <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 line-clamp-2 leading-snug">
@@ -310,7 +326,7 @@ export function CalendarView() {
             })}
           </div>
         ) : (
-          <div className="flex-1 grid grid-cols-7 auto-rows-fr divide-y divide-x divide-slate-100 dark:divide-slate-800/80">
+          <div className="grid grid-cols-7 auto-rows-[minmax(120px,auto)] divide-y divide-x divide-slate-100 dark:divide-slate-800/80">
             {monthDays.map((item, idx) => {
               const posts = getPostsForDate(item.date)
               const today = isToday(item.date)
@@ -333,7 +349,7 @@ export function CalendarView() {
                         <button
                           key={post.id}
                           onClick={() => setSelectedPost(post)}
-                          className={`text-left text-[9px] md:text-[10px] font-bold px-1.5 md:px-2 py-1 rounded truncate transition cursor-pointer shadow-xs ${post.content_type === "video" ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50 hover:bg-purple-200" :
+                          className={`text-left text-[10px] md:text-[11px] font-bold px-2 py-1.5 rounded truncate transition cursor-pointer shadow-xs ${post.content_type === "video" ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50 hover:bg-purple-200" :
                               post.content_type === "photo" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-200" :
                                 "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 hover:bg-blue-200"
                             }`}
@@ -353,57 +369,11 @@ export function CalendarView() {
         )}
       </div>
 
-      {/* Post Details Modal */}
-      <ModalShell
-        isOpen={!!selectedPost}
+      {/* Post Details Drawer */}
+      <CalendarPostDetails
+        post={selectedPost}
         onClose={() => setSelectedPost(null)}
-        title="Post Details"
-      >
-        {selectedPost && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border uppercase tracking-wider ${selectedPost.content_type === "video" ? "bg-purple-50 border-purple-200 text-purple-700 dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-400" :
-                  selectedPost.content_type === "photo" ? "bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400" :
-                    "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400"
-                }`}>
-                {getContentTypeIcon(selectedPost.content_type)}
-                {selectedPost.content_type}
-              </span>
-              <span className="text-xs font-bold text-slate-400">
-                {new Date(selectedPost.scheduled_at || selectedPost.created_at).toLocaleDateString(undefined, {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-
-            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 break-words leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-              {selectedPost.caption}
-            </p>
-
-            <div className="pt-2 flex items-center justify-between text-xs text-slate-500 font-bold">
-              <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
-                <Clock className="size-3.5" />
-                {new Date(selectedPost.scheduled_at || selectedPost.created_at).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {selectedPost.platforms.map((plat) => (
-                  <span
-                    key={plat.id}
-                    className="uppercase font-bold tracking-wider text-[10px] bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 rounded px-2 py-1 shadow-xs"
-                  >
-                    {plat.platform}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </ModalShell>
+      />
     </main>
   )
 }
