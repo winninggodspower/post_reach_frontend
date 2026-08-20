@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
     // 1. Notify you (the admin)
     const adminNotification = resend.emails.send({
-      from: 'PostGlee <onboarding@resend.dev>', // Note: Once you verify your domain, change this to something like 'PostGlee <hello@postglee.com>'
+      from: 'PostGlee <hello@postglee.com>', // Note: Once you verify your domain, change this to something like 'PostGlee <hello@postglee.com>'
       to: 'winninggodspower@gmail.com',
       subject: 'New Waitlist Signup',
       html: `<p>You have a new waitlist signup: <strong>${email}</strong>!</p>`
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
     // 3. Send confirmation to the user
     const userConfirmation = resend.emails.send({
-      from: 'PostGlee <onboarding@resend.dev>', // Must be from your verified domain (e.g., PostGlee <hello@postglee.com>) to send to arbitrary emails
+      from: 'PostGlee <hello@postglee.com>', // Must be from your verified domain (e.g., PostGlee <hello@postglee.com>) to send to arbitrary emails
       to: email,
       subject: 'Welcome to the PostGlee Waitlist! 🎉',
       react: WaitlistEmail(),
