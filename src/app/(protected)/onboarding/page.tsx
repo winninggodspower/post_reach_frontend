@@ -1,7 +1,7 @@
 import { OnboardingFlow } from "@/features/onboarding/components/onboarding-flow"
 
 export const metadata = {
-  title: "Onboarding | PostReach",
+  title: "Onboarding | PostGlee",
   description: "Set up your workspace, role, and brand details before entering the dashboard.",
 }
 

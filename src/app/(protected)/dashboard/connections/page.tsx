@@ -1,7 +1,7 @@
 import { ConnectionsView } from "@/features/connections/components/connections-view"
 
 export const metadata = {
-  title: "Connections | PostReach",
+  title: "Connections | PostGlee",
   description: "Connect and manage your social media channel integrations.",
 }
 

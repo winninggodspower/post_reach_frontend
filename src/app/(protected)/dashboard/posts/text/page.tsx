@@ -1,7 +1,7 @@
 import { TextComposer } from "@/features/posts/components/text/text-composer"
 
 export const metadata = {
-  title: "Create Text Post | PostReach",
+  title: "Create Text Post | PostGlee",
   description: "Compose, schedule, and preview your social media text-only posts.",
 }
 

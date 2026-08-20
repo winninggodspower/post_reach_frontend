@@ -26,7 +26,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata = {
-  title: "PostGlee | Social media management made simple",
+  title: "PostGlee | Social scheduling and publishing made simple",
   description: "Plan, schedule, and post across multiple social media apps from one workspace.",
 };
 

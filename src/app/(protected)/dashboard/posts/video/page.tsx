@@ -1,7 +1,7 @@
 import { VideoComposer } from "@/features/posts/components/video/video-composer"
 
 export const metadata = {
-  title: "Create Video Post | PostReach",
+  title: "Create Video Post | PostGlee",
   description: "Compose, schedule, and preview your social media short-form video posts.",
 }
 
