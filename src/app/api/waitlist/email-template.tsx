@@ -48,7 +48,7 @@ export const WaitlistEmail = () => (
             <Section className="mb-10 mt-8">
               <Link
                 href="https://postglee.com"
-                className="bg-orange-500 rounded-md text-white text-[16px] font-semibold px-6 py-3 no-underline inline-block"
+                className="bg-orange-500 rounded-full text-white text-[16px] font-semibold px-8 py-3.5 no-underline inline-block"
               >
                 Visit PostGlee
               </Link>
