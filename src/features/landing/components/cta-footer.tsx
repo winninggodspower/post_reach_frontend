@@ -81,7 +81,7 @@ export function CtaFooter() {
             PostGlee
           </div>
           {/* Fading bottom overlay */}
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-slate-950 to-transparent" />
         </div>
 
       </div>

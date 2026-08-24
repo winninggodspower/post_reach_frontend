@@ -21,7 +21,7 @@ interface StepProps {
 function Step({ number, title, description }: StepProps) {
   return (
     <div className="flex gap-4">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-dark to-accent-brand text-sm font-bold text-white shadow-sm">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-accent-dark to-accent-brand text-sm font-bold text-white shadow-sm">
         {number}
       </div>
       <div>
@@ -64,8 +64,8 @@ export default function DataDeletionPage() {
       <Navbar />
 
       {/* Hero */}
-      <div className="border-b border-black/10 bg-gradient-to-b from-orange-50 to-white px-6 py-16 text-center">
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-dark to-accent-brand shadow-md">
+      <div className="border-b border-black/10 bg-linear-to-b from-orange-50 to-white px-6 py-16 text-center">
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-accent-dark to-accent-brand shadow-md">
           <Trash2 className="h-7 w-7 text-white" />
         </div>
         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-accent-brand">
@@ -170,7 +170,7 @@ export default function DataDeletionPage() {
 
         {/* Email CTA */}
         <section>
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-accent-dark to-accent-brand px-8 py-10 text-center text-white shadow-lg">
+          <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-accent-dark to-accent-brand px-8 py-10 text-center text-white shadow-lg">
             {/* Decorative circles */}
             <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10" />
             <div className="pointer-events-none absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-white/10" />

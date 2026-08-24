@@ -47,7 +47,7 @@ export function ScheduledContent({ posts, hideTitle = false }: ScheduledContentP
                     className="size-12 sm:size-16 rounded-xl object-cover border border-slate-200 shrink-0 shadow-sm"
                   />
                 ) : (
-                  <div className="size-12 sm:size-16 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center shrink-0 shadow-inner">
+                  <div className="size-12 sm:size-16 rounded-xl bg-linear-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center shrink-0 shadow-inner">
                     <FileText className="size-5 sm:size-6 text-slate-400 drop-shadow-sm" />
                   </div>
                 )}

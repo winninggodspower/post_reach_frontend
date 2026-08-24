@@ -89,7 +89,7 @@ function AnalyticsVisual() {
         {[30, 45, 25, 60, 40, 80, 50].map((height, i) => (
           <div
             key={i}
-            className="w-full rounded-t bg-gradient-to-t from-emerald-500/20 to-teal-400/50"
+            className="w-full rounded-t bg-linear-to-t from-emerald-500/20 to-teal-400/50"
             style={{ height: `${height}%` }}
           />
         ))}
@@ -139,8 +139,8 @@ export function AuthCarousel() {
   return (
     <div className="relative h-full w-full overflow-hidden bg-slate-950 flex flex-col items-center justify-center">
       {/* Animated gradient backgrounds */}
-      <div className="absolute -top-[20%] -left-[10%] h-[70%] w-[70%] animate-[spin_20s_linear_infinite] rounded-full bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-transparent blur-[100px]" />
-      <div className="absolute -bottom-[20%] -right-[10%] h-[70%] w-[70%] animate-[spin_25s_linear_infinite_reverse] rounded-full bg-gradient-to-tl from-rose-500/20 via-orange-500/10 to-transparent blur-[100px]" />
+      <div className="absolute -top-[20%] -left-[10%] h-[70%] w-[70%] animate-[spin_20s_linear_infinite] rounded-full bg-linear-to-br from-indigo-500/20 via-purple-500/10 to-transparent blur-[100px]" />
+      <div className="absolute -bottom-[20%] -right-[10%] h-[70%] w-[70%] animate-[spin_25s_linear_infinite_reverse] rounded-full bg-linear-to-tl from-rose-500/20 via-orange-500/10 to-transparent blur-[100px]" />
       
       {/* Mesh grid overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_20%,transparent_100%)]" />

@@ -176,6 +176,7 @@ export type CalendarItem = {
   platforms: CalendarItemPlatform[]
   thumbnail_url?: string | null
   video_thumbnail_offset?: number | null
+  media_urls?: string[] | null
   created_at: string
   updated_at: string
 }

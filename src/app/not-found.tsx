@@ -7,9 +7,9 @@ export default function NotFound() {
       {/* ── Background decorative elements ── */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         {/* Gradient glow top-right */}
-        <div className="absolute -top-40 right-0 size-96 rounded-full bg-gradient-to-br from-accent-brand/15 to-accent-dark/10 blur-3xl" />
+        <div className="absolute -top-40 right-0 size-96 rounded-full bg-linear-to-br from-accent-brand/15 to-accent-dark/10 blur-3xl" />
         {/* Gradient glow bottom-left */}
-        <div className="absolute -bottom-40 left-0 size-80 rounded-full bg-gradient-to-tr from-accent-brand/10 to-transparent blur-3xl" />
+        <div className="absolute -bottom-40 left-0 size-80 rounded-full bg-linear-to-tr from-accent-brand/10 to-transparent blur-3xl" />
 
         {/* Grid pattern overlay */}
         <div
@@ -78,13 +78,13 @@ export default function NotFound() {
         </p>
 
         {/* Divider */}
-        <div className="my-8 h-px w-16 bg-gradient-to-r from-transparent via-accent-brand/40 to-transparent" />
+        <div className="my-8 h-px w-16 bg-linear-to-r from-transparent via-accent-brand/40 to-transparent" />
 
         {/* Actions */}
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button
             asChild
-            className="bg-gradient-to-r from-accent-dark to-accent-brand text-white shadow-lg shadow-accent-brand/25 hover:shadow-accent-brand/40"
+            className="bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-lg shadow-accent-brand/25 hover:shadow-accent-brand/40"
           >
             <Link href="/">Go to home</Link>
           </Button>

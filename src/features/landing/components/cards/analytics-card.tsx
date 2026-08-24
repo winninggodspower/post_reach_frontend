@@ -37,7 +37,7 @@ export function AnalyticsCard() {
         <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-center w-full max-w-[520px] animate-float-1">
           
           {/* Video Thumbnail Card */}
-          <div className="w-full sm:w-[170px] h-[130px] sm:h-auto rounded-2xl bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-950 border border-white/10 relative overflow-hidden flex flex-col justify-between p-3.5 shadow-lg shrink-0 text-left">
+          <div className="w-full sm:w-[170px] h-[130px] sm:h-auto rounded-2xl bg-linear-to-br from-indigo-900 via-purple-900 to-indigo-950 border border-white/10 relative overflow-hidden flex flex-col justify-between p-3.5 shadow-lg shrink-0 text-left">
             <div className="absolute inset-0 bg-black/20 z-0" />
             
             {/* Play button overlay */}
