@@ -40,9 +40,9 @@ export function UploadStatusModal({
   const isUploading = uploadProgress < 100 && postType !== "text"
   
   const isFinished = React.useMemo(() => {
-    if (isScheduled) return postType === "text" ? !!postId : uploadProgress === 100
+    if (isScheduled) return !!postId
     return finalStatuses !== null
-  }, [isScheduled, uploadProgress, postType, postId, finalStatuses])
+  }, [isScheduled, postId, finalStatuses])
 
   const isPublishing = !isUploading && !isFinished
 
@@ -58,7 +58,7 @@ export function UploadStatusModal({
 
   // Trigger confetti when at least one platform successfully publishes or when post is successfully scheduled
   React.useEffect(() => {
-    const isScheduledSuccess = isScheduled && (postType === "text" ? !!postId : uploadProgress === 100)
+    const isScheduledSuccess = isScheduled && !!postId
     const isNormalSuccess = !isScheduled && isFinished && finalStatuses !== null && finalStatuses.some((p) => p.status === "posted")
 
     if ((isScheduledSuccess || isNormalSuccess) && !confettiFiredRef.current) {

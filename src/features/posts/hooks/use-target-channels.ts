@@ -56,6 +56,7 @@ export function useTargetChannels(connectedAccounts: ConnectedAccount[] | undefi
 
   return {
     channels,
+    setChannels,
     toggleChannel,
     selectedChannels,
   }

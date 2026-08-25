@@ -197,3 +197,30 @@ export const getCalendarItems = async (
   const { data } = await api.get<CalendarResponse>(POSTS_ENDPOINTS.calendar, { params })
   return data
 }
+
+export const fetchPostById = async (id: string): Promise<{ success: boolean; data: CalendarItem }> => {
+  const { data } = await api.get<{ success: boolean; data: CalendarItem }>(`/content/posts/${id}/`)
+  return data
+}
+
+export const updateScheduledPost = async (
+  id: string,
+  payload: { caption: string; platforms: string[]; platformSettings?: any; scheduledAt?: string }
+): Promise<{ success: boolean; data: any }> => {
+  const jsonPayload: any = {
+    caption: payload.caption,
+    platforms: payload.platforms,
+  }
+
+  if (payload.scheduledAt) {
+    jsonPayload.scheduled_at = payload.scheduledAt
+  }
+
+  if (payload.platformSettings) {
+    jsonPayload.platform_settings = payload.platformSettings
+  }
+
+  const { data } = await api.patch(`/content/posts/${id}/`, jsonPayload)
+
+  return data
+}

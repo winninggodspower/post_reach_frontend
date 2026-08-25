@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
-import { Clock, Film, Image as ImageIcon, FileText } from "lucide-react"
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Clock, Film, Image as ImageIcon, FileText, Trash2, Edit2 } from "lucide-react"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 import type { CalendarItem } from "@/features/posts/api/server"
 import { getPlatformMeta } from "@/features/posts/components/upload-status/utils"
 
@@ -11,6 +13,7 @@ type CalendarPostDetailsProps = {
 
 export function CalendarPostDetails({ post, onClose }: CalendarPostDetailsProps) {
   const [mediaError, setMediaError] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     setMediaError(false)
@@ -27,13 +30,21 @@ export function CalendarPostDetails({ post, onClose }: CalendarPostDetailsProps)
     }
   }
 
+  const isEditable = post?.platforms.some(p => p.status === 'scheduled' || p.status === 'pending')
+
   return (
     <Sheet open={!!post} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent aria-describedby="calendar-post-description" side="right" className="w-[400px] sm:max-w-md overflow-y-auto p-0 flex flex-col border-l border-slate-200 dark:border-slate-800">
-        <span id="calendar-post-description" className="sr-only">Detailed view of the selected calendar post</span>
+      <SheetContent side="right" className="w-[400px] sm:max-w-md p-0 flex flex-col border-l border-slate-200 dark:border-slate-800 overflow-hidden">
         
         {post && (
-          <div className="flex flex-col h-full bg-white dark:bg-slate-950">
+          <>
+            {/* Visually hidden header for Radix accessibility */}
+            <SheetHeader className="sr-only">
+              <SheetTitle>Post Details</SheetTitle>
+              <SheetDescription>Detailed view of the selected calendar post</SheetDescription>
+            </SheetHeader>
+
+            <div className="flex-1 flex flex-col bg-white dark:bg-slate-950 overflow-y-auto">
             {/* Edge-to-Edge Media Header */}
             {(!mediaError && (post.thumbnail_url || (post.media_urls && post.media_urls.length > 0))) ? (
               <div className="relative w-full bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
@@ -81,6 +92,7 @@ export function CalendarPostDetails({ post, onClose }: CalendarPostDetailsProps)
                // Header if no media
                <SheetHeader className="pt-12 px-6 sm:px-8 pb-2">
                  <SheetTitle className="text-xl">Post Details</SheetTitle>
+                 <SheetDescription className="sr-only">Detailed view of the selected calendar post</SheetDescription>
                </SheetHeader>
             )}
 
@@ -180,7 +192,36 @@ export function CalendarPostDetails({ post, onClose }: CalendarPostDetailsProps)
                 </div>
               </div>
             </div>
-          </div>
+            
+            </div>
+            
+            {isEditable && (
+              <div className="p-4 sm:p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 shrink-0 flex items-center justify-between gap-4">
+                <Button 
+                  variant="outline" 
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:border-red-900/30 dark:hover:bg-red-950/30 shadow-sm"
+                  onClick={() => {
+                    alert(`Simulating deletion for post ${post.id}`)
+                    onClose()
+                  }}
+                >
+                  <Trash2 className="size-4 mr-2" />
+                  Delete Post
+                </Button>
+                <Button 
+                  className="flex-1 bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
+                  onClick={() => {
+                    const routeType = post.content_type === "photo" ? "image" : post.content_type
+                    router.push(`/dashboard/posts/${routeType}/${post.id}/edit`)
+                    onClose()
+                  }}
+                >
+                  <Edit2 className="size-4 mr-2" />
+                  Edit Post
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </SheetContent>
     </Sheet>

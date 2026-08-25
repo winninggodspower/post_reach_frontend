@@ -13,6 +13,7 @@ type CompositionDetailsProps = {
   setValue: UseFormSetValue<VideoPostFormValues>
   watch: UseFormWatch<VideoPostFormValues>
   channels: AccountChannel[]
+  postType?: "video" | "photo" | "text"
 }
 
 const getPlatformIcon = (platformId: string) => {
@@ -37,6 +38,7 @@ export function CompositionDetails({
   setValue,
   watch,
   channels,
+  postType = "video",
 }: CompositionDetailsProps) {
   const customizePerPlatform = watch("customizePerPlatform")
   const caption = watch("caption") || ""
@@ -317,7 +319,7 @@ export function CompositionDetails({
                         </div>
                         
                         {/* TikTok Specific Settings */}
-                        {channel.platform === "tiktok" && (
+                        {channel.platform === "tiktok" && postType === "video" && (
                           <TiktokAdvancedSettings register={register} watch={watch} />
                         )}
                       </div>

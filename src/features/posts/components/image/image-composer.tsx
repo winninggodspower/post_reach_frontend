@@ -8,7 +8,8 @@ import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
 import { useTargetChannels } from "../../hooks/use-target-channels"
 import { usePostSubmit } from "../../hooks/use-post-submit"
-import { publishImagePost } from "../../api/server"
+import { publishImagePost, fetchPostById, updateScheduledPost } from "../../api/server"
+import { Loader2, Lock } from "lucide-react"
 import { UploadStatusModal } from "../upload-status-modal"
 
 // Sub-components
@@ -19,13 +20,13 @@ import type { VideoPostFormValues } from "../video/video-composer"
 import { ImagePreviewPhone } from "./image-preview-phone"
 import { SchedulerWidget } from "../scheduler-widget"
 
-export function ImageComposer() {
+export function ImageComposer({ postId }: { postId?: string }) {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const brand = user?.brand
 
   // Target Accounts using hook
-  const { channels, toggleChannel, selectedChannels } = useTargetChannels(
+  const { channels, setChannels, toggleChannel, selectedChannels } = useTargetChannels(
     brand?.connected_accounts,
     ["facebook", "linkedin", "twitter", "x", "instagram", "tiktok"]
   )
@@ -84,6 +85,57 @@ export function ImageComposer() {
     },
   })
 
+  const [isFetchingPost, setIsFetchingPost] = React.useState(false)
+
+  React.useEffect(() => {
+    if (postId) {
+      setIsFetchingPost(true)
+      fetchPostById(postId).then(({ data }) => {
+        setValue("caption", data.caption)
+        setValue("isScheduled", true)
+        
+        if (data.scheduled_at) {
+          const dt = new Date(data.scheduled_at)
+          setValue("scheduleDate", dt.toISOString().split('T')[0])
+          setValue("scheduleTime", dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }))
+        }
+        
+        if (data.media_urls && data.media_urls.length > 0) {
+          setImageSrcs(data.media_urls)
+        } else if (data.thumbnail_url) {
+          setImageSrcs([data.thumbnail_url])
+        }
+        
+        setChannels(prev => prev.map(c => ({
+          ...c,
+          selected: data.platforms.some(p => p.platform.toLowerCase() === c.platform.toLowerCase())
+        })))
+        
+        let hasCustomCaptions = false
+        data.platforms.forEach(p => {
+          const plat = p.platform.toLowerCase()
+          if (p.caption && p.caption !== data.caption) {
+            hasCustomCaptions = true
+            if (plat === 'youtube') setValue('youtubeCaption', p.caption)
+            if (plat === 'tiktok') setValue('tiktokCaption', p.caption)
+            if (plat === 'instagram') setValue('instagramCaption', p.caption)
+            if (plat === 'facebook') setValue('facebookCaption', p.caption)
+            if (plat === 'linkedin') setValue('linkedinCaption', p.caption)
+            if (plat === 'twitter' || plat === 'x') setValue('xCaption', p.caption)
+          }
+        })
+        if (hasCustomCaptions) {
+          setValue('customizePerPlatform', true)
+        }
+      }).catch(err => {
+        toast.error("Failed to load post")
+        router.push("/dashboard/calendar")
+      }).finally(() => {
+        setIsFetchingPost(false)
+      })
+    }
+  }, [postId, setValue, setChannels, router])
+
   // Watch form fields for live preview
   const title = watch("title")
   const caption = watch("caption")
@@ -135,17 +187,13 @@ export function ImageComposer() {
         }
       }
 
-      if (mappedPlatforms.includes("tiktok")) {
-        const vals = getValues()
-        platformSettings.tiktok = {
-          ...(platformSettings.tiktok || {}),
-          privacy_level: vals.tiktokPrivacyLevel,
-          disable_comment: !vals.tiktokAllowComments,
-          disable_duet: !vals.tiktokAllowDuet,
-          disable_stitch: !vals.tiktokAllowStitch,
-          brand_content_toggle: vals.tiktokBrandContentToggle,
-          brand_organic_toggle: vals.tiktokBrandOrganicToggle,
-        }
+      if (postId) {
+        return updateScheduledPost(postId, {
+          caption: caption || "",
+          platforms: mappedPlatforms,
+          platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
+          scheduledAt,
+        })
       }
 
       return publishImagePost({
@@ -174,7 +222,7 @@ export function ImageComposer() {
       return
     }
 
-    if (imageFiles.length === 0) {
+    if (imageFiles.length === 0 && !postId) {
       toast.error("Images are missing", {
         description: "Please upload at least one image to compose your post.",
       })
@@ -188,6 +236,12 @@ export function ImageComposer() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-20 py-6 md:py-10 animate-fade-in text-slate-800 dark:text-slate-200">
+      
+      {isFetchingPost && (
+        <div className="absolute inset-0 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center rounded-xl">
+          <Loader2 className="size-8 text-accent-brand animate-spin" />
+        </div>
+      )}
 
       {/* Back button and title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -201,10 +255,10 @@ export function ImageComposer() {
           </button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              Create image post
+              {postId ? "Edit scheduled post" : "Create image post"}
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Draft and schedule multi-platform image and carousel posts
+              {postId ? "Update caption, time, or platforms" : "Draft and schedule multi-platform image and carousel posts"}
             </p>
           </div>
         </div>
@@ -212,11 +266,11 @@ export function ImageComposer() {
         {/* Action Header publish shortcut */}
         <div className="flex items-center gap-2">
           <button
-            disabled={isPublishing}
+            disabled={isPublishing || isFetchingPost}
             onClick={() => onPublishClick(isScheduled ? "schedule" : "now")}
             className="px-5 py-2 text-xs font-semibold rounded-xl bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-md hover:brightness-105 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPublishing ? "Publishing..." : (isScheduled ? "Schedule Post" : "Publish Now")}
+            {isPublishing ? (postId ? "Updating..." : "Publishing...") : (postId ? "Update Post" : (isScheduled ? "Schedule Post" : "Publish Now"))}
           </button>
         </div>
       </div>
@@ -233,12 +287,34 @@ export function ImageComposer() {
         {/* Left Column - Form fields */}
         <div className={imageSrcs.length > 0 ? "lg:col-span-7 space-y-6" : "lg:col-span-8 space-y-6"}>
 
-          <ImageFilesUploader
-            imageFiles={imageFiles}
-            imageSrcs={imageSrcs}
-            onFileChange={handleFileChange}
-            onRemoveImage={handleRemoveImage}
-          />
+          {postId ? (
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 overflow-hidden shadow-sm">
+              <div className="bg-amber-50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-900/30 px-4 py-2.5 flex items-center gap-2">
+                <Lock className="size-4 text-amber-600 dark:text-amber-500 shrink-0" />
+                <p className="text-sm">
+                  <span className="font-semibold text-amber-800 dark:text-amber-500">Media Locked: </span>
+                  <span className="text-amber-700/90 dark:text-amber-500/90">Media cannot be changed on scheduled posts.</span>
+                </p>
+              </div>
+              
+              <div className="p-8 flex gap-4 overflow-x-auto w-full items-center justify-center relative">
+                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(68,64,60,0.02)_25%,rgba(68,64,60,0.02)_50%,transparent_50%,transparent_75%,rgba(68,64,60,0.02)_75%,rgba(68,64,60,0.02)_100%)] bg-[length:20px_20px] dark:bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_25%,rgba(255,255,255,0.02)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.02)_75%,rgba(255,255,255,0.02)_100%)] pointer-events-none" />
+                {imageSrcs.map((src, idx) => (
+                  <img key={idx} src={src} alt="Post media" className="h-32 w-auto object-cover rounded-xl shadow-md border border-slate-200 dark:border-slate-700 opacity-95 transition-all" />
+                ))}
+                {imageSrcs.length === 0 && (
+                  <div className="h-32 w-32 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                )}
+              </div>
+            </div>
+          ) : (
+            <ImageFilesUploader
+              imageFiles={imageFiles}
+              imageSrcs={imageSrcs}
+              onFileChange={handleFileChange}
+              onRemoveImage={handleRemoveImage}
+            />
+          )}
 
           {imageSrcs.length > 0 && (
             <CompositionDetails
@@ -246,6 +322,7 @@ export function ImageComposer() {
               setValue={setValue as any}
               watch={watch as any}
               channels={channels}
+              postType="photo"
             />
           )}
         </div>
