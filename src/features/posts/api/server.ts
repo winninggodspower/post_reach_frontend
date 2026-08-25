@@ -224,3 +224,8 @@ export const updateScheduledPost = async (
 
   return data
 }
+
+export const deleteScheduledPost = async (id: string): Promise<{ success: boolean; data: any }> => {
+  const { data } = await api.delete(`/content/posts/${id}/`)
+  return data
+}

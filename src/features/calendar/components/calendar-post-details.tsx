@@ -1,22 +1,28 @@
 import { useEffect, useState } from "react"
-import { Clock, Film, Image as ImageIcon, FileText, Trash2, Edit2 } from "lucide-react"
+import { Clock, Film, Image as ImageIcon, FileText, Trash2, Edit2, Loader2 } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import type { CalendarItem } from "@/features/posts/api/server"
+import { deleteScheduledPost } from "@/features/posts/api/server"
 import { getPlatformMeta } from "@/features/posts/components/upload-status/utils"
+import { toast } from "sonner"
 
 type CalendarPostDetailsProps = {
   post: CalendarItem | null
   onClose: () => void
+  onDelete?: (id: string) => void
 }
 
-export function CalendarPostDetails({ post, onClose }: CalendarPostDetailsProps) {
+export function CalendarPostDetails({ post, onClose, onDelete }: CalendarPostDetailsProps) {
   const [mediaError, setMediaError] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     setMediaError(false)
+    setIsDeleting(false)
   }, [post])
   const getContentTypeIcon = (type: CalendarItem["content_type"]) => {
     switch (type) {
@@ -197,17 +203,52 @@ export function CalendarPostDetails({ post, onClose }: CalendarPostDetailsProps)
             
             {isEditable && (
               <div className="p-4 sm:p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 shrink-0 flex items-center justify-between gap-4">
-                <Button 
-                  variant="outline" 
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:border-red-900/30 dark:hover:bg-red-950/30 shadow-sm"
-                  onClick={() => {
-                    alert(`Simulating deletion for post ${post.id}`)
-                    onClose()
-                  }}
-                >
-                  <Trash2 className="size-4 mr-2" />
-                  Delete Post
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:border-red-900/30 dark:hover:bg-red-950/30 shadow-sm"
+                    >
+                      <Trash2 className="size-4 mr-2" />
+                      Delete Post
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your scheduled post and remove it from our servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                      <Button 
+                        variant="destructive" 
+                        disabled={isDeleting}
+                        onClick={async (e) => {
+                          e.preventDefault()
+                          setIsDeleting(true)
+                          try {
+                            await deleteScheduledPost(post.id)
+                            toast.success("Post deleted successfully")
+                            onClose()
+                            if (onDelete) onDelete(post.id)
+                            router.refresh()
+                          } catch (error) {
+                            toast.error("Failed to delete post")
+                            setIsDeleting(false)
+                          }
+                        }}
+                      >
+                        {isDeleting ? (
+                          <div className="size-4 mr-2 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                        ) : null}
+                        {isDeleting ? "Deleting..." : "Delete Post"}
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
                 <Button 
                   className="flex-1 bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
                   onClick={() => {

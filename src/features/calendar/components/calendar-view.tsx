@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, Film, Image as ImageIcon, FileText } from "lucide-react"
+import { motion } from "framer-motion"
 
 import { getCalendarItems } from "@/features/posts/api/server"
 import type { CalendarItem } from "@/features/posts/api/server"
@@ -221,24 +222,38 @@ export function CalendarView() {
           </div>
 
           {/* View Toggle */}
-          <div className="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/80 rounded-lg p-0.5 shadow-xs">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/80 rounded-lg p-0.5 shadow-xs relative">
             <button
               onClick={() => setViewMode("month")}
-              className={`px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer flex items-center ${viewMode === "month"
-                  ? "bg-accent-dark text-white shadow-sm"
+              className={`relative px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer flex items-center z-10 ${viewMode === "month"
+                  ? "text-white"
                   : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                 }`}
             >
+              {viewMode === "month" && (
+                <motion.div 
+                  layoutId="view-toggle-bg" 
+                  className="absolute inset-0 bg-accent-dark rounded-md shadow-sm -z-10" 
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} 
+                />
+              )}
               <CalendarIcon className="size-3.5 mr-1.5" />
               Month
             </button>
             <button
               onClick={() => setViewMode("week")}
-              className={`px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer flex items-center ${viewMode === "week"
-                  ? "bg-accent-dark text-white shadow-sm"
+              className={`relative px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer flex items-center z-10 ${viewMode === "week"
+                  ? "text-white"
                   : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                 }`}
             >
+              {viewMode === "week" && (
+                <motion.div 
+                  layoutId="view-toggle-bg" 
+                  className="absolute inset-0 bg-accent-dark rounded-md shadow-sm -z-10" 
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} 
+                />
+              )}
               <FileText className="size-3.5 mr-1.5" />
               Week
             </button>
@@ -373,6 +388,7 @@ export function CalendarView() {
       <CalendarPostDetails
         post={selectedPost}
         onClose={() => setSelectedPost(null)}
+        onDelete={(deletedId) => setScheduledPosts(prev => prev.filter(p => p.id !== deletedId))}
       />
     </main>
   )
