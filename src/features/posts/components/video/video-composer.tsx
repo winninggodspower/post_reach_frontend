@@ -8,8 +8,10 @@ import { useAuth } from "@/features/auth/store/auth-store"
 import { useRouter } from "next/navigation"
 import { useTargetChannels } from "../../hooks/use-target-channels"
 import { usePostSubmit } from "../../hooks/use-post-submit"
-import { publishVideoPost } from "../../api/server"
+import { publishVideoPost, fetchPostById, updateScheduledPost } from "../../api/server"
 import { UploadStatusModal } from "../upload-status-modal"
+import { Lock, FileVideo } from "lucide-react"
+import { format, parseISO, addDays } from "date-fns"
 
 // Sub-components
 import { TargetAccountsSelector } from "../target-accounts-selector"
@@ -43,6 +45,7 @@ export interface VideoPostFormValues {
 }
 
 type VideoComposerProps = {
+  postId?: string
   onBack?: () => void
 }
 
@@ -58,7 +61,7 @@ function dataURLtoFile(dataUrl: string, filename: string): File {
   return new File([u8arr], filename, { type: mime })
 }
 
-export function VideoComposer({ onBack }: VideoComposerProps) {
+export function VideoComposer({ postId, onBack }: VideoComposerProps) {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const brand = user?.brand
@@ -78,7 +81,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   }
 
   // Target Accounts using hook
-  const { channels, toggleChannel, selectedChannels } = useTargetChannels(
+  const { channels, toggleChannel, selectedChannels, setChannels } = useTargetChannels(
     brand?.connected_accounts,
     ["youtube", "instagram", "tiktok", "facebook", "linkedin", "twitter", "x"]
   )
@@ -89,7 +92,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       title: "",
       caption: "",
       isScheduled: false,
-      scheduleDate: "2026-10-16",
+      scheduleDate: format(addDays(new Date(), 1), "yyyy-MM-dd"),
       scheduleTime: "14:00",
       customizePerPlatform: false,
       youtubeTitle: "",
@@ -140,6 +143,74 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
   // Watch cover timestamp from form
   const coverImageTimestamp = watch("coverImageTimestamp")
   const [isHorizontal, setIsHorizontal] = React.useState(false)
+  const [isFetching, setIsFetching] = React.useState(!!postId)
+
+  React.useEffect(() => {
+    if (!postId) return
+
+    setIsFetching(true)
+    fetchPostById(postId)
+      .then(res => {
+        if (!res.success || !res.data) throw new Error("Failed to load post")
+        const data = res.data
+
+        setValue("caption", data.caption)
+        setValue("title", data.platforms.find(p => p.platform === "youtube")?.title || "")
+
+        if (data.scheduled_at) {
+          setValue("isScheduled", true)
+          const d = parseISO(data.scheduled_at)
+          setValue("scheduleDate", format(d, "yyyy-MM-dd"))
+          setValue("scheduleTime", format(d, "HH:mm"))
+        }
+
+        // Hydrate channels
+        setChannels(prev => prev.map(c => ({
+          ...c,
+          selected: data.platforms.some(p => p.platform.toLowerCase() === c.platform.toLowerCase() || (p.platform === "twitter" && c.platform === "x"))
+        })))
+
+        if (data.media_urls?.[0]) {
+          setVideoSrc(data.media_urls[0])
+        }
+        if (data.thumbnail_url) {
+          setThumbnailDataUrl(data.thumbnail_url)
+        }
+
+        // Hydrate platform settings (custom captions and tiktok specifics)
+        let hasCustom = false
+        const firstPlatform = data.platforms[0]
+        data.platforms.forEach(p => {
+          if (p.caption && p.caption !== data.caption) {
+            hasCustom = true
+            const plat = p.platform.toLowerCase()
+            if (plat === 'youtube') setValue('youtubeCaption', p.caption)
+            if (plat === 'tiktok') setValue('tiktokCaption', p.caption)
+            if (plat === 'instagram') setValue('instagramCaption', p.caption)
+            if (plat === 'facebook') setValue('facebookCaption', p.caption)
+            if (plat === 'linkedin') setValue('linkedinCaption', p.caption)
+            if (plat === 'twitter') setValue('xCaption', p.caption)
+          }
+
+          // In a real app, backend would return platform_settings.
+          // For now, if we had it, we would parse it here:
+          // if (p.platform_settings?.tiktok) {
+          //   setValue("tiktokPrivacyLevel", p.platform_settings.tiktok.privacy_level || "PUBLIC_TO_EVERYONE")
+          //   ...
+          // }
+        })
+
+        if (hasCustom) {
+          setValue("customizePerPlatform", true)
+        }
+      })
+      .catch(err => {
+        toast.error("Failed to load post data")
+      })
+      .finally(() => {
+        setIsFetching(false)
+      })
+  }, [postId, setValue, setChannels])
 
   // Post Submission Hook
   const {
@@ -202,6 +273,18 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         } catch (error) {
           console.error("Error converting thumbnail data URL to File:", error)
         }
+      }
+
+      if (postId) {
+        return updateScheduledPost(postId, {
+          caption: caption || "",
+          platforms: mappedPlatforms,
+          platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
+          scheduledAt
+        }).then(res => {
+          // ensure consistent response for modal
+          return res
+        })
       }
 
       return publishVideoPost({
@@ -269,7 +352,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
       return
     }
 
-    if (!videoFile) {
+    if (!postId && !videoFile) {
       toast.error("Video file is missing", {
         description: "Please upload a video to compose your post.",
       })
@@ -315,11 +398,11 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         {/* Action Header publish shortcut */}
         <div className="flex items-center gap-2">
           <button
-            disabled={isPublishing}
+            disabled={isPublishing || isFetching}
             onClick={() => onPublishClick(isScheduled ? "schedule" : "now")}
             className="px-5 py-2 text-xs font-semibold rounded-xl bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-md hover:brightness-105 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPublishing ? "Publishing..." : (isScheduled ? "Schedule Post" : "Publish Now")}
+            {isPublishing ? (postId ? "Updating..." : "Publishing...") : (postId ? "Update Post" : (isScheduled ? "Schedule Post" : "Publish Now"))}
           </button>
         </div>
       </div>
@@ -336,23 +419,54 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         {/* Left Column - Form fields */}
         <div className={videoSrc ? "lg:col-span-7 space-y-6" : "lg:col-span-8 space-y-6"}>
 
-          <MediaFileUploader
-            videoSrc={videoSrc}
-            videoFile={videoFile}
-            isPlaying={isPlaying}
-            videoRef={videoRef}
-            thumbnailDataUrl={thumbnailDataUrl}
-            coverImageTimestamp={coverImageTimestamp}
-            onTogglePlay={togglePlay}
-            onFileChange={handleFileChange}
-            onOpenThumbnailPicker={() => setShowThumbnailPicker(true)}
-            onThumbnailSelect={(dataUrl) => {
-              setThumbnailDataUrl(dataUrl)
-              setValue("coverImageTimestamp", undefined)
-            }}
-            isHorizontalVideo={isHorizontal}
-            onVideoMetadataLoaded={({ isHorizontal }) => setIsHorizontal(isHorizontal)}
-          />
+          {postId ? (
+            <div className="relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 overflow-hidden group">
+              <div className="absolute inset-0 pointer-events-none" />
+              <div className="w-full bg-amber-50 dark:bg-amber-500/10 border-b border-amber-200/50 dark:border-amber-500/20 p-3 flex items-start sm:items-center gap-3">
+                <div className="bg-amber-100 dark:bg-amber-500/20 p-1.5 rounded-full shrink-0 mt-0.5 sm:mt-0">
+                  <Lock className="size-4 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                    Media Locked
+                  </p>
+                  <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5 leading-relaxed">
+                    Scheduled posts cannot change media. To swap videos, delete this post and create a new one.
+                  </p>
+                </div>
+              </div>
+              <div className="p-6 sm:p-8 flex justify-center items-center min-h-[300px]">
+                {videoSrc ? (
+                  <div className="relative w-full max-w-sm rounded-lg overflow-hidden shadow-sm border border-slate-200/50 dark:border-slate-800/50 aspect-video bg-black flex items-center justify-center">
+                     <video src={videoSrc} className="max-h-full max-w-full" controls />
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
+                    <FileVideo className="size-10 mb-2 opacity-50" />
+                    <span className="text-sm font-medium">Video preview unavailable</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <MediaFileUploader
+              videoSrc={videoSrc}
+              videoFile={videoFile}
+              isPlaying={isPlaying}
+              videoRef={videoRef}
+              thumbnailDataUrl={thumbnailDataUrl}
+              coverImageTimestamp={coverImageTimestamp}
+              onTogglePlay={togglePlay}
+              onFileChange={handleFileChange}
+              onOpenThumbnailPicker={() => setShowThumbnailPicker(true)}
+              onThumbnailSelect={(dataUrl) => {
+                setThumbnailDataUrl(dataUrl)
+                setValue("coverImageTimestamp", undefined)
+              }}
+              isHorizontalVideo={isHorizontal}
+              onVideoMetadataLoaded={({ isHorizontal }) => setIsHorizontal(isHorizontal)}
+            />
+          )}
 
           {/* Thumbnail Picker Modal */}
           {showThumbnailPicker && videoSrc && (
@@ -431,7 +545,7 @@ export function VideoComposer({ onBack }: VideoComposerProps) {
         postId={createdPostId}
         uploadProgress={uploadProgress}
         postType="video"
-        isScheduled={isScheduled}
+        isScheduled={isScheduled || !!postId}
         selectedPlatforms={selectedChannels.map(c => c.platform)}
         previewData={{
           title: watch("title"),

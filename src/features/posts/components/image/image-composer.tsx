@@ -11,6 +11,7 @@ import { usePostSubmit } from "../../hooks/use-post-submit"
 import { publishImagePost, fetchPostById, updateScheduledPost } from "../../api/server"
 import { Loader2, Lock } from "lucide-react"
 import { UploadStatusModal } from "../upload-status-modal"
+import { addDays, format } from "date-fns"
 
 // Sub-components
 import { TargetAccountsSelector } from "../target-accounts-selector"
@@ -66,7 +67,7 @@ export function ImageComposer({ postId }: { postId?: string }) {
       title: "",
       caption: "",
       isScheduled: false,
-      scheduleDate: "2026-10-16",
+      scheduleDate: format(addDays(new Date(), 1), "yyyy-MM-dd"),
       scheduleTime: "14:00",
       customizePerPlatform: false,
       youtubeTitle: "",

@@ -8,21 +8,26 @@ import { ChevronLeft } from "lucide-react"
 import { toast } from "sonner"
 import { useTargetChannels } from "../../hooks/use-target-channels"
 import { usePostSubmit } from "../../hooks/use-post-submit"
-import { publishTextPost } from "../../api/server"
+import { publishTextPost, fetchPostById, updateScheduledPost } from "../../api/server"
 import { UploadStatusModal } from "../upload-status-modal"
 import { TargetAccountsSelector } from "../target-accounts-selector"
-import type { AccountChannel } from "../target-accounts-selector"
+import { format, addDays, parseISO } from "date-fns"
 import { CompositionDetails } from "../composition-details"
 import { SchedulerWidget } from "../scheduler-widget"
 import { TextPreviewPhone } from "./text-preview-phone"
 
-export function TextComposer() {
+type TextComposerProps = {
+  postId?: string
+  onBack?: () => void
+}
+
+export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
   const router = useRouter()
   const user = useAuth((state) => state.user)
   const brand = user?.brand
 
   // Target Accounts using hook
-  const { channels, toggleChannel, selectedChannels } = useTargetChannels(
+  const { channels, toggleChannel, selectedChannels, setChannels } = useTargetChannels(
     brand?.connected_accounts,
     ["facebook", "linkedin", "twitter", "x"]
   )
@@ -33,7 +38,7 @@ export function TextComposer() {
       title: "",
       caption: "",
       isScheduled: false,
-      scheduleDate: "2026-10-16",
+      scheduleDate: format(addDays(new Date(), 1), "yyyy-MM-dd"),
       scheduleTime: "14:00",
       customizePerPlatform: false,
       facebookCaption: "",
@@ -50,6 +55,56 @@ export function TextComposer() {
   const facebookCaption = watch("facebookCaption")
   const linkedinCaption = watch("linkedinCaption")
   const xCaption = watch("xCaption")
+
+  const [isFetching, setIsFetching] = React.useState(!!postId)
+
+  React.useEffect(() => {
+    if (!postId) return
+
+    setIsFetching(true)
+    fetchPostById(postId)
+      .then(res => {
+        if (!res.success || !res.data) throw new Error("Failed to load post")
+        const data = res.data
+
+        setValue("caption", data.caption)
+
+        if (data.scheduled_at) {
+          setValue("isScheduled", true)
+          const d = parseISO(data.scheduled_at)
+          setValue("scheduleDate", format(d, "yyyy-MM-dd"))
+          setValue("scheduleTime", format(d, "HH:mm"))
+        }
+
+        // Hydrate channels
+        setChannels(prev => prev.map(c => ({
+          ...c,
+          selected: data.platforms.some(p => p.platform.toLowerCase() === c.platform.toLowerCase() || (p.platform === "twitter" && c.platform === "x"))
+        })))
+
+        // Hydrate custom captions
+        let hasCustom = false
+        data.platforms.forEach(p => {
+          if (p.caption && p.caption !== data.caption) {
+            hasCustom = true
+            const plat = p.platform.toLowerCase()
+            if (plat === 'facebook') setValue('facebookCaption', p.caption)
+            if (plat === 'linkedin') setValue('linkedinCaption', p.caption)
+            if (plat === 'twitter' || plat === 'x') setValue('xCaption', p.caption)
+          }
+        })
+
+        if (hasCustom) {
+          setValue("customizePerPlatform", true)
+        }
+      })
+      .catch(err => {
+        toast.error("Failed to load post data")
+      })
+      .finally(() => {
+        setIsFetching(false)
+      })
+  }, [postId, setValue, setChannels])
 
   // Post Submission Hook
   const {
@@ -79,6 +134,15 @@ export function TextComposer() {
         }
       }
 
+      if (postId) {
+        return updateScheduledPost(postId, {
+          caption: caption || "",
+          platforms: mappedPlatforms,
+          platformSettings: Object.keys(platformSettings).length > 0 ? platformSettings : undefined,
+          scheduledAt,
+        })
+      }
+
       setUploadProgress(20)
       return publishTextPost(
         {
@@ -98,7 +162,11 @@ export function TextComposer() {
   })
 
   const handleBack = () => {
-    router.push("/dashboard/posts")
+    if (onBack) {
+      onBack()
+    } else {
+      router.push("/dashboard/posts")
+    }
   }
 
   const onPublishClick = async (action: "schedule" | "now") => {
@@ -145,11 +213,11 @@ export function TextComposer() {
         {/* Action Header publish shortcut */}
         <div className="flex items-center gap-2">
           <button
-            disabled={isPublishing}
-            onClick={() => handlePublish(isScheduled ? "schedule" : "now")}
+            disabled={isPublishing || isFetching}
+            onClick={() => onPublishClick(isScheduled ? "schedule" : "now")}
             className="px-5 py-2 text-xs font-semibold rounded-xl bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-md hover:brightness-105 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPublishing ? "Publishing..." : isScheduled ? "Schedule Post" : "Publish Now"}
+            {isPublishing ? (postId ? "Updating..." : "Publishing...") : (postId ? "Update Post" : (isScheduled ? "Schedule Post" : "Publish Now"))}
           </button>
         </div>
       </div>
