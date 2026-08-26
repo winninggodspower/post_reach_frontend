@@ -207,20 +207,22 @@ export const updateScheduledPost = async (
   id: string,
   payload: { caption: string; platforms: string[]; platformSettings?: any; scheduledAt?: string }
 ): Promise<{ success: boolean; data: any }> => {
-  const jsonPayload: any = {
-    caption: payload.caption,
-    platforms: payload.platforms,
-  }
+  const formData = new FormData()
+  formData.append('caption', payload.caption)
+
+  payload.platforms.forEach(platform => {
+    formData.append('platforms', platform)
+  })
 
   if (payload.scheduledAt) {
-    jsonPayload.scheduled_at = payload.scheduledAt
+    formData.append('scheduled_at', payload.scheduledAt)
   }
 
   if (payload.platformSettings) {
-    jsonPayload.platform_settings = payload.platformSettings
+    formData.append('platform_settings', JSON.stringify(payload.platformSettings))
   }
 
-  const { data } = await api.patch(`/content/posts/${id}/`, jsonPayload)
+  const { data } = await api.patch(`/content/posts/${id}/`, formData)
 
   return data
 }
