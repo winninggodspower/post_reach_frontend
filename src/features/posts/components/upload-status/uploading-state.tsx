@@ -1,6 +1,5 @@
 import * as React from "react"
 import { Clock } from "lucide-react"
-import { DisplayPlatform } from "./types"
 
 import { getPlatformMeta } from "./utils"
 
@@ -28,13 +27,13 @@ export function UploadingState({
           {postType === "video" ? "Uploading your video..." : postType === "photo" ? "Uploading your photos..." : "Creating your post..."}
         </h2>
         <p className="text-sm text-slate-500">
-          We're preparing your {postType === "video" ? "video" : "photos"} for distribution. Hang tight!
+          We&apos;re preparing your {postType === "video" ? "video" : "photos"} for distribution. Hang tight!
         </p>
       </div>
 
       <div className="space-y-3 mb-8">
         <div className="flex justify-between items-end">
-          <span className="text-sm font-semibold text-slate-700">Server Upload</span>
+          <span className="text-sm font-semibold text-slate-700">Media Upload</span>
           <span className="text-xl font-bold text-orange-500">{uploadProgress}%</span>
         </div>
         <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">

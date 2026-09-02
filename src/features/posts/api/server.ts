@@ -1,12 +1,109 @@
+import axios, { type AxiosProgressEvent } from "axios"
 import { api } from "@/lib/api"
 import { POSTS_ENDPOINTS } from "./endpoints"
-import type { AxiosProgressEvent } from "axios"
+
+type PresignedUploadFileDescriptor = {
+  content_type: "video" | "photo"
+  extension: string
+}
+
+type PresignedUploadResponseItem = {
+  key: string
+  url: string
+}
+
+type PresignedUploadResponse = {
+  success: boolean
+  data: PresignedUploadResponseItem[]
+}
+
+const getFileExtension = (file: File) => {
+  const fileNameParts = file.name.split(".")
+  const fileNameExtension = fileNameParts.length > 1 ? fileNameParts.pop() : ""
+  const mimeExtension = file.type.includes("/") ? file.type.split("/").pop() : ""
+
+  return (fileNameExtension || mimeExtension || "bin").toLowerCase()
+}
+
+const requestPresignedUrls = async (
+  files: PresignedUploadFileDescriptor[]
+): Promise<PresignedUploadResponseItem[]> => {
+  const { data } = await api.post<PresignedUploadResponse>(POSTS_ENDPOINTS.presignedUrl, { files })
+
+  if (!data.success || !Array.isArray(data.data) || data.data.length !== files.length) {
+    throw new Error("The server returned an incomplete presigned upload response.")
+  }
+
+  return data.data
+}
+
+const uploadFilesToR2 = async (
+  files: Array<{ file: File; contentType: "video" | "photo" }>,
+  onProgress?: (progressEvent: AxiosProgressEvent) => void
+) => {
+  if (files.length === 0) {
+    return [] as string[]
+  }
+
+  const presignedUrls = await requestPresignedUrls(
+    files.map(({ file, contentType }) => ({
+      content_type: contentType,
+      extension: getFileExtension(file),
+    }))
+  )
+
+  const totalBytes = files.reduce((sum, { file }) => sum + file.size, 0)
+  let uploadedBytes = 0
+
+  console.log(presignedUrls)
+  for (let index = 0; index < files.length; index += 1) {
+    const { file } = files[index]
+    const presignedUpload = presignedUrls[index]
+
+    if (!presignedUpload?.url || !presignedUpload.key) {
+      throw new Error(`The server did not return a valid upload URL for file ${index + 1}.`)
+    }
+
+    const { url } = presignedUpload
+
+    await axios.put(url, file, {
+      headers: {
+        "Content-Type": file.type || "application/octet-stream",
+      },
+      onUploadProgress: onProgress
+        ? (event) => {
+            const loadedForFile = event.loaded ?? 0
+            const totalForFile = event.total ?? file.size ?? 1
+            const cumulativeLoaded = Math.min(uploadedBytes + loadedForFile, totalBytes)
+            const cumulativeTotal = totalBytes || totalForFile
+
+            onProgress({
+              ...event,
+              loaded: cumulativeLoaded,
+              total: cumulativeTotal,
+            } as AxiosProgressEvent)
+          }
+        : undefined,
+    })
+
+    uploadedBytes += file.size
+
+    if (onProgress) {
+      onProgress({
+        loaded: uploadedBytes,
+        total: totalBytes,
+      } as AxiosProgressEvent)
+    }
+  }
+
+  return presignedUrls.map(({ key }) => key)
+}
 
 export type PublishVideoPayload = {
   video: File
   caption: string
   platforms: string[]
-  platformSettings?: Record<string, any>
+  platformSettings?: Record<string, unknown>
   scheduledAt?: string
   thumbnail?: File
   video_thumbnail_offset?: number
@@ -41,7 +138,7 @@ export type PublishImagePayload = {
   images: File[]
   caption: string
   platforms: string[]
-  platformSettings?: Record<string, any>
+  platformSettings?: Record<string, unknown>
   scheduledAt?: string
 }
 
@@ -49,35 +146,34 @@ export const publishVideoPost = async (
   payload: PublishVideoPayload,
   onProgress?: (progressEvent: AxiosProgressEvent) => void
 ) => {
-  const formData = new FormData()
-  formData.append("video", payload.video)
-  formData.append("caption", payload.caption)
+  const uploadKeys = await uploadFilesToR2(
+    [
+      { file: payload.video, contentType: "video" },
+      ...(payload.thumbnail ? [{ file: payload.thumbnail, contentType: "photo" as const }] : []),
+    ],
+    onProgress
+  )
 
-  payload.platforms.forEach((platform) => {
-    formData.append("platforms", platform)
-  })
+  const body: Record<string, unknown> = {
+    video_key: uploadKeys[0],
+    caption: payload.caption,
+    platforms: payload.platforms,
+    platform_settings: payload.platformSettings ?? {},
+  }
 
-  if (payload.platformSettings) {
-    formData.append("platform_settings", JSON.stringify(payload.platformSettings))
+  if (uploadKeys[1]) {
+    body.thumbnail_key = uploadKeys[1]
   }
 
   if (payload.scheduledAt) {
-    formData.append("scheduled_at", payload.scheduledAt)
+    body.scheduled_at = payload.scheduledAt
   }
 
-  if (payload.thumbnail) {
-    formData.append("thumbnail", payload.thumbnail)
-  }
   if (payload.video_thumbnail_offset !== undefined && payload.video_thumbnail_offset !== null) {
-    formData.append("video_thumbnail_offset", payload.video_thumbnail_offset.toString())
+    body.video_thumbnail_offset = payload.video_thumbnail_offset
   }
 
-  const { data } = await api.post(POSTS_ENDPOINTS.createVideo, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    onUploadProgress: onProgress,
-  })
+  const { data } = await api.post(POSTS_ENDPOINTS.createVideo, body)
 
   return data
 }
@@ -86,30 +182,23 @@ export const publishImagePost = async (
   payload: PublishImagePayload,
   onProgress?: (progressEvent: AxiosProgressEvent) => void
 ) => {
-  const formData = new FormData()
-  payload.images.forEach((img) => {
-    formData.append("photos", img)
-  })
-  formData.append("caption", payload.caption)
+  const photoKeys = await uploadFilesToR2(
+    payload.images.map((file) => ({ file, contentType: "photo" as const })),
+    onProgress
+  )
 
-  payload.platforms.forEach((platform) => {
-    formData.append("platforms", platform)
-  })
-
-  if (payload.platformSettings) {
-    formData.append("platform_settings", JSON.stringify(payload.platformSettings))
+  const body: Record<string, unknown> = {
+    photo_keys: photoKeys,
+    caption: payload.caption,
+    platforms: payload.platforms,
+    platform_settings: payload.platformSettings ?? {},
   }
 
   if (payload.scheduledAt) {
-    formData.append("scheduled_at", payload.scheduledAt)
+    body.scheduled_at = payload.scheduledAt
   }
 
-  const { data } = await api.post(POSTS_ENDPOINTS.createImage, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    onUploadProgress: onProgress,
-  })
+  const { data } = await api.post(POSTS_ENDPOINTS.createImage, body)
 
   return data
 }
@@ -117,7 +206,7 @@ export const publishImagePost = async (
 export type PublishTextPayload = {
   caption: string
   platforms: string[]
-  platformSettings?: Record<string, any>
+  platformSettings?: Record<string, unknown>
   scheduledAt?: string
 }
 
@@ -125,25 +214,17 @@ export const publishTextPost = async (
   payload: PublishTextPayload,
   onProgress?: (progressEvent: AxiosProgressEvent) => void
 ) => {
-  const formData = new FormData()
-  formData.append("caption", payload.caption)
-
-  payload.platforms.forEach((platform) => {
-    formData.append("platforms", platform)
-  })
-
-  if (payload.platformSettings) {
-    formData.append("platform_settings", JSON.stringify(payload.platformSettings))
+  const body: Record<string, unknown> = {
+    caption: payload.caption,
+    platforms: payload.platforms,
+    platform_settings: payload.platformSettings ?? {},
   }
 
   if (payload.scheduledAt) {
-    formData.append("scheduled_at", payload.scheduledAt)
+    body.scheduled_at = payload.scheduledAt
   }
 
-  const { data } = await api.post(POSTS_ENDPOINTS.createText, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+  const { data } = await api.post(POSTS_ENDPOINTS.createText, body, {
     onUploadProgress: onProgress,
   })
 
@@ -205,29 +286,24 @@ export const fetchPostById = async (id: string): Promise<{ success: boolean; dat
 
 export const updateScheduledPost = async (
   id: string,
-  payload: { caption: string; platforms: string[]; platformSettings?: any; scheduledAt?: string }
-): Promise<{ success: boolean; data: any }> => {
-  const formData = new FormData()
-  formData.append('caption', payload.caption)
-
-  payload.platforms.forEach(platform => {
-    formData.append('platforms', platform)
-  })
+  payload: { caption: string; platforms: string[]; platformSettings?: Record<string, unknown>; scheduledAt?: string }
+): Promise<{ success: boolean; data: unknown }> => {
+  const body: Record<string, unknown> = {
+    caption: payload.caption,
+    platforms: payload.platforms,
+    platform_settings: payload.platformSettings ?? {},
+  }
 
   if (payload.scheduledAt) {
-    formData.append('scheduled_at', payload.scheduledAt)
+    body.scheduled_at = payload.scheduledAt
   }
 
-  if (payload.platformSettings) {
-    formData.append('platform_settings', JSON.stringify(payload.platformSettings))
-  }
-
-  const { data } = await api.patch(`/content/posts/${id}/`, formData)
+  const { data } = await api.patch(`/content/posts/${id}/`, body)
 
   return data
 }
 
-export const deleteScheduledPost = async (id: string): Promise<{ success: boolean; data: any }> => {
+export const deleteScheduledPost = async (id: string): Promise<{ success: boolean; data: unknown }> => {
   const { data } = await api.delete(`/content/posts/${id}/`)
   return data
 }

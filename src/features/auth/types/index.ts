@@ -16,6 +16,7 @@ export type ConnectedAccount = {
 export type UserBrand = {
   id: string
   name: string
+  logo_url: string | null
   industry: string | null
   posting_frequency: string | null
   primary_platform: string | null

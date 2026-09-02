@@ -37,10 +37,10 @@ export function usePostSubmit({ submitFn }: UsePostSubmitProps) {
         setIsStatusModalOpen(false)
         setIsPublishing(false)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
       toast.error("An error occurred", {
-        description: err.message || "Failed to publish post.",
+        description: err instanceof Error ? err.message : "Failed to publish post.",
       })
       setIsStatusModalOpen(false)
       setIsPublishing(false)
