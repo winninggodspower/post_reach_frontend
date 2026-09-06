@@ -1,85 +1,34 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, Film, Image as ImageIcon, FileText } from "lucide-react"
-import { motion } from "framer-motion"
 
 import { getCalendarItems } from "@/features/posts/api/server"
 import type { CalendarItem } from "@/features/posts/api/server"
+import {
+  FULL_MONTHS,
+  getDaysOfWeek,
+  getMonthDays,
+  getStartOfWeek,
+  MONTHS,
+} from "../lib/calendar-utils"
+import { CalendarDesktopView } from "./calendar-desktop-view"
+import { CalendarHeader } from "./calendar-header"
+import { CalendarMobileView } from "./calendar-mobile-view"
 import { CalendarPostDetails } from "./calendar-post-details"
-import { getPlatformMeta } from "@/features/posts/components/upload-status/utils"
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-const MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-]
-const FULL_MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-]
 
 export function CalendarView() {
   const [mounted, setMounted] = useState(false)
   const [scheduledPosts, setScheduledPosts] = useState<CalendarItem[]>([])
   const [currentDate, setCurrentDate] = useState(() => new Date())
+  const [selectedDay, setSelectedDay] = useState<Date>(() => new Date())
   const [selectedPost, setSelectedPost] = useState<CalendarItem | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [viewMode, setViewMode] = useState<"week" | "month">("week")
 
-  // Get start of the week (Sunday) immutably
-  const getStartOfWeek = (d: Date) => {
-    const date = new Date(d)
-    const day = date.getDay()
-    const diff = date.getDate() - day
-    const sunday = new Date(date.setDate(diff))
-    sunday.setHours(0, 0, 0, 0)
-    return sunday
-  }
-
   const startOfWeek = getStartOfWeek(currentDate)
-
-  // Generate 7 days of the active week for "week" view
-  const daysOfWeek = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(startOfWeek)
-    d.setDate(startOfWeek.getDate() + i)
-    return d
-  })
-
-  // Generate days for "month" view
-  const getMonthDays = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-
-    const days = []
-
-    // Padding days before (from Sunday to firstDay's day of week)
-    const startPadding = firstDay.getDay()
-    for (let i = startPadding; i > 0; i--) {
-      const d = new Date(year, month, 1 - i)
-      days.push({ date: d, isCurrentMonth: false })
-    }
-
-    // Days of the month
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      days.push({ date: new Date(year, month, i), isCurrentMonth: true })
-    }
-
-    // Padding days after (to complete the 7-day row)
-    const endPadding = 7 - (days.length % 7)
-    if (endPadding < 7) {
-      for (let i = 1; i <= endPadding; i++) {
-        days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false })
-      }
-    }
-
-    return days
-  }
-
+  const daysOfWeek = getDaysOfWeek(startOfWeek)
   const monthDays = getMonthDays(currentDate)
 
-  // Format label based on view mode
   const getRangeLabel = () => {
     if (viewMode === "month") {
       return `${FULL_MONTHS[currentDate.getMonth()]} ${currentDate.getFullYear()}`
@@ -97,14 +46,14 @@ export function CalendarView() {
     return `${MONTHS[start.getMonth()]} ${start.getDate()} - ${end.getDate()}, ${start.getFullYear()}`
   }
 
-  // Fetch posts from API
   useEffect(() => {
     setMounted(true)
 
     const fetchPosts = async () => {
       setIsLoading(true)
       try {
-        let startStr, endStr
+        let startStr: string
+        let endStr: string
 
         if (viewMode === "week") {
           startStr = daysOfWeek[0].toISOString().split("T")[0]
@@ -125,27 +74,17 @@ export function CalendarView() {
       }
     }
 
-    fetchPosts()
+    void fetchPosts()
   }, [currentDate, viewMode])
-
-  if (!mounted) {
-    return (
-      <main className="mx-auto w-full max-w-7xl px-6 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
-          <div className="h-4 w-72 bg-slate-200 dark:bg-slate-800 rounded" />
-          <div className="h-96 bg-slate-100 dark:bg-slate-900 rounded-xl" />
-        </div>
-      </main>
-    )
-  }
 
   const handlePrev = () => {
     const newDate = new Date(currentDate)
     if (viewMode === "week") {
       newDate.setDate(newDate.getDate() - 7)
+      setSelectedDay(new Date(newDate))
     } else {
       newDate.setMonth(newDate.getMonth() - 1)
+      setSelectedDay(new Date(newDate.getFullYear(), newDate.getMonth(), 1))
     }
     setCurrentDate(newDate)
   }
@@ -154,14 +93,12 @@ export function CalendarView() {
     const newDate = new Date(currentDate)
     if (viewMode === "week") {
       newDate.setDate(newDate.getDate() + 7)
+      setSelectedDay(new Date(newDate))
     } else {
       newDate.setMonth(newDate.getMonth() + 1)
+      setSelectedDay(new Date(newDate.getFullYear(), newDate.getMonth(), 1))
     }
     setCurrentDate(newDate)
-  }
-
-  const handleToday = () => {
-    setCurrentDate(new Date())
   }
 
   const getPostsForDate = (date: Date) => {
@@ -175,220 +112,57 @@ export function CalendarView() {
     })
   }
 
-  const isToday = (date: Date) => {
-    const today = new Date()
+  if (!mounted) {
     return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
+      <main className="mx-auto w-full max-w-6xl px-4 md:px-8 py-6 md:py-10">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="h-4 w-72 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="h-96 bg-slate-100 dark:bg-slate-900 rounded-xl" />
+        </div>
+      </main>
     )
   }
 
-  const getContentTypeIcon = (type: CalendarItem["content_type"]) => {
-    switch (type) {
-      case "video":
-        return <Film className="size-3" />
-      case "photo":
-        return <ImageIcon className="size-3" />
-      case "text":
-      default:
-        return <FileText className="size-3" />
-    }
-  }
-
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 md:px-8 py-10 space-y-8 animate-fade-in text-slate-805 dark:text-slate-200 flex flex-col">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
-            Calendar
-          </h1>
-          {isLoading && <span className="text-xs text-slate-400 font-bold animate-pulse">Syncing...</span>}
-        </div>
+    <main className="mx-auto w-full max-w-6xl px-4 md:px-8 py-6 md:py-10 space-y-6 md:space-y-8 animate-fade-in text-slate-800 dark:text-slate-200 flex flex-col min-w-0 overflow-x-hidden">
+      {/* Header with Title, Controls, and Mode Switcher */}
+      <CalendarHeader
+        isLoading={isLoading}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        rangeLabel={getRangeLabel()}
+        onPrev={handlePrev}
+        onNext={handleNext}
+      />
 
-        <div className="flex items-center justify-between md:justify-end gap-2 sm:gap-6 w-full md:w-auto">
-          {/* Calendar Controls */}
-          <div className="flex items-center justify-center gap-2 sm:gap-4 shrink-0 relative bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-800 shadow-xs">
-            <button onClick={handlePrev} className="text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer transition">
-              <ChevronLeft className="size-4.5" />
-            </button>
-            <h2 className="text-sm font-black text-slate-800 dark:text-slate-200 min-w-[140px] text-center">
-              {getRangeLabel()}
-            </h2>
-            <button onClick={handleNext} className="text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer transition">
-              <ChevronRight className="size-4.5" />
-            </button>
-          </div>
+      {/* Mobile Experience (Day Strip / Month Picker + Agenda Feed) */}
+      <CalendarMobileView
+        viewMode={viewMode}
+        daysOfWeek={daysOfWeek}
+        monthDays={monthDays}
+        selectedDay={selectedDay}
+        onSelectDay={setSelectedDay}
+        getPostsForDate={getPostsForDate}
+        onSelectPost={setSelectedPost}
+      />
 
-          {/* View Toggle */}
-          <div className="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/80 rounded-lg p-0.5 shadow-xs relative">
-            <button
-              onClick={() => setViewMode("month")}
-              className={`relative px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer flex items-center z-10 ${viewMode === "month"
-                  ? "text-white"
-                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                }`}
-            >
-              {viewMode === "month" && (
-                <motion.div 
-                  layoutId="view-toggle-bg" 
-                  className="absolute inset-0 bg-accent-dark rounded-md shadow-sm -z-10" 
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} 
-                />
-              )}
-              <CalendarIcon className="size-3.5 mr-1.5" />
-              Month
-            </button>
-            <button
-              onClick={() => setViewMode("week")}
-              className={`relative px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer flex items-center z-10 ${viewMode === "week"
-                  ? "text-white"
-                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                }`}
-            >
-              {viewMode === "week" && (
-                <motion.div 
-                  layoutId="view-toggle-bg" 
-                  className="absolute inset-0 bg-accent-dark rounded-md shadow-sm -z-10" 
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} 
-                />
-              )}
-              <FileText className="size-3.5 mr-1.5" />
-              Week
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Grid Container */}
-      <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl overflow-hidden shadow-sm flex flex-col">
-        {/* Days Header */}
-        <div className="grid grid-cols-7 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 shrink-0">
-          {WEEKDAYS.map((day, idx) => {
-            const isTodayHeader = viewMode === "week" && isToday(daysOfWeek[idx])
-
-            return (
-              <div key={day} className={`py-3 text-center border-r last:border-r-0 border-slate-100 dark:border-slate-800/80`}>
-                <span className={`text-xs font-bold ${isTodayHeader ? "text-accent-dark" : "text-slate-500"}`}>
-                  {day} {viewMode === "week" && daysOfWeek[idx].getDate()}
-                </span>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Calendar Body */}
-        {viewMode === "week" ? (
-          <div className="grid grid-cols-7 divide-x divide-slate-100 dark:divide-slate-800/80 overflow-y-auto min-h-[400px]">
-            {daysOfWeek.map((date, idx) => {
-              const posts = getPostsForDate(date)
-              const today = isToday(date)
-              return (
-                <div key={idx} className={`flex flex-col p-2 gap-2 ${today ? "bg-accent-dark/[0.03] dark:bg-accent-dark/[0.05]" : ""}`}>
-                  {posts.length === 0 ? (
-                    <div className="text-center pt-8 text-[10px] font-bold text-slate-300 dark:text-slate-700 select-none">
-                      No posts
-                    </div>
-                  ) : (
-                    posts.map(post => (
-                      <button
-                        key={post.id}
-                        onClick={() => setSelectedPost(post)}
-                        className="text-left bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg p-2.5 shadow-xs hover:shadow-md transition cursor-pointer group flex flex-col gap-2"
-                      >
-                        <div className="flex items-center justify-between w-full">
-                          <span className="text-[10px] font-bold text-slate-500">
-                            {new Date(post.scheduled_at || post.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                          </span>
-                          <div className="text-slate-400 group-hover:text-accent-dark transition-colors">
-                            {getContentTypeIcon(post.content_type)}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center -space-x-1.5 mt-1">
-                          {post.platforms.map((p, i) => {
-                            const meta = getPlatformMeta(p.platform)
-                            return (
-                              <div 
-                                key={p.id} 
-                                className={`relative z-10 w-5 h-5 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm overflow-hidden ring-1 ring-slate-100 dark:ring-slate-800 ${
-                                  p.post_url ? "cursor-pointer hover:z-20 hover:scale-110 transition-transform" : ""
-                                }`}
-                                style={{ zIndex: post.platforms.length - i }}
-                                title={p.post_url ? `View on ${meta.label}` : meta.label}
-                                onClick={(e) => {
-                                  if (p.post_url) {
-                                    e.stopPropagation()
-                                    window.open(p.post_url, "_blank")
-                                  }
-                                }}
-                              >
-                                <img src={meta.icon} alt={meta.label} className="w-3 h-3 object-contain" />
-                              </div>
-                            )
-                          })}
-                        </div>
-
-                        <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 line-clamp-2 leading-snug">
-                          {post.caption}
-                        </p>
-                      </button>
-                    ))
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        ) : (
-          <div className="grid grid-cols-7 auto-rows-[minmax(120px,auto)] divide-y divide-x divide-slate-100 dark:divide-slate-800/80">
-            {monthDays.map((item, idx) => {
-              const posts = getPostsForDate(item.date)
-              const today = isToday(item.date)
-
-              return (
-                <div key={idx} className={`p-1.5 md:p-2 flex flex-col ${item.isCurrentMonth ? "" : "bg-slate-50/50 dark:bg-slate-950/50 opacity-50"} ${today ? "bg-accent-dark/[0.03] dark:bg-accent-dark/[0.05]" : ""}`}>
-                  <div className="flex items-center justify-between mb-1.5 px-1">
-                    <span className={`text-[10px] md:text-xs font-bold ${today ? "bg-accent-dark text-white rounded px-1.5 py-0.5" : "text-slate-500"}`}>
-                      {item.date.getDate()}
-                    </span>
-                  </div>
-
-                  <div className="flex-1 flex flex-col gap-1 overflow-y-auto no-scrollbar">
-                    {posts.length === 0 && item.isCurrentMonth ? (
-                      <div className="text-center pt-2 md:pt-4 text-[9px] md:text-[10px] font-bold text-slate-300 dark:text-slate-700 select-none">
-                        No posts
-                      </div>
-                    ) : (
-                      posts.map(post => (
-                        <button
-                          key={post.id}
-                          onClick={() => setSelectedPost(post)}
-                          className={`text-left text-[10px] md:text-[11px] font-bold px-2 py-1.5 rounded truncate transition cursor-pointer shadow-xs ${post.content_type === "video" ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50 hover:bg-purple-200" :
-                              post.content_type === "photo" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-200" :
-                                "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 hover:bg-blue-200"
-                            }`}
-                        >
-                          <span className="opacity-75 mr-1 hidden md:inline">
-                            {new Date(post.scheduled_at || post.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).replace(' ', '')}
-                          </span>
-                          {post.caption}
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
+      {/* Desktop Experience (7-Column Week & Month Grids) */}
+      <CalendarDesktopView
+        viewMode={viewMode}
+        daysOfWeek={daysOfWeek}
+        monthDays={monthDays}
+        getPostsForDate={getPostsForDate}
+        onSelectPost={setSelectedPost}
+      />
 
       {/* Post Details Drawer */}
       <CalendarPostDetails
         post={selectedPost}
         onClose={() => setSelectedPost(null)}
-        onDelete={(deletedId) => setScheduledPosts(prev => prev.filter(p => p.id !== deletedId))}
+        onDelete={(deletedId) =>
+          setScheduledPosts((prev) => prev.filter((p) => p.id !== deletedId))
+        }
       />
     </main>
   )
