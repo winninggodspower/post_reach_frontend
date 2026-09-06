@@ -151,6 +151,7 @@ export function SettingsView() {
           ...user.brand,
           id: user.brand?.id || "",
           name: values.brandName,
+          logo_url: user.brand?.logo_url ?? null,
           industry: values.industry,
           team_size: values.teamSize,
           primary_platform: values.primaryPlatform,
