@@ -19,7 +19,7 @@ export function DashboardHeader({ userName, hasPosts, postsCount }: DashboardHea
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:24px_24px]" />
         <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-accent-brand/20 blur-[100px]" />
         <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-blue-500/20 blur-[100px]" />
-        
+
         <div className="relative z-10">
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-4xl">
             Welcome back, <span className="text-transparent bg-clip-text bg-linear-to-r from-accent-brand to-orange-300">{userName}</span>
@@ -40,7 +40,7 @@ export function DashboardHeader({ userName, hasPosts, postsCount }: DashboardHea
             New Post
           </Button>
         </Link>
-        <Link href="/dashboard/settings">
+        <Link href="/dashboard/connections">
           <Button variant="outline" className="h-9 sm:h-11 text-xs sm:text-sm border-slate-200 hover:border-slate-300 hover:bg-slate-50 font-semibold cursor-pointer text-slate-700 rounded-lg sm:rounded-xl px-3 sm:px-5 hover:-translate-y-0.5 shadow-xs transition-all">
             <Settings className="mr-1.5 sm:mr-2 size-3.5 sm:size-4 text-slate-400" />
             Manage Channels

@@ -56,7 +56,7 @@ export function PlatformConnectCard({
 
   return (
     <div
-      className={`flex items-center gap-4 rounded-[24px] border bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ${expired
+      className={`w-full min-w-0 flex items-center gap-3 sm:gap-4 rounded-[24px] border bg-white p-3.5 sm:p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ${expired
           ? "border-rose-500/20 bg-rose-50/70"
           : connected
             ? "border-emerald-500/20 bg-emerald-50/70"
@@ -79,15 +79,15 @@ export function PlatformConnectCard({
 
 
       <div className="min-w-0 flex-1">
-        <h3 className="text-base font-semibold text-slate-950 flex flex-wrap items-center gap-x-2">
+        <h3 className="text-sm sm:text-base font-semibold text-slate-950 flex flex-wrap items-center gap-x-1.5 sm:gap-x-2">
           <span>{option.label}</span>
           {connected && connectedAccount?.account_name && (
-            <span className="text-xs font-normal text-slate-500 truncate max-w-[150px]">
+            <span className="text-xs font-normal text-slate-500 truncate max-w-[100px] sm:max-w-[150px]">
               ({connectedAccount.account_name})
             </span>
           )}
         </h3>
-        <p className="mt-1 text-sm text-slate-500 truncate">
+        <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-500 truncate">
           {expired
             ? "Connection expired. Please reconnect."
             : connected && connectedAccount
@@ -96,7 +96,7 @@ export function PlatformConnectCard({
         </p>
       </div>
 
-      <div className="flex items-center gap-2 relative" ref={dropdownRef}>
+      <div className="flex items-center gap-2 relative shrink-0" ref={dropdownRef}>
         {connected && !expired ? (
           <div className="relative">
             <Button
@@ -104,7 +104,7 @@ export function PlatformConnectCard({
               variant="outline"
               size="sm"
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-1.5 cursor-pointer border-emerald-500/30 hover:bg-slate-50 text-emerald-700 hover:text-emerald-800 transition"
+              className="flex items-center gap-1.5 cursor-pointer border-emerald-500/30 hover:bg-slate-50 text-emerald-700 hover:text-emerald-800 transition text-xs sm:text-sm px-2.5 sm:px-3"
               title="Account settings"
             >
               <span>Connected</span>
@@ -112,14 +112,14 @@ export function PlatformConnectCard({
             </Button>
 
             {showDropdown && (
-              <div className="absolute right-0 mt-1.5 w-48 bg-white rounded-xl border border-slate-200/80 shadow-lg py-1 z-10 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="absolute right-0 mt-1.5 w-44 sm:w-48 bg-white rounded-xl border border-slate-200/80 shadow-lg py-1 z-10 animate-in fade-in slide-in-from-top-1 duration-150">
                 <button
                   type="button"
                   onClick={handleReconnectClick}
                   className="w-full px-3 py-2 text-xs text-left text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
                 >
-                  <RefreshCw className="size-3.5" />
-                  <span>Reconnect / Switch</span>
+                  <RefreshCw className="size-3.5 shrink-0" />
+                  <span className="truncate">Reconnect / Switch</span>
                 </button>
               </div>
             )}
@@ -131,6 +131,7 @@ export function PlatformConnectCard({
             size="sm"
             disabled={connecting}
             onClick={handleConnectClick}
+            className="text-xs sm:text-sm px-3 sm:px-4"
           >
             {connecting ? (
               <>
