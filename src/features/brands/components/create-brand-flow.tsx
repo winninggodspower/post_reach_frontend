@@ -3,16 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import {
-  ArrowRight,
-  Building2,
-  Clock3,
-  ImageIcon,
-  Loader2,
-  Share2,
-  TrendingUp,
-  Users,
-} from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { BrandAvatar } from "@/features/brands/components/brand-avatar"
@@ -36,19 +27,17 @@ type Props = {
 }
 
 const inputClassName =
-  "w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-3.5 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
+  "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
 
 function Field({
   label,
   required,
   error,
-  icon: Icon,
   children,
 }: {
   label: string
   required?: boolean
   error?: string
-  icon: React.ComponentType<{ className?: string }>
   children: React.ReactNode
 }) {
   return (
@@ -57,10 +46,7 @@ function Field({
         {label}
         {required ? <span className="text-orange-500"> *</span> : null}
       </label>
-      <div className="relative">
-        {children}
-        <Icon className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-slate-400" />
-      </div>
+      {children}
       {error ? <p className="text-xs text-rose-600">{error}</p> : null}
     </div>
   )
@@ -122,19 +108,13 @@ export function CreateBrandFlow({ onSuccess }: Props) {
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="mb-6 flex flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
-            {logoPreview ? (
-              <BrandAvatar
-                name={brandName || "New brand"}
-                logoUrl={logoPreview}
-                brandId={brandName || "new-brand"}
-                gradientIndex={0}
-                className="size-14"
-              />
-            ) : (
-              <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400">
-                <ImageIcon className="size-6" />
-              </div>
-            )}
+            <BrandAvatar
+              name={brandName || "New brand"}
+              logoUrl={logoPreview}
+              brandId={brandName || "new-brand"}
+              gradientIndex={0}
+              className="size-14"
+            />
             <div>
               <p className="text-sm font-semibold text-slate-900">Brand logo</p>
               <p className="mt-0.5 text-xs leading-5 text-slate-500">
@@ -163,7 +143,6 @@ export function CreateBrandFlow({ onSuccess }: Props) {
           <Field
             label="Brand name"
             required
-            icon={Building2}
             error={errors.name?.message}
           >
             <input
@@ -176,7 +155,7 @@ export function CreateBrandFlow({ onSuccess }: Props) {
             />
           </Field>
 
-          <Field label="Primary industry" icon={TrendingUp}>
+          <Field label="Primary industry">
             <select
               id="industry"
               {...register("industry", { required: true })}
@@ -190,7 +169,7 @@ export function CreateBrandFlow({ onSuccess }: Props) {
             </select>
           </Field>
 
-          <Field label="Posting frequency" icon={Clock3}>
+          <Field label="Posting frequency">
             <select
               id="posting_frequency"
               {...register("posting_frequency", { required: true })}
@@ -204,7 +183,7 @@ export function CreateBrandFlow({ onSuccess }: Props) {
             </select>
           </Field>
 
-          <Field label="Primary platform" icon={Share2}>
+          <Field label="Primary platform">
             <select
               id="primary_platform"
               {...register("primary_platform", { required: true })}
@@ -218,7 +197,7 @@ export function CreateBrandFlow({ onSuccess }: Props) {
             </select>
           </Field>
 
-          <Field label="Team size" icon={Users}>
+          <Field label="Team size">
             <select
               id="team_size"
               {...register("team_size", { required: true })}
@@ -236,15 +215,12 @@ export function CreateBrandFlow({ onSuccess }: Props) {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="h-11 gap-2 rounded-lg bg-linear-to-r from-accent-dark to-accent-brand px-6 text-sm font-semibold text-white shadow-sm hover:brightness-105"
+            className="h-11 rounded-lg bg-linear-to-r from-accent-dark to-accent-brand px-6 text-sm font-semibold text-white shadow-sm hover:brightness-105"
           >
             {isSubmitting ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
-              <>
-                Create brand
-                <ArrowRight className="size-4" />
-              </>
+              "Create brand"
             )}
           </Button>
         </div>

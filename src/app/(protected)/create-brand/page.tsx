@@ -29,7 +29,7 @@ export default function CreateBrandPage() {
           Back
         </button>
 
-        <div className="mt-10 mb-8">
+        <div className="mt-8 mb-4">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
             Create a brand
           </h1>
