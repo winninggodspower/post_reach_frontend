@@ -4,4 +4,5 @@ export const POSTS_ENDPOINTS = {
   createText: "/content/posts/text/",
   presignedUrl: "/content/posts/presigned-url/",
   calendar: "/content/posts/calendar/",
+  scheduled: "/content/posts/scheduled/",
 } as const

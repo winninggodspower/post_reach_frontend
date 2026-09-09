@@ -307,3 +307,24 @@ export const deleteScheduledPost = async (id: string): Promise<{ success: boolea
   const { data } = await api.delete(`/content/posts/${id}/`)
   return data
 }
+
+export type GetScheduledPostsParams = {
+  platform?: string
+  content_type?: "video" | "photo" | "text" | string
+  limit?: number
+}
+
+export const getScheduledPosts = async (
+  params?: GetScheduledPostsParams
+): Promise<{ success: boolean; data: CalendarItem[] }> => {
+  const queryParams: Record<string, string | number> = {}
+  if (params?.platform) queryParams.platform = params.platform
+  if (params?.content_type) queryParams.content_type = params.content_type
+  if (params?.limit !== undefined && params?.limit !== null) queryParams.limit = params.limit
+
+  const { data } = await api.get<{ success: boolean; data: CalendarItem[] }>(
+    POSTS_ENDPOINTS.scheduled,
+    { params: queryParams }
+  )
+  return data
+}
