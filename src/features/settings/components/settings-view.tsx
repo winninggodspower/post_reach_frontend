@@ -67,7 +67,7 @@ export function SettingsView() {
     defaultValues: {
       brandName: "",
       industry: "technology",
-      teamSize: "just_me",
+      teamSize: "1",
       primaryPlatform: "instagram",
       postingFrequency: "daily",
     },
@@ -86,7 +86,7 @@ export function SettingsView() {
         resetBrand({
           brandName: user.brand.name || "",
           industry: (user.brand.industry as OnboardingIndustry) || "technology",
-          teamSize: (user.brand.team_size as OnboardingTeamSize) || "just_me",
+          teamSize: (user.brand.team_size === "just_me" ? "1" : (user.brand.team_size as OnboardingTeamSize)) || "1",
           primaryPlatform: (user.brand.primary_platform as OnboardingPlatform) || "instagram",
           postingFrequency: (user.brand.posting_frequency as OnboardingPostingFrequency) || "daily",
         })
@@ -129,7 +129,7 @@ export function SettingsView() {
       await submitOnboardingProfile({
         role: values.role,
         industry: (currentBrand?.industry as OnboardingIndustry) || "technology",
-        team_size: (currentBrand?.team_size as OnboardingTeamSize) || "just_me",
+        team_size: (currentBrand?.team_size === "just_me" ? "1" : (currentBrand?.team_size as OnboardingTeamSize)) || "1",
         primary_platform: (currentBrand?.primary_platform as OnboardingPlatform) || "instagram",
         posting_frequency: (currentBrand?.posting_frequency as OnboardingPostingFrequency) || "daily",
         connected_platforms: connectedPlatforms,
@@ -321,10 +321,11 @@ export function SettingsView() {
                 {...registerBrand("teamSize")}
                 className="w-full rounded-xl border border-black/8 px-4 py-2.5 text-sm outline-none transition focus:border-slate-950 bg-white"
               >
-                <option value="just_me">Just me</option>
-                <option value="2_5">2 - 5 people</option>
-                <option value="6_20">6 - 20 people</option>
-                <option value="20_plus">More than 20 people</option>
+                <option value="1">Just me</option>
+                <option value="2-5">2-5</option>
+                <option value="6-20">6-20</option>
+                <option value="21-50">21-50</option>
+                <option value="51+">51+</option>
               </select>
             </div>
           </div>

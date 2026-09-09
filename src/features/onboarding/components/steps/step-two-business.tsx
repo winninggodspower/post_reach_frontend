@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
 import { PanelTopOpen } from "lucide-react"
 import type { FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form"
 
@@ -13,10 +12,11 @@ import type {
 import { INDUSTRY_OPTIONS } from "./shared"
 
 const TEAM_SIZE_OPTIONS: Array<{ value: OnboardingTeamSize; label: string }> = [
-  { value: "just_me", label: "Just me" },
-  { value: "2_5", label: "2-5" },
-  { value: "6_20", label: "6-20" },
-  { value: "20_plus", label: "20+" },
+  { value: "1", label: "Just me" },
+  { value: "2-5", label: "2-5" },
+  { value: "6-20", label: "6-20" },
+  { value: "21-50", label: "21-50" },
+  { value: "51+", label: "51+" },
 ]
 
 type OnboardingStepTwoBusinessProps = {
@@ -29,16 +29,7 @@ type OnboardingStepTwoBusinessProps = {
 export function OnboardingStepTwoBusiness({
   register,
   errors,
-  role,
-  setValue,
 }: OnboardingStepTwoBusinessProps) {
-  const hideTeamSize = role === "creator"
-
-  useEffect(() => {
-    if (hideTeamSize) {
-      setValue("team_size", "just_me", { shouldDirty: true, shouldValidate: true })
-    }
-  }, [hideTeamSize, setValue])
 
   return (
     <div className="space-y-6">
@@ -78,30 +69,28 @@ export function OnboardingStepTwoBusiness({
           ) : null}
         </div>
 
-        {hideTeamSize ? null : (
-          <div className="space-y-2">
-            <Label htmlFor="team_size">Team size</Label>
-            <div className="relative">
-              <select
-                id="team_size"
-                aria-invalid={errors.team_size ? true : undefined}
-                {...register("team_size", { required: "Team size is required." })}
-                className="h-12 w-full appearance-none rounded-xl border border-black/10 bg-white px-3 pr-10 text-base text-slate-900 shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
-              >
-                <option value="" disabled>Select team size...</option>
-                {TEAM_SIZE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <PanelTopOpen className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-            </div>
-            {errors.team_size ? (
-              <p className="text-sm text-destructive">{errors.team_size.message}</p>
-            ) : null}
+        <div className="space-y-2">
+          <Label htmlFor="team_size">Team size</Label>
+          <div className="relative">
+            <select
+              id="team_size"
+              aria-invalid={errors.team_size ? true : undefined}
+              {...register("team_size", { required: "Team size is required." })}
+              className="h-12 w-full appearance-none rounded-xl border border-black/10 bg-white px-3 pr-10 text-base text-slate-900 shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
+            >
+              <option value="" disabled>Select team size...</option>
+              {TEAM_SIZE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <PanelTopOpen className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
           </div>
-        )}
+          {errors.team_size ? (
+            <p className="text-sm text-destructive">{errors.team_size.message}</p>
+          ) : null}
+        </div>
       </div>
 
     </div>

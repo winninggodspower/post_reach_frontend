@@ -65,7 +65,7 @@ export function CreateBrandFlow({ onSuccess }: Props) {
     defaultValues: {
       name: "",
       industry: "technology",
-      team_size: "just_me",
+      team_size: "1",
       primary_platform: "instagram",
       posting_frequency: "few_times_a_week",
     },
@@ -203,10 +203,11 @@ export function CreateBrandFlow({ onSuccess }: Props) {
               {...register("team_size", { required: true })}
               className={inputClassName}
             >
-              <option value="just_me">Just me</option>
-              <option value="2_5">2–5 people</option>
-              <option value="6_20">6–20 people</option>
-              <option value="20_plus">20+ people</option>
+              <option value="1">Just me</option>
+              <option value="2-5">2-5</option>
+              <option value="6-20">6-20</option>
+              <option value="21-50">21-50</option>
+              <option value="51+">51+</option>
             </select>
           </Field>
         </div>

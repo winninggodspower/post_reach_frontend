@@ -14,7 +14,7 @@ export type OnboardingIndustry =
   | "finance"
   | "other"
 
-export type OnboardingTeamSize = "just_me" | "2_5" | "6_20" | "20_plus"
+export type OnboardingTeamSize = "1" | "2-5" | "6-20" | "21-50" | "51+"
 
 export type OnboardingPostingFrequency =
   | "daily"

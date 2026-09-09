@@ -100,10 +100,10 @@ export function OnboardingFlow() {
   }, [alreadyCompleted, isHydrated, isLoadingUser, nextUrl, router])
 
   useEffect(() => {
-    if (form.role === "creator") {
-      setValue("team_size", "just_me", { shouldDirty: true, shouldValidate: true })
+    if (form.role === "creator" && !form.team_size) {
+      setValue("team_size", "1", { shouldDirty: true, shouldValidate: true })
     }
-  }, [form.role, setValue])
+  }, [form.role, form.team_size, setValue])
 
   const canProceedStepOne = Boolean(form.role)
   const canProceedStepTwo = (form.industry as string) !== "" && (form.team_size as string) !== ""
