@@ -4,6 +4,7 @@ import * as React from "react"
 import { Eye, Heart, MessageCircle, Bookmark, Share2, Music, Plus, ThumbsUp, MessageSquare, Search, MoreVertical, Forward } from "lucide-react"
 import type { AccountChannel } from "../target-accounts-selector"
 import { PhoneMockupWrapper } from "../phone-mockup-wrapper"
+import { FormattedCaption } from "../formatted-caption"
 
 type LivePreviewPhoneProps = {
   videoSrc: string
@@ -77,20 +78,6 @@ export function LivePreviewPhone({
     { id: "instagram", label: "Instagram" },
   ]
 
-  const renderFormattedPreviewCaption = (text: string) => {
-    if (!text) return "Enter your main caption here..."
-    const words = text.split(" ")
-    return words.map((word, i) => {
-      if (word.startsWith("#") || word.startsWith("@")) {
-        return (
-          <span key={i} className="text-sky-400 font-medium hover:underline cursor-pointer">
-            {word}{" "}
-          </span>
-        )
-      }
-      return word + " "
-    })
-  }
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-[1.75rem] p-6 shadow-xs relative text-slate-800 dark:text-slate-200 animate-fade-in">
@@ -238,7 +225,11 @@ export function LivePreviewPhone({
               </div>
 
               <p className="text-[10px] leading-snug text-white/90 font-normal break-words line-clamp-3">
-                {renderFormattedPreviewCaption(caption)}
+                <FormattedCaption
+                  text={caption}
+                  fallback="Enter your main caption here..."
+                  tagClassName="text-sky-400 font-medium hover:underline cursor-pointer"
+                />
               </p>
 
               <div className="flex items-center gap-1 text-[9px] text-white/80">

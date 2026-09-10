@@ -4,14 +4,14 @@ import * as React from "react"
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
-import type { VideoPostFormValues } from "./video/video-composer"
+import type { ComposerFormValues } from "../types/composer"
 import type { AccountChannel } from "./target-accounts-selector"
 import { TiktokAdvancedSettings } from "./tiktok-advanced-settings"
 
 type CompositionDetailsProps = {
-  register: UseFormRegister<VideoPostFormValues>
-  setValue: UseFormSetValue<VideoPostFormValues>
-  watch: UseFormWatch<VideoPostFormValues>
+  register: UseFormRegister<ComposerFormValues>
+  setValue: UseFormSetValue<ComposerFormValues>
+  watch: UseFormWatch<ComposerFormValues>
   channels: AccountChannel[]
   postType?: "video" | "photo" | "text"
 }

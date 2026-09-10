@@ -3,15 +3,15 @@
 import * as React from "react"
 import { Calendar, Clock, Info, Send } from "lucide-react"
 import { UseFormRegister, UseFormSetValue } from "react-hook-form"
-import type { VideoPostFormValues } from "./video/video-composer"
+import type { ComposerFormValues } from "../types/composer"
 import { Calendar as ShadcnCalendar } from "../../../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover"
 import { Button } from "../../../components/ui/button"
 import { TimePicker } from "../../../components/ui/time-picker"
 
 type SchedulerWidgetProps = {
-  register: UseFormRegister<VideoPostFormValues>
-  setValue: UseFormSetValue<VideoPostFormValues>
+  register: UseFormRegister<ComposerFormValues>
+  setValue: UseFormSetValue<ComposerFormValues>
   isScheduled: boolean
   onChangeIsScheduled: (val: boolean) => void
   scheduleDate: string

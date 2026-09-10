@@ -5,6 +5,7 @@ import { Eye, Heart, MessageCircle, Share2 } from "lucide-react"
 import type { AccountChannel } from "../target-accounts-selector"
 import { PhoneMockupWrapper } from "../phone-mockup-wrapper"
 import { PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
+import { FormattedCaption } from "../formatted-caption"
 
 type TextPreviewPhoneProps = {
   caption: string
@@ -55,21 +56,6 @@ export function TextPreviewPhone({
         ? linkedinCaption
         : xCaption) || caption
     : caption
-
-  const renderFormattedPreviewCaption = (text: string) => {
-    if (!text) return "Enter your post text here..."
-    const words = text.split(" ")
-    return words.map((word, i) => {
-      if (word.startsWith("#") || word.startsWith("@")) {
-        return (
-          <span key={i} className="text-sky-500 font-medium hover:underline cursor-pointer">
-            {word}{" "}
-          </span>
-        )
-      }
-      return word + " "
-    })
-  }
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-[1.75rem] p-6 shadow-xs relative text-slate-800 dark:text-slate-200 animate-fade-in">
@@ -125,7 +111,7 @@ export function TextPreviewPhone({
         {/* Text Only Content Area (Mocking social post body) */}
         <div className="flex-1 px-3 py-4 text-left overflow-y-auto max-h-[300px] scrollbar-none">
           <p className="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-sans leading-normal">
-            {renderFormattedPreviewCaption(activeCaption)}
+            <FormattedCaption text={activeCaption} fallback="Enter your post text here..." />
           </p>
         </div>
 
