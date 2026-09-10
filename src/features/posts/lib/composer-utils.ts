@@ -34,22 +34,20 @@ export function buildPlatformSettings({
       return lower === id.toLowerCase()
     })
 
-  if (values.customizePerPlatform) {
-    if (hasPlatform("facebook") && values.facebookCaption) {
-      platformSettings.facebook = { ...(platformSettings.facebook || {}), caption: values.facebookCaption }
-    }
-    if (hasPlatform("instagram") && values.instagramCaption) {
-      platformSettings.instagram = { ...(platformSettings.instagram || {}), caption: values.instagramCaption }
-    }
-    if (hasPlatform("tiktok") && values.tiktokCaption) {
-      platformSettings.tiktok = { ...(platformSettings.tiktok || {}), caption: values.tiktokCaption }
-    }
-    if (hasPlatform("linkedin") && values.linkedinCaption) {
-      platformSettings.linkedin = { ...(platformSettings.linkedin || {}), caption: values.linkedinCaption }
-    }
-    if (hasPlatform("twitter") && values.xCaption) {
-      platformSettings.twitter = { ...(platformSettings.twitter || {}), caption: values.xCaption }
-    }
+  if (hasPlatform("facebook") && values.facebookCaption?.trim()) {
+    platformSettings.facebook = { ...(platformSettings.facebook || {}), caption: values.facebookCaption.trim() }
+  }
+  if (hasPlatform("instagram") && values.instagramCaption?.trim()) {
+    platformSettings.instagram = { ...(platformSettings.instagram || {}), caption: values.instagramCaption.trim() }
+  }
+  if (hasPlatform("tiktok") && values.tiktokCaption?.trim()) {
+    platformSettings.tiktok = { ...(platformSettings.tiktok || {}), caption: values.tiktokCaption.trim() }
+  }
+  if (hasPlatform("linkedin") && values.linkedinCaption?.trim()) {
+    platformSettings.linkedin = { ...(platformSettings.linkedin || {}), caption: values.linkedinCaption.trim() }
+  }
+  if (hasPlatform("twitter") && values.xCaption?.trim()) {
+    platformSettings.twitter = { ...(platformSettings.twitter || {}), caption: values.xCaption.trim() }
   }
 
   if (extraSettings.tiktok) {

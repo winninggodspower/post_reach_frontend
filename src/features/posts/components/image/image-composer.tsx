@@ -77,7 +77,6 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
       isScheduled: false,
       scheduleDate: format(addDays(new Date(), 1), "yyyy-MM-dd"),
       scheduleTime: "14:00",
-      customizePerPlatform: false,
       youtubeTitle: "",
       youtubeCaption: "",
       tiktokCaption: "",
@@ -118,7 +117,6 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
   const isScheduled = watch("isScheduled")
   const scheduleDate = watch("scheduleDate")
   const scheduleTime = watch("scheduleTime")
-  const customizePerPlatform = watch("customizePerPlatform")
   const youtubeCaption = watch("youtubeCaption")
   const tiktokCaption = watch("tiktokCaption")
   const instagramCaption = watch("instagramCaption")
@@ -273,13 +271,11 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
               onChangePreviewPlatform={setPreviewPlatform}
               activeChannel={activeChannel}
               caption={
-                customizePerPlatform
-                  ? (previewPlatform === "youtube"
-                      ? youtubeCaption
-                      : previewPlatform === "tiktok"
-                      ? tiktokCaption
-                      : instagramCaption) || caption
-                  : caption
+                (previewPlatform === "youtube"
+                  ? youtubeCaption
+                  : previewPlatform === "tiktok"
+                  ? tiktokCaption
+                  : instagramCaption) || caption
               }
               channels={channels}
             />

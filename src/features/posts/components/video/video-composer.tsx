@@ -69,7 +69,6 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
       isScheduled: false,
       scheduleDate: format(addDays(new Date(), 1), "yyyy-MM-dd"),
       scheduleTime: "14:00",
-      customizePerPlatform: false,
       youtubeTitle: "",
       youtubeCaption: "",
       tiktokCaption: "",
@@ -92,7 +91,6 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
   const isScheduled = watch("isScheduled")
   const scheduleDate = watch("scheduleDate")
   const scheduleTime = watch("scheduleTime")
-  const customizePerPlatform = watch("customizePerPlatform")
   const youtubeTitle = watch("youtubeTitle")
   const youtubeCaption = watch("youtubeCaption")
   const tiktokCaption = watch("tiktokCaption")
@@ -156,8 +154,8 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
         extraSettings: {
           youtube: platforms.includes("youtube")
             ? {
-                title: (customizePerPlatform ? youtubeTitle : title) || title,
-                description: (customizePerPlatform ? youtubeCaption : caption) || caption,
+                title: youtubeTitle?.trim() || vals.title || title,
+                description: youtubeCaption?.trim() || vals.caption || caption,
               }
             : undefined,
           tiktok: platforms.includes("tiktok")
@@ -382,18 +380,16 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
               activeChannel={activeChannel}
               onTogglePlay={togglePlay}
               title={
-                customizePerPlatform && previewPlatform === "youtube"
-                  ? youtubeTitle || title
+                previewPlatform === "youtube" && youtubeTitle
+                  ? youtubeTitle
                   : title
               }
               caption={
-                customizePerPlatform
-                  ? (previewPlatform === "youtube"
-                      ? youtubeCaption
-                      : previewPlatform === "tiktok"
-                      ? tiktokCaption
-                      : instagramCaption) || caption
-                  : caption
+                (previewPlatform === "youtube"
+                  ? youtubeCaption
+                  : previewPlatform === "tiktok"
+                  ? tiktokCaption
+                  : instagramCaption) || caption
               }
               channels={channels}
               thumbnailDataUrl={thumbnailDataUrl}

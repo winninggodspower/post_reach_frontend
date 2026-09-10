@@ -44,7 +44,6 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
       isScheduled: false,
       scheduleDate: format(addDays(new Date(), 1), "yyyy-MM-dd"),
       scheduleTime: "14:00",
-      customizePerPlatform: false,
       facebookCaption: "",
       linkedinCaption: "",
       xCaption: "",
@@ -55,7 +54,6 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
   const isScheduled = watch("isScheduled")
   const scheduleDate = watch("scheduleDate")
   const scheduleTime = watch("scheduleTime")
-  const customizePerPlatform = watch("customizePerPlatform")
   const facebookCaption = watch("facebookCaption")
   const linkedinCaption = watch("linkedinCaption")
   const xCaption = watch("xCaption")
@@ -122,7 +120,8 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
       return
     }
 
-    if (!caption && !customizePerPlatform) {
+    const hasContent = caption?.trim() || facebookCaption?.trim() || linkedinCaption?.trim() || xCaption?.trim()
+    if (!hasContent) {
       toast.error("Content is empty", {
         description: "Please write something before posting.",
       })
@@ -175,7 +174,6 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
         <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-6">
           <TextPreviewPhone
             caption={caption || ""}
-            customizePerPlatform={customizePerPlatform}
             facebookCaption={facebookCaption}
             linkedinCaption={linkedinCaption}
             xCaption={xCaption}

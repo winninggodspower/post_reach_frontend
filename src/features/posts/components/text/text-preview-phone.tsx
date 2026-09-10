@@ -9,7 +9,6 @@ import { FormattedCaption } from "../formatted-caption"
 
 type TextPreviewPhoneProps = {
   caption: string
-  customizePerPlatform: boolean
   facebookCaption?: string
   linkedinCaption?: string
   xCaption?: string
@@ -18,7 +17,6 @@ type TextPreviewPhoneProps = {
 
 export function TextPreviewPhone({
   caption = "",
-  customizePerPlatform = false,
   facebookCaption = "",
   linkedinCaption = "",
   xCaption = "",
@@ -49,13 +47,12 @@ export function TextPreviewPhone({
     channels.find((c) => c.selected) ||
     channels[0]
 
-  const activeCaption = customizePerPlatform
-    ? (previewPlatform === "facebook"
-        ? facebookCaption
-        : previewPlatform === "linkedin"
-        ? linkedinCaption
-        : xCaption) || caption
-    : caption
+  const activeCaption =
+    (previewPlatform === "facebook"
+      ? facebookCaption
+      : previewPlatform === "linkedin"
+      ? linkedinCaption
+      : xCaption) || caption
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-[1.75rem] p-6 shadow-xs relative text-slate-800 dark:text-slate-200 animate-fade-in">

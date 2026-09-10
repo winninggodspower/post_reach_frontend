@@ -4,7 +4,6 @@ export interface ComposerFormValues {
   isScheduled: boolean
   scheduleDate: string
   scheduleTime: string
-  customizePerPlatform: boolean
   youtubeTitle?: string
   youtubeCaption?: string
   tiktokCaption?: string

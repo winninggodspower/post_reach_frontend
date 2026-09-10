@@ -40,17 +40,20 @@ export function CompositionDetails({
   channels,
   postType = "video",
 }: CompositionDetailsProps) {
-  const customizePerPlatform = watch("customizePerPlatform")
   const caption = watch("caption") || ""
   const globalTitle = (watch("title") as string) || ""
+
+  // Find which selected platforms are checked
+  const selectedChannels = channels.filter(c => c.selected)
+  const isYoutubeSelected = selectedChannels.some(c => c.platform === "youtube")
 
   // Track prev global title so we can detect manual override edits
   const prevGlobalTitleRef = React.useRef(globalTitle)
 
-  // Live-sync globalTitle → youtubeTitle override when customization is on,
+  // Live-sync globalTitle → youtubeTitle override,
   // but stop syncing once the user has manually changed the override.
   React.useEffect(() => {
-    if (customizePerPlatform && isYoutubeSelected) {
+    if (isYoutubeSelected) {
       const currentOverride = (watch("youtubeTitle") as string) || ""
       // Sync only if the override is still tracking the previous global title
       if (!currentOverride.trim() || currentOverride === prevGlobalTitleRef.current) {
@@ -59,11 +62,7 @@ export function CompositionDetails({
     }
     prevGlobalTitleRef.current = globalTitle
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [globalTitle, customizePerPlatform])
-  
-  // Find which selected platforms are checked
-  const selectedChannels = channels.filter(c => c.selected)
-  const isYoutubeSelected = selectedChannels.some(c => c.platform === "youtube")
+  }, [globalTitle, isYoutubeSelected])
   
   // State for which channel panel is expanded
   const [openChannelId, setOpenChannelId] = React.useState<string | null>(null)
@@ -134,60 +133,17 @@ export function CompositionDetails({
         </button>
       </div>
 
-      {/* Customize per Platform Switch */}
-      {selectedChannels.length > 0 && (
-        <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 transition-all duration-300">
-          <div className="space-y-0.5 pr-4 text-left">
-            <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
-              Customize per platform
-            </h4>
-            <p className="text-[10px] text-slate-400 leading-normal">
-              Customize the content and settings specifically for each channel.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              const nextVal = !customizePerPlatform
-              setValue("customizePerPlatform", nextVal)
-              if (nextVal) {
-                // Sync captions
-                selectedChannels.forEach((channel) => {
-                  const key = getPlatformFormKey(channel.platform)
-                  const currentOverride = (watch(key) as string) || ""
-                  if (!currentOverride.trim()) {
-                    setValue(key, caption)
-                  }
-                })
-                // Sync YouTube title override from the global title
-                const currentYtTitle = (watch("youtubeTitle") as string) || ""
-                if (!currentYtTitle.trim()) {
-                  setValue("youtubeTitle", watch("title") as string)
-                }
-              }
-            }}
-            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus:ring-2 focus:ring-accent-brand focus:ring-offset-2 dark:focus:ring-offset-slate-950 ${
-              customizePerPlatform ? "bg-accent-brand" : "bg-slate-200 dark:bg-slate-800"
-            }`}
-            role="switch"
-            aria-checked={customizePerPlatform}
-          >
-            <span
-              aria-hidden="true"
-              className={`pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
-                customizePerPlatform ? "translate-x-5" : "translate-x-0"
-              }`}
-            />
-          </button>
-        </div>
-      )}
-
       {/* Platform-Specific Collapsible Panels */}
-      {customizePerPlatform && selectedChannels.length > 0 && (
+      {selectedChannels.length > 0 && (
         <div className="space-y-3.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 animate-fade-in">
-          <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wide uppercase">
-            Platform Customizations
-          </h4>
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wide uppercase">
+              Platform Customizations
+            </h4>
+            <span className="text-[10px] text-slate-400">
+              Optional overrides per channel
+            </span>
+          </div>
           
           <div className="space-y-3">
             {selectedChannels.map((channel) => {
@@ -230,9 +186,11 @@ export function CompositionDetails({
                           <span className="text-[10px] text-slate-400 font-medium">{channel.handle}</span>
                         </div>
                         <p className="text-[10px] text-slate-400 mt-0.5 font-medium">
-                          {hasOverride 
-                            ? "Custom caption applied" 
-                            : "Inheriting main caption"}
+                          {hasOverride ? (
+                            <span className="text-accent-brand font-semibold">Custom caption applied</span>
+                          ) : (
+                            "Inheriting main caption"
+                          )}
                         </p>
                       </div>
                     </div>
@@ -307,6 +265,15 @@ export function CompositionDetails({
                           >
                             @ Mention Brand
                           </button>
+                          {hasOverride && (
+                            <button
+                              type="button"
+                              onClick={() => setValue(formKey, "")}
+                              className="px-2.5 py-1.5 text-[10px] font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-pointer transition"
+                            >
+                              Clear Override
+                            </button>
+                          )}
                           {caption && (
                             <button
                               type="button"

@@ -7,6 +7,7 @@ import type { UseFormSetValue } from "react-hook-form"
 import { fetchPostById } from "../api/server"
 import type { AccountChannel } from "../components/target-accounts-selector"
 import type { ComposerFormValues } from "../types/composer"
+import { useIsMounted } from "@/shared/hooks/use-is-mounted"
 
 interface UsePostHydrationOptions {
   postId?: string
@@ -24,16 +25,23 @@ export function usePostHydration({
   onError,
 }: UsePostHydrationOptions) {
   const [isFetching, setIsFetching] = React.useState(!!postId)
+  const isMounted = useIsMounted()
+
+  // Keep callback refs stable to prevent re-fetch infinite loops on parent re-renders
+  const onMediaLoadedRef = React.useRef(onMediaLoaded)
+  onMediaLoadedRef.current = onMediaLoaded
+
+  const onErrorRef = React.useRef(onError)
+  onErrorRef.current = onError
 
   React.useEffect(() => {
     if (!postId) return
 
-    let isMounted = true
     setIsFetching(true)
 
     fetchPostById(postId)
       .then((res) => {
-        if (!isMounted) return
+        if (!isMounted()) return
         if (!res.success || !res.data) throw new Error("Failed to load post")
         const data = res.data
 
@@ -64,10 +72,8 @@ export function usePostHydration({
         )
 
         // Hydrate platform specific custom captions
-        let hasCustom = false
         data.platforms.forEach((p) => {
           if (p.caption && p.caption !== data.caption) {
-            hasCustom = true
             const plat = p.platform.toLowerCase()
             if (plat === "youtube") setValue("youtubeCaption", p.caption)
             if (plat === "tiktok") setValue("tiktokCaption", p.caption)
@@ -78,33 +84,25 @@ export function usePostHydration({
           }
         })
 
-        if (hasCustom) {
-          setValue("customizePerPlatform", true)
-        }
-
-        onMediaLoaded?.({
+        onMediaLoadedRef.current?.({
           mediaUrls: data.media_urls,
           thumbnailUrl: data.thumbnail_url,
         })
       })
       .catch((err) => {
-        if (!isMounted) return
-        if (onError) {
-          onError(err)
+        if (!isMounted()) return
+        if (onErrorRef.current) {
+          onErrorRef.current(err)
         } else {
           toast.error("Failed to load post data")
         }
       })
       .finally(() => {
-        if (isMounted) {
+        if (isMounted()) {
           setIsFetching(false)
         }
       })
-
-    return () => {
-      isMounted = false
-    }
-  }, [postId, setValue, setChannels, onMediaLoaded, onError])
+  }, [postId, setValue, setChannels, isMounted])
 
   return { isFetching }
 }
