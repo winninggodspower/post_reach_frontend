@@ -47,9 +47,11 @@ export function usePostHydration({
 
         setValue("caption", data.caption || "")
 
+        const parentCaption = data.caption || ""
         const ytTitle = data.platforms.find((p) => p.platform.toLowerCase() === "youtube")?.title
         if (ytTitle) {
           setValue("title", ytTitle)
+          setValue("youtubeTitle", ytTitle)
         }
 
         if (data.scheduled_at) {
@@ -71,17 +73,17 @@ export function usePostHydration({
           }))
         )
 
-        // Hydrate platform specific custom captions
+        // Hydrate platform specific captions (inheriting from parent post caption if empty)
         data.platforms.forEach((p) => {
-          if (p.caption && p.caption !== data.caption) {
-            const plat = p.platform.toLowerCase()
-            if (plat === "youtube") setValue("youtubeCaption", p.caption)
-            if (plat === "tiktok") setValue("tiktokCaption", p.caption)
-            if (plat === "instagram") setValue("instagramCaption", p.caption)
-            if (plat === "facebook") setValue("facebookCaption", p.caption)
-            if (plat === "linkedin") setValue("linkedinCaption", p.caption)
-            if (plat === "twitter" || plat === "x") setValue("xCaption", p.caption)
-          }
+          const plat = p.platform.toLowerCase()
+          const platformCaption = p.caption?.trim() ? p.caption : parentCaption
+
+          if (plat === "youtube") setValue("youtubeCaption", platformCaption)
+          if (plat === "tiktok") setValue("tiktokCaption", platformCaption)
+          if (plat === "instagram") setValue("instagramCaption", platformCaption)
+          if (plat === "facebook") setValue("facebookCaption", platformCaption)
+          if (plat === "linkedin") setValue("linkedinCaption", platformCaption)
+          if (plat === "twitter" || plat === "x") setValue("xCaption", platformCaption)
         })
 
         onMediaLoadedRef.current?.({

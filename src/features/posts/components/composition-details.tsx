@@ -63,6 +63,25 @@ export function CompositionDetails({
     prevGlobalTitleRef.current = globalTitle
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [globalTitle, isYoutubeSelected])
+
+  // Track prev caption so we can detect manual override edits per platform
+  const prevCaptionRef = React.useRef(caption)
+
+  // Live-sync caption → platform caption overrides,
+  // but stop syncing once the user has manually changed that specific platform's override.
+  React.useEffect(() => {
+    selectedChannels.forEach((channel) => {
+      const formKey = getPlatformFormKey(channel.platform)
+      if (formKey === "caption") return
+      const currentOverride = (watch(formKey) as string) || ""
+      // Sync only if the override is empty or is still tracking the previous caption
+      if (!currentOverride.trim() || currentOverride === prevCaptionRef.current) {
+        setValue(formKey, caption)
+      }
+    })
+    prevCaptionRef.current = caption
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caption, selectedChannels])
   
   // State for which channel panel is expanded
   const [openChannelId, setOpenChannelId] = React.useState<string | null>(null)
@@ -150,7 +169,7 @@ export function CompositionDetails({
               const isExpanded = openChannelId === channel.id
               const formKey = getPlatformFormKey(channel.platform)
               const overrideVal = (watch(formKey) as string) || ""
-              const hasOverride = overrideVal.trim().length > 0
+              const hasOverride = overrideVal.trim().length > 0 && overrideVal !== caption
               
               return (
                 <div 
@@ -240,7 +259,7 @@ export function CompositionDetails({
                             </span>
                           </div>
                           <textarea
-                            placeholder={channel.platform === "youtube" ? "Override the YouTube description for this post..." : "Leave blank to inherit main caption..."}
+                            placeholder={channel.platform === "youtube" ? "Override the YouTube description for this post..." : "Platform caption (inheriting main caption)..."}
                             rows={3}
                             className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 text-sm focus:outline-hidden focus:ring-1 focus:ring-accent-brand focus:border-accent-brand resize-y scrollbar-thin text-slate-800 dark:text-slate-100"
                             {...register(formKey, {
@@ -265,23 +284,18 @@ export function CompositionDetails({
                           >
                             @ Mention Brand
                           </button>
-                          {hasOverride && (
-                            <button
-                              type="button"
-                              onClick={() => setValue(formKey, "")}
-                              className="px-2.5 py-1.5 text-[10px] font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-pointer transition"
-                            >
-                              Clear Override
-                            </button>
-                          )}
-                          {caption && (
+                          {hasOverride ? (
                             <button
                               type="button"
                               onClick={() => setValue(formKey, caption)}
-                              className="px-2.5 py-1.5 text-[10px] font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800/80 text-emerald-600 dark:text-emerald-400 cursor-pointer transition sm:ml-auto"
+                              className="px-2.5 py-1.5 text-[10px] font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-pointer transition"
                             >
-                              Copy Main Caption
+                              Reset to Main Caption
                             </button>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 italic py-1.5">
+                              Edit above to customize for {channel.name}
+                            </span>
                           )}
                         </div>
                         
