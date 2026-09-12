@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -62,12 +63,24 @@ const configNavItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname()
-  const { state } = useSidebar()
+  const { state, setOpenMobile, isMobile } = useSidebar()
   const logout = useAuth((state) => state.logout)
   const user = useAuth((state) => state.user)
 
   const brandName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "PostReach"
   const isCollapsed = state === "collapsed"
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
+
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }, [pathname, isMobile, setOpenMobile])
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
@@ -75,7 +88,7 @@ export function DashboardSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href="/dashboard" onClick={handleNavClick}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-slate-100 overflow-hidden border border-black/5">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/icon.png" alt="Logo" className="size-full object-cover" />
@@ -92,13 +105,13 @@ export function DashboardSidebar() {
         {/* Prominent CTA button */}
         <div className="pt-4 pb-2 px-3 group-data-[collapsible=icon]:px-0 flex justify-center">
           {isCollapsed ? (
-            <Link href="/dashboard/posts">
+            <Link href="/dashboard/posts" onClick={handleNavClick}>
               <Button size="icon" className="size-8 bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-xs hover:brightness-95 transition-all duration-300 font-semibold cursor-pointer rounded-lg">
                 <PenSquare className="size-4" />
               </Button>
             </Link>
           ) : (
-            <Link href="/dashboard/posts" className="w-full">
+            <Link href="/dashboard/posts" className="w-full" onClick={handleNavClick}>
               <Button className="w-full h-9 bg-linear-to-r from-accent-dark to-accent-brand text-white shadow-xs hover:brightness-95 transition-all duration-300 font-semibold cursor-pointer rounded-lg text-xs gap-1.5 px-3">
                 <PenSquare className="size-3.5" />
                 <span>Create post</span>
@@ -120,7 +133,7 @@ export function DashboardSidebar() {
                   tooltip={item.title}
                   className="font-medium text-slate-600 hover:text-slate-900"
                 >
-                  <Link href={item.url}>
+                  <Link href={item.url} onClick={handleNavClick}>
                     <item.icon className="size-4" />
                     <span>{item.title}</span>
                   </Link>
@@ -141,7 +154,7 @@ export function DashboardSidebar() {
                   tooltip={item.title}
                   className="font-medium text-slate-600 hover:text-slate-900"
                 >
-                  <Link href={item.url}>
+                  <Link href={item.url} onClick={handleNavClick}>
                     <item.icon className="size-4" />
                     <span>{item.title}</span>
                   </Link>
@@ -159,6 +172,9 @@ export function DashboardSidebar() {
             <SidebarMenuButton
               tooltip="Logout"
               onClick={() => {
+                if (isMobile) {
+                  setOpenMobile(false)
+                }
                 logout()
                 window.location.href = "/signin"
               }}
