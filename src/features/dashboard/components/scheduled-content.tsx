@@ -33,8 +33,8 @@ export function ScheduledContent({
             <div className="h-7 w-48 bg-slate-200 rounded-lg animate-pulse" />
           </div>
         )}
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
+        <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <ScheduledPostCardSkeleton key={i} />
           ))}
         </div>
@@ -62,7 +62,7 @@ export function ScheduledContent({
       )}
 
       {posts.length > 0 ? (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
           {posts.map((post) => (
             <ScheduledPostCard
               key={post.id}
