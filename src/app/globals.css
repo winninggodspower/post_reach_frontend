@@ -432,3 +432,30 @@ html body [data-sonner-toast] [data-close-button]:hover {
   opacity: 0;
   pointer-events: none;
 }
+
+/* ── Sonner Toast Mobile Responsiveness Fix ── */
+@media (max-width: 640px) {
+  [data-sonner-toaster] {
+    left: 16px !important;
+    right: 16px !important;
+    width: auto !important;
+    max-width: calc(100vw - 32px) !important;
+    box-sizing: border-box !important;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding-right: 32px !important;
+  }
+
+  [data-sonner-toast] [data-close-button] {
+    right: 8px !important;
+    left: auto !important;
+    top: 8px !important;
+    transform: none !important;
+  }
+}
