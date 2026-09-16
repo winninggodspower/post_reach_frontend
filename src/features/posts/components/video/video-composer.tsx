@@ -32,16 +32,20 @@ type VideoComposerProps = {
   onBack?: () => void
 }
 
-function dataURLtoFile(dataUrl: string, filename: string): File {
-  const arr = dataUrl.split(",")
-  const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg"
-  const bstr = atob(arr[1])
+function dataURLtoFile(dataUrl: string, filename = "thumbnail"): File {
+  const [header, base64Data] = dataUrl.split(",")
+  const mime = header.match(/:(.*?);/)?.[1] || "image/jpeg"
+
+  const subtype = mime.split("/")[1]?.toLowerCase() || "jpg"
+  const extension = subtype === "jpeg" ? "jpg" : subtype
+
+  const bstr = atob(base64Data)
   let n = bstr.length
   const u8arr = new Uint8Array(n)
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n)
   }
-  return new File([u8arr], filename, { type: mime })
+  return new File([u8arr], `${filename}.${extension}`, { type: mime })
 }
 
 export function VideoComposer({ postId, onBack }: VideoComposerProps) {
@@ -172,9 +176,9 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
       })
 
       let thumbnailFile: File | undefined = undefined
-      if (thumbnailDataUrl) {
+      if (thumbnailDataUrl && thumbnailDataUrl.startsWith("data:")) {
         try {
-          thumbnailFile = dataURLtoFile(thumbnailDataUrl, "thumbnail.jpg")
+          thumbnailFile = dataURLtoFile(thumbnailDataUrl, "thumbnail")
         } catch (error) {
           console.error("Error converting thumbnail data URL to File:", error)
         }
