@@ -30,14 +30,14 @@ export default function Home() {
           </p>
 
           <div className="mt-10 w-full">
-            <WaitlistForm />
-            {/* <Link
+            {/* <WaitlistForm /> */}
+            <Link
               href="/signup"
               className="btn-primary hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-orange-300 inline-flex items-center gap-1.5"
             >
               <span>Start For Free</span>
               <ArrowRight className="size-4" />
-            </Link> */}
+            </Link>
           </div>
         </div>
       </section>
