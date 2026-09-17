@@ -186,7 +186,7 @@ export function DashboardSidebar() {
                 >
                   <Link href="/dashboard/admin/analytics" onClick={handleNavClick}>
                     <Activity className="size-4 text-primary" />
-                    <span>Analytics & Telemetry</span>
+                    <span>Platform Analytics</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

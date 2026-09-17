@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import { AdminAnalyticsView } from "@/features/admin/components/admin-analytics-view"
 
 export const metadata: Metadata = {
-  title: "Superadmin Telemetry & Analytics | PostReach",
-  description: "Live platform telemetry, user growth velocity, content pipeline, and storage monitoring.",
+  title: "Platform Analytics | PostReach",
+  description: "Real-time user growth, content publishing health, and workspace analytics across the platform.",
 }
 
 export default function AdminAnalyticsPage() {

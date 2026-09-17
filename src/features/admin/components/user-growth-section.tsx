@@ -28,8 +28,8 @@ export function UserGrowthSection({ users }: UserGrowthSectionProps) {
             <UserPlus className="size-4.5" />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900 text-base">User Sign-up Velocity</h3>
-            <p className="text-xs text-slate-500">Platform registration trajectory</p>
+            <h3 className="font-semibold text-slate-900 text-base">New Sign-Ups</h3>
+            <p className="text-xs text-slate-500">Recent user registrations</p>
           </div>
         </div>
 
@@ -64,12 +64,12 @@ export function UserGrowthSection({ users }: UserGrowthSectionProps) {
           <div className="flex items-center justify-between text-xs font-semibold text-emerald-900 mb-2">
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="size-4 text-emerald-600" />
-              Onboarding Funnel
+              Percentage Onboarded
             </span>
-            <span>{users.onboarding_completion_rate_percentage}% Finished</span>
+            <span>{Number(users.onboarding_completion_rate_percentage).toFixed(0)}% Finished</span>
           </div>
           <p className="text-xs text-slate-600 leading-relaxed">
-            <strong>{users.completed_onboarding}</strong> out of <strong>{users.total_users}</strong> registered users have set up their brand and completed onboarding steps.
+            <strong>{users.completed_onboarding}</strong> out of <strong>{users.total_users}</strong> registered users have set up their brand profile.
           </p>
         </div>
       </div>
@@ -83,8 +83,8 @@ export function UserGrowthSection({ users }: UserGrowthSectionProps) {
                 <Briefcase className="size-4.5" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 text-base">User Personas & Roles</h3>
-                <p className="text-xs text-slate-500">Distribution across onboarding professions</p>
+                <h3 className="font-semibold text-slate-900 text-base">User Roles</h3>
+                <p className="text-xs text-slate-500">Distribution across user roles</p>
               </div>
             </div>
             <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">

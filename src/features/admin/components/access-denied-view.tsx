@@ -22,11 +22,11 @@ export function AccessDeniedView({ onRetry }: AccessDeniedViewProps) {
       </span>
 
       <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-        Superadmin Access Required
+        Administrator Access Required
       </h1>
 
       <p className="mt-3 text-sm text-slate-600 leading-relaxed max-w-md">
-        This telemetry dashboard provides platform-wide operational metrics and requires elevated superadmin privileges (<code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-800 font-mono">is_superuser</code>).
+        This dashboard provides platform-wide analytics and requires administrator privileges.
       </p>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
