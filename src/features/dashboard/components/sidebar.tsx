@@ -12,6 +12,8 @@ import {
   PenSquare,
   PlusCircle,
   Settings,
+  ShieldCheck,
+  Activity,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -167,6 +169,30 @@ export function DashboardSidebar() {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+
+        {Boolean(user?.is_superuser || user?.role === "admin" || user?.role === "superadmin") && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-primary font-bold mb-1 flex items-center gap-1.5">
+              <ShieldCheck className="size-3 text-primary" />
+              <span>Administration</span>
+            </SidebarGroupLabel>
+            <SidebarMenu className="gap-1">
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname.startsWith("/dashboard/admin")}
+                  tooltip="Platform Analytics"
+                  className="font-medium text-slate-600 hover:text-slate-900"
+                >
+                  <Link href="/dashboard/admin/analytics" onClick={handleNavClick}>
+                    <Activity className="size-4 text-primary" />
+                    <span>Analytics & Telemetry</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="pb-2 px-3 group-data-[collapsible=icon]:px-0">

@@ -33,6 +33,8 @@ export type AuthProfile = {
   role: string | null
   has_completed_onboarding: boolean
   brand: UserBrand | null
+  is_superuser?: boolean
+  is_staff?: boolean
 }
 
 export type AuthToken = {
