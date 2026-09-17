@@ -83,7 +83,11 @@ export function DashboardSidebar() {
   }, [pathname, isMobile, setOpenMobile])
 
   return (
-    <Sidebar collapsible="icon" variant="sidebar">
+    <Sidebar
+      collapsible="icon"
+      variant="sidebar"
+      className="top-[var(--beta-banner-height,0px)] h-[calc(100svh-var(--beta-banner-height,0px))]"
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

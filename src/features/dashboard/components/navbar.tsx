@@ -37,7 +37,7 @@ export function DashboardNavbar() {
   const activeBrandLogoUrl = user?.brand?.logo_url
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-black/5 px-5 transition-[width,height] ease-linear bg-white/80 backdrop-blur-lg">
+    <header className="sticky top-[var(--beta-banner-height,0px)] z-30 flex h-14 shrink-0 items-center justify-between border-b border-black/5 px-5 transition-[width,height] ease-linear bg-white/80 backdrop-blur-lg">
       {/* Left Side: Navigation & Brand Selector */}
       <div className="flex items-center gap-3">
         <SidebarTrigger className="-ml-1 size-9 [&_svg]:size-5 text-slate-500 hover:text-slate-900" />

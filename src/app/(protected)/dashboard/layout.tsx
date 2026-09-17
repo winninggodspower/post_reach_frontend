@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { DashboardSidebar } from "@/features/dashboard/components/sidebar"
 import { DashboardNavbar } from "@/features/dashboard/components/navbar"
+import { BetaCommunityBanner } from "@/features/dashboard/components/beta-community-banner"
 
 type DashboardLayoutProps = {
   children: ReactNode
@@ -46,13 +47,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <SidebarProvider>
-        <DashboardSidebar />
-        <SidebarInset>
-          <DashboardNavbar />
-          {children}
-        </SidebarInset>
-      </SidebarProvider>
+      <div className="flex flex-col min-h-screen w-full">
+        <BetaCommunityBanner />
+        <SidebarProvider className="flex-1 min-h-0">
+          <DashboardSidebar />
+          <SidebarInset>
+            <DashboardNavbar />
+            {children}
+          </SidebarInset>
+        </SidebarProvider>
+      </div>
     </TooltipProvider>
   )
 }
