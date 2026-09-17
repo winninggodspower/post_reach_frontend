@@ -1,8 +1,15 @@
 import { useState } from "react"
 import { toast } from "sonner"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 
 type UsePostSubmitProps = {
-  submitFn: (scheduledAt: string | undefined) => Promise<{ success: boolean; data?: { id: string }; error?: string }>
+  submitFn: (scheduledAt: string | undefined) => Promise<{
+    success: boolean
+    data?: { id?: string }
+    message?: string
+    error?: string
+    errors?: unknown
+  }>
 }
 
 export function usePostSubmit({ submitFn }: UsePostSubmitProps) {
@@ -31,16 +38,23 @@ export function usePostSubmit({ submitFn }: UsePostSubmitProps) {
         setCreatedPostId(response.data.id)
         setUploadProgress(100)
       } else {
+        const errorDesc =
+          response.message ||
+          response.error ||
+          (typeof response.errors === "string" ? response.errors : undefined) ||
+          "An unknown error occurred"
+
         toast.error("Failed to create post", {
-          description: response.error || "An unknown error occurred",
+          description: errorDesc,
         })
         setIsStatusModalOpen(false)
         setIsPublishing(false)
       }
     } catch (err: unknown) {
-      console.error(err)
-      toast.error("An error occurred", {
-        description: err instanceof Error ? err.message : "Failed to publish post.",
+      const errorDesc = extractErrorMessage(err, "Failed to publish post.")
+      console.error("Post submission error:", errorDesc, err)
+      toast.error("Failed to create post", {
+        description: errorDesc,
       })
       setIsStatusModalOpen(false)
       setIsPublishing(false)
