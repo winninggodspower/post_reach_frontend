@@ -19,7 +19,7 @@ function WhatsAppIcon({ className = "size-3.5" }: { className?: string }) {
 const STORAGE_KEY = "post_reach_beta_banner_dismissed"
 
 export function BetaCommunityBanner({
-  whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL || "https://chat.whatsapp.com/invite",
+  whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL || "https://chat.whatsapp.com/LN9UsbXfRRm2cfHLKjPznZ?s=cl&p=i&mlu=4&ilr=4e",
 }: BetaCommunityBannerProps) {
   const [isVisible, setIsVisible] = React.useState(true)
   const bannerRef = React.useRef<HTMLDivElement>(null)
