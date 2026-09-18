@@ -5,9 +5,10 @@ import { ChevronDown, ChevronUp } from "lucide-react"
 interface TiktokAdvancedSettingsProps {
   register: UseFormRegister<any>
   watch: UseFormWatch<any>
+  postType?: "video" | "photo" | "text"
 }
 
-export function TiktokAdvancedSettings({ register, watch }: TiktokAdvancedSettingsProps) {
+export function TiktokAdvancedSettings({ register, watch, postType = "video" }: TiktokAdvancedSettingsProps) {
   const [isExpanded, setIsExpanded] = React.useState(false)
 
   const brandContent = watch("tiktokBrandContentToggle")
@@ -66,22 +67,26 @@ export function TiktokAdvancedSettings({ register, watch }: TiktokAdvancedSettin
                 />
                 <span className="text-xs text-slate-700 dark:text-slate-300">Allow Comments</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="rounded-sm border-slate-300 text-accent-brand focus:ring-accent-brand size-3.5"
-                  {...register("tiktokAllowDuet")}
-                />
-                <span className="text-xs text-slate-700 dark:text-slate-300">Allow Duet</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="rounded-sm border-slate-300 text-accent-brand focus:ring-accent-brand size-3.5"
-                  {...register("tiktokAllowStitch")}
-                />
-                <span className="text-xs text-slate-700 dark:text-slate-300">Allow Stitch</span>
-              </label>
+              {postType !== "photo" && (
+                <>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="rounded-sm border-slate-300 text-accent-brand focus:ring-accent-brand size-3.5"
+                      {...register("tiktokAllowDuet")}
+                    />
+                    <span className="text-xs text-slate-700 dark:text-slate-300">Allow Duet</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="rounded-sm border-slate-300 text-accent-brand focus:ring-accent-brand size-3.5"
+                      {...register("tiktokAllowStitch")}
+                    />
+                    <span className="text-xs text-slate-700 dark:text-slate-300">Allow Stitch</span>
+                  </label>
+                </>
+              )}
             </div>
           </div>
 

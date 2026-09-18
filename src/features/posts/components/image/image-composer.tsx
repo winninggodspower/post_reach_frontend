@@ -138,9 +138,22 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
     submitFn: async (scheduledAt) => {
       const activeChs = channels.filter((c) => c.selected)
       const platforms = activeChs.map((c) => (c.platform === "x" ? "twitter" : c.platform))
+      const vals = getValues()
       const platformSettings = buildPlatformSettings({
         platforms,
-        values: getValues(),
+        values: vals,
+        extraSettings: {
+          tiktok: platforms.includes("tiktok")
+            ? {
+                privacy_level: vals.tiktokPrivacyLevel,
+                disable_comment: !vals.tiktokAllowComments,
+                disable_duet: !vals.tiktokAllowDuet,
+                disable_stitch: !vals.tiktokAllowStitch,
+                brand_content_toggle: vals.tiktokBrandContentToggle,
+                brand_organic_toggle: vals.tiktokBrandOrganicToggle,
+              }
+            : undefined,
+        },
       })
 
       if (postId) {

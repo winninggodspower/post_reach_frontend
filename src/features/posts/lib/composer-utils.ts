@@ -40,9 +40,6 @@ export function buildPlatformSettings({
   if (hasPlatform("instagram") && values.instagramCaption?.trim()) {
     platformSettings.instagram = { ...(platformSettings.instagram || {}), caption: values.instagramCaption.trim() }
   }
-  if (hasPlatform("tiktok") && values.tiktokCaption?.trim()) {
-    platformSettings.tiktok = { ...(platformSettings.tiktok || {}), caption: values.tiktokCaption.trim() }
-  }
   if (hasPlatform("linkedin") && values.linkedinCaption?.trim()) {
     platformSettings.linkedin = { ...(platformSettings.linkedin || {}), caption: values.linkedinCaption.trim() }
   }
@@ -50,10 +47,41 @@ export function buildPlatformSettings({
     platformSettings.twitter = { ...(platformSettings.twitter || {}), caption: values.xCaption.trim() }
   }
 
-  if (extraSettings.tiktok) {
-    platformSettings.tiktok = {
+  // TikTok (custom caption override + advanced settings)
+  if (hasPlatform("tiktok")) {
+    const tiktokObj: Record<string, unknown> = {
       ...(platformSettings.tiktok || {}),
-      ...extraSettings.tiktok,
+    }
+
+    if (values.tiktokCaption?.trim()) {
+      tiktokObj.caption = values.tiktokCaption.trim()
+    }
+
+    if (extraSettings.tiktok) {
+      Object.assign(tiktokObj, extraSettings.tiktok)
+    } else {
+      if (values.tiktokPrivacyLevel !== undefined) {
+        tiktokObj.privacy_level = values.tiktokPrivacyLevel
+      }
+      if (values.tiktokAllowComments !== undefined) {
+        tiktokObj.disable_comment = !values.tiktokAllowComments
+      }
+      if (values.tiktokAllowDuet !== undefined) {
+        tiktokObj.disable_duet = !values.tiktokAllowDuet
+      }
+      if (values.tiktokAllowStitch !== undefined) {
+        tiktokObj.disable_stitch = !values.tiktokAllowStitch
+      }
+      if (values.tiktokBrandContentToggle !== undefined) {
+        tiktokObj.brand_content_toggle = values.tiktokBrandContentToggle
+      }
+      if (values.tiktokBrandOrganicToggle !== undefined) {
+        tiktokObj.brand_organic_toggle = values.tiktokBrandOrganicToggle
+      }
+    }
+
+    if (Object.keys(tiktokObj).length > 0) {
+      platformSettings.tiktok = tiktokObj
     }
   }
 

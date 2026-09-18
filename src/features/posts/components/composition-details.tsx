@@ -61,7 +61,7 @@ export function CompositionDetails({
       }
     }
     prevGlobalTitleRef.current = globalTitle
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [globalTitle, isYoutubeSelected])
 
   // Track prev caption so we can detect manual override edits per platform
@@ -80,9 +80,9 @@ export function CompositionDetails({
       }
     })
     prevCaptionRef.current = caption
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caption, selectedChannels])
-  
+
   // State for which channel panel is expanded
   const [openChannelId, setOpenChannelId] = React.useState<string | null>(null)
 
@@ -163,17 +163,17 @@ export function CompositionDetails({
               Optional overrides per channel
             </span>
           </div>
-          
+
           <div className="space-y-3">
             {selectedChannels.map((channel) => {
               const isExpanded = openChannelId === channel.id
               const formKey = getPlatformFormKey(channel.platform)
               const overrideVal = (watch(formKey) as string) || ""
               const hasOverride = overrideVal.trim().length > 0 && overrideVal !== caption
-              
+
               return (
-                <div 
-                  key={channel.id} 
+                <div
+                  key={channel.id}
                   className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white/40 dark:bg-slate-900/40 shadow-xs transition-all duration-300"
                 >
                   {/* Collapsible Header */}
@@ -185,17 +185,17 @@ export function CompositionDetails({
                     <div className="flex items-center gap-3">
                       <div className="relative shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={channel.avatar} 
-                          alt={channel.name} 
-                          className="size-9 rounded-full object-cover border border-slate-200 dark:border-slate-800" 
+                        <img
+                          src={channel.avatar}
+                          alt={channel.name}
+                          className="size-9 rounded-full object-cover border border-slate-200 dark:border-slate-800"
                         />
                         <span className="absolute -bottom-1 -right-1 size-4 bg-white dark:bg-slate-950 rounded-full flex items-center justify-center p-0.5 shadow-xs border border-slate-200 dark:border-slate-800">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img 
-                            src={getPlatformIcon(channel.platform)} 
-                            alt={channel.platform} 
-                            className="size-full object-contain" 
+                          <img
+                            src={getPlatformIcon(channel.platform)}
+                            alt={channel.platform}
+                            className="size-full object-contain"
                           />
                         </span>
                       </div>
@@ -224,12 +224,11 @@ export function CompositionDetails({
                   </button>
 
                   {/* Collapsible Content */}
-                  <div 
-                    className={`grid transition-all duration-300 ${
-                      isExpanded 
-                        ? "grid-rows-[1fr] border-t border-slate-100 dark:border-slate-800" 
+                  <div
+                    className={`grid transition-all duration-300 ${isExpanded
+                        ? "grid-rows-[1fr] border-t border-slate-100 dark:border-slate-800"
                         : "grid-rows-[0fr]"
-                    }`}
+                      }`}
                   >
                     <div className="overflow-hidden">
                       <div className="p-4 space-y-4">
@@ -298,10 +297,10 @@ export function CompositionDetails({
                             </span>
                           )}
                         </div>
-                        
+
                         {/* TikTok Specific Settings */}
-                        {channel.platform === "tiktok" && postType === "video" && (
-                          <TiktokAdvancedSettings register={register} watch={watch} />
+                        {channel.platform === "tiktok" && (
+                          <TiktokAdvancedSettings register={register} watch={watch} postType={postType} />
                         )}
                       </div>
                     </div>
