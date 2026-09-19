@@ -300,7 +300,12 @@ export function CompositionDetails({
 
                         {/* TikTok Specific Settings */}
                         {channel.platform === "tiktok" && (
-                          <TiktokAdvancedSettings register={register} watch={watch} postType={postType} />
+                          <TiktokAdvancedSettings
+                            register={register}
+                            watch={watch}
+                            setValue={setValue}
+                            postType={postType}
+                          />
                         )}
                       </div>
                     </div>
