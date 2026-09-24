@@ -28,16 +28,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const hasCompletedOnboarding = user?.has_completed_onboarding ?? false
 
   useEffect(() => {
-    if (!mounted || !isHydrated || isLoadingUser) {
+    if (!mounted || !isHydrated || (!user && isLoadingUser)) {
       return
     }
 
     if (!hasCompletedOnboarding) {
       router.replace("/onboarding")
     }
-  }, [hasCompletedOnboarding, isHydrated, isLoadingUser, mounted, router])
+  }, [hasCompletedOnboarding, isHydrated, isLoadingUser, mounted, router, user])
 
-  if (!mounted || !isHydrated || isLoadingUser || !hasCompletedOnboarding) {
+  if (!mounted || !isHydrated || (!user && isLoadingUser) || !hasCompletedOnboarding) {
     return (
       <main className="mx-auto flex w-full max-w-6xl items-center justify-center px-6 py-24">
         <p className="text-sm text-slate-500">Loading dashboard...</p>

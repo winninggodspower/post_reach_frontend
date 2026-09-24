@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -22,7 +22,36 @@ import { OnboardingStepTwoBusiness } from "./steps/step-two-business"
 import { OnboardingStepThreeContent } from "./steps/step-three-content"
 import { OnboardingStepFourSocial } from "./steps/step-four-social"
 
-type StepId = 0 | 1 | 2 | 3
+export type StepId = 0 | 1 | 2 | 3
+
+export const getStepFromData = (data?: Partial<OnboardingSubmission> | null): StepId => {
+  if (!data) return 0
+
+  const hasStepOne = Boolean(data.role && data.role.trim() !== "")
+  const hasStepTwo = Boolean(
+    data.industry &&
+    (data.industry as string).trim() !== "" &&
+    data.team_size &&
+    (data.team_size as string).trim() !== ""
+  )
+  const hasStepThree = Boolean(
+    data.primary_platform &&
+    (data.primary_platform as string).trim() !== "" &&
+    data.posting_frequency &&
+    (data.posting_frequency as string).trim() !== ""
+  )
+
+  if (hasStepOne && hasStepTwo && hasStepThree) {
+    return 3
+  }
+  if (hasStepOne && hasStepTwo) {
+    return 2
+  }
+  if (hasStepOne) {
+    return 1
+  }
+  return 0
+}
 
 const emptySubmission = (): OnboardingSubmission => ({
   role: "" as OnboardingSubmission["role"],
@@ -44,6 +73,7 @@ export function OnboardingFlow() {
   const isLoadingUser = useAuth((state) => state.isLoadingUser)
 
   const [step, setStep] = useState<StepId>(0)
+
   const {
     register,
     setValue,
@@ -63,13 +93,19 @@ export function OnboardingFlow() {
     ? `postreach-onboarding-draft-${user.id}`
     : "postreach-onboarding-draft"
 
-  // Rehydrate form from localStorage on mount
+  // Rehydrate form from localStorage on mount and automatically move to step based on filled data
   useEffect(() => {
-    const draft = localStorage.getItem(draftKey)
-    if (draft) {
+    const rawDraft =
+      localStorage.getItem(draftKey) ||
+      localStorage.getItem("postreach-onboarding-draft")
+
+    if (rawDraft) {
       try {
-        const parsed = JSON.parse(draft) as OnboardingSubmission
+        const parsed = JSON.parse(rawDraft) as OnboardingSubmission
         reset(parsed)
+        // Automatically determine step from the actual filled data:
+        // if step 1, 2, and 3 are filled, this moves directly to step 4
+        setStep(getStepFromData(parsed))
       } catch {
         // Corrupt draft — silently ignore
       }
@@ -90,14 +126,14 @@ export function OnboardingFlow() {
   const progress = Math.round(((step + 1) / 4) * 100)
 
   useEffect(() => {
-    if (!isHydrated || isLoadingUser) {
+    if (!isHydrated || (!user && isLoadingUser)) {
       return
     }
 
     if (alreadyCompleted) {
       router.replace(nextUrl)
     }
-  }, [alreadyCompleted, isHydrated, isLoadingUser, nextUrl, router])
+  }, [alreadyCompleted, isHydrated, isLoadingUser, nextUrl, router, user])
 
   useEffect(() => {
     if (form.role === "creator" && !form.team_size) {
@@ -108,6 +144,7 @@ export function OnboardingFlow() {
   const canProceedStepOne = Boolean(form.role)
   const canProceedStepTwo = (form.industry as string) !== "" && (form.team_size as string) !== ""
   const canProceedStepThree = (form.primary_platform as string) !== "" && (form.posting_frequency as string) !== ""
+  const maxAccessibleStep = Math.max(step, getStepFromData(form))
 
   const handleNextStep = async () => {
     const fieldsToValidate =
@@ -145,6 +182,7 @@ export function OnboardingFlow() {
 
       // Clear saved draft on successful submission
       localStorage.removeItem(draftKey)
+      localStorage.removeItem("postreach-onboarding-draft")
 
       // Update the auth store so has_completed_onboarding is reflected immediately
       if (user) {
@@ -175,13 +213,17 @@ export function OnboardingFlow() {
     }
   })
 
-  if (!isHydrated || isLoadingUser || alreadyCompleted) {
+  const isInitialLoading = !isHydrated || (!user && isLoadingUser)
+  if (isInitialLoading || alreadyCompleted) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-6 py-24">
         <p className="text-sm text-slate-500">Loading onboarding...</p>
       </main>
     )
   }
+
+  const brand = user?.brand
+  const connectedCount = brand?.connected_accounts?.length ?? 0
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#fffaf4_0%,#fff4eb_46%,#ffffff_100%)]">
@@ -215,21 +257,31 @@ export function OnboardingFlow() {
               {STEP_TITLES.map((label, index) => {
                 const isActive = index === step
                 const isComplete = index < step
+                const canNavigate = index <= maxAccessibleStep
 
                 return (
-                  <div
+                  <button
                     key={label}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] ${
+                    type="button"
+                    disabled={!canNavigate}
+                    onClick={() => {
+                      if (canNavigate) {
+                        setStep(index as StepId)
+                      }
+                    }}
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition ${
                       isActive
-                        ? "bg-slate-950 text-white"
+                        ? "bg-slate-950 text-white shadow-xs"
                         : isComplete
-                          ? "bg-emerald-500/10 text-emerald-700"
-                          : "bg-slate-100 text-slate-500"
+                          ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 cursor-pointer"
+                          : canNavigate
+                            ? "bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
+                            : "bg-slate-100/60 text-slate-400 cursor-not-allowed"
                     }`}
                   >
                     {isComplete ? <span className="text-[10px]">✓</span> : <span className="text-[10px]">0{index + 1}</span>}
                     {label}
-                  </div>
+                  </button>
                 )
               })}
             </div>
@@ -279,7 +331,7 @@ export function OnboardingFlow() {
                     type="button"
                     variant="outline"
                     onClick={() => setStep((current) => ((current - 1) as StepId))}
-                    className="gap-2"
+                    className="gap-2 cursor-pointer"
                   >
                     <ArrowLeft className="size-4" />
                     Back
@@ -295,19 +347,34 @@ export function OnboardingFlow() {
                       (step === 1 && !canProceedStepTwo) ||
                       (step === 2 && !canProceedStepThree)
                     }
-                    className="gap-2"
+                    className="gap-2 cursor-pointer"
                   >
                     Next
                     <ArrowRight className="size-4" />
                   </Button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => void finishOnboarding()}
-                    className="text-sm font-medium text-slate-500 underline underline-offset-4 transition hover:text-slate-800 cursor-pointer"
-                  >
-                    Skip for now
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {connectedCount === 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => void finishOnboarding()}
+                        disabled={isSaving}
+                        className="text-sm font-medium text-slate-500 underline underline-offset-4 transition hover:text-slate-800 cursor-pointer disabled:opacity-50"
+                      >
+                        Skip for now
+                      </button>
+                    ) : null}
+
+                    <Button
+                      type="button"
+                      onClick={() => void finishOnboarding()}
+                      disabled={isSaving}
+                      className="gap-2 cursor-pointer"
+                    >
+                      {isSaving ? "Saving..." : connectedCount > 0 ? "Complete setup" : "Finish setup"}
+                      <ArrowRight className="size-4" />
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>

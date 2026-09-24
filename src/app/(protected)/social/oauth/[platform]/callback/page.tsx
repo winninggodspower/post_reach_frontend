@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useParams, useSearchParams } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { SuccessCheckIcon } from "@/components/ui/success-check-icon"
 
@@ -11,6 +11,7 @@ import { FacebookPageSelect } from "@/features/onboarding/components/facebook-pa
 import type { OnboardingPlatform } from "@/features/onboarding/types"
 
 export default function OAuthCallbackPage() {
+  const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<"processing" | "select_page" | "success" | "error">("processing")
@@ -47,6 +48,10 @@ export default function OAuthCallbackPage() {
 
         setTimeout(() => {
           window.close()
+        }, 1500)
+      } else {
+        setTimeout(() => {
+          router.replace("/onboarding")
         }, 1500)
       }
     } catch (err) {
@@ -135,6 +140,10 @@ export default function OAuthCallbackPage() {
 
           setTimeout(() => {
             window.close()
+          }, 1500)
+        } else {
+          setTimeout(() => {
+            router.replace("/onboarding")
           }, 1500)
         }
       } catch (err) {
