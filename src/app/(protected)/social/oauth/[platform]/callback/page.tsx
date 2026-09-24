@@ -41,19 +41,22 @@ export default function OAuthCallbackPage() {
       setStatus("success")
 
       if (window.opener) {
-        window.opener.postMessage(
-          { type: `oauth-success` },
-          window.location.origin,
-        )
-
-        setTimeout(() => {
-          window.close()
-        }, 1500)
-      } else {
-        setTimeout(() => {
-          router.replace("/onboarding")
-        }, 1500)
+        try {
+          window.opener.postMessage(
+            { type: `oauth-success` },
+            window.location.origin,
+          )
+        } catch {
+          // ignore cross-origin error
+        }
       }
+
+      setTimeout(() => {
+        if (window.opener) {
+          window.close()
+        }
+        router.replace("/dashboard")
+      }, 1500)
     } catch (err) {
       handleError(err)
     }
@@ -64,13 +67,13 @@ export default function OAuthCallbackPage() {
     const message =
       err instanceof Error
         ? (() => {
-            try {
-              const parsed = JSON.parse(err.message) as { message?: string }
-              return parsed.message || `Failed to connect ${platformLabel} account.`
-            } catch {
-              return err.message || `Failed to connect ${platformLabel} account.`
-            }
-          })()
+          try {
+            const parsed = JSON.parse(err.message) as { message?: string }
+            return parsed.message || `Failed to connect ${platformLabel} account.`
+          } catch {
+            return err.message || `Failed to connect ${platformLabel} account.`
+          }
+        })()
         : `Failed to connect ${platformLabel} account.`
 
     setErrorMessage(message)
@@ -133,19 +136,22 @@ export default function OAuthCallbackPage() {
         setStatus("success")
 
         if (window.opener) {
-          window.opener.postMessage(
-            { type: `oauth-success` },
-            window.location.origin,
-          )
-
-          setTimeout(() => {
-            window.close()
-          }, 1500)
-        } else {
-          setTimeout(() => {
-            router.replace("/onboarding")
-          }, 1500)
+          try {
+            window.opener.postMessage(
+              { type: `oauth-success` },
+              window.location.origin,
+            )
+          } catch {
+            // ignore cross-origin error
+          }
         }
+
+        setTimeout(() => {
+          if (window.opener) {
+            window.close()
+          }
+          router.replace("/dashboard")
+        }, 1500)
       } catch (err) {
         handleError(err)
       }
@@ -212,8 +218,15 @@ export default function OAuthCallbackPage() {
               {platformLabel} account connected!
             </h1>
             <p className="text-sm text-slate-500">
-              This window will close automatically.
+              Redirecting you back to your workspace...
             </p>
+            <button
+              type="button"
+              onClick={() => router.replace("/dashboard")}
+              className="mt-2 inline-flex items-center justify-center rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 cursor-pointer shadow-xs"
+            >
+              Continue to Dashboard
+            </button>
           </div>
         )}
 

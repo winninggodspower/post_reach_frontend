@@ -28,6 +28,8 @@ export function useSocialAuth(platform: OnboardingPlatform) {
   const loadUser = useAuth((state) => state.loadUser)
 
   const connect = useCallback(async () => {
+    // Open popup synchronously during user gesture so browsers don't block it or force new tabs
+    const popup = openPopup("about:blank")
     setLoading(true)
 
     try {
@@ -35,11 +37,14 @@ export function useSocialAuth(platform: OnboardingPlatform) {
       const result = await getAuthUrl(platform, redirectUri)
 
       const url = result.data?.auth_url
-      if (!url) return
+      if (!url) {
+        popup?.close()
+        return
+      }
 
-      const popup = openPopup(url)
-
-      if (!popup) {
+      if (popup && !popup.closed) {
+        popup.location.href = url
+      } else {
         window.location.assign(url)
         return
       }
