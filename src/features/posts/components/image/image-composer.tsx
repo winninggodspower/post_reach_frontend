@@ -37,7 +37,7 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
   // Target Accounts using hook
   const { channels, setChannels, toggleChannel, selectedChannels } = useTargetChannels(
     brand?.connected_accounts,
-    ["facebook", "linkedin", "twitter", "x", "instagram", "tiktok"]
+    ["facebook", "linkedin", "twitter", "x", "instagram", "tiktok", "threads"]
   )
 
   // Images state
@@ -84,6 +84,7 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
       facebookCaption: "",
       linkedinCaption: "",
       xCaption: "",
+      threadsCaption: "",
       tiktokPrivacyLevel: "PUBLIC_TO_EVERYONE",
       tiktokAllowComments: true,
       tiktokAllowDuet: true,
@@ -120,6 +121,7 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
   const youtubeCaption = watch("youtubeCaption")
   const tiktokCaption = watch("tiktokCaption")
   const instagramCaption = watch("instagramCaption")
+  const threadsCaption = watch("threadsCaption")
 
   // Phone preview interactions
   const [previewPlatform, setPreviewPlatform] = React.useState<any>("instagram")
@@ -288,6 +290,8 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
                   ? youtubeCaption
                   : previewPlatform === "tiktok"
                   ? tiktokCaption
+                  : previewPlatform === "threads"
+                  ? threadsCaption
                   : instagramCaption) || caption
               }
               channels={channels}

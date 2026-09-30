@@ -84,6 +84,7 @@ export function usePostHydration({
           if (plat === "facebook") setValue("facebookCaption", platformCaption)
           if (plat === "linkedin") setValue("linkedinCaption", platformCaption)
           if (plat === "twitter" || plat === "x") setValue("xCaption", platformCaption)
+          if (plat === "threads") setValue("threadsCaption", platformCaption)
         })
 
         onMediaLoadedRef.current?.({

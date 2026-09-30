@@ -77,6 +77,7 @@ export const PLATFORM_OPTIONS: PlatformOption[] = [
   { id: "facebook", label: "Facebook", accent: "from-blue-700 to-blue-500", icon: "/social-icons/facebook-circle.png" },
   { id: "tiktok", label: "TikTok", accent: "from-zinc-900 to-fuchsia-600", icon: "/social-icons/tiktok-circle.png" },
   { id: "instagram", label: "Instagram", accent: "from-fuchsia-500 to-orange-400", icon: "/social-icons/instagram-circle.png" },
+  { id: "threads", label: "Threads", accent: "from-zinc-900 to-black", icon: "/social-icons/threads-logo-black.svg" },
   { id: "linkedin", label: "LinkedIn", accent: "from-sky-600 to-sky-400", icon: "/social-icons/linkedin-circle.png" },
   { id: "x", label: "X", accent: "from-slate-950 to-slate-700", icon: "/social-icons/twitter-circle.png" },
 ]
@@ -195,6 +196,23 @@ export function RoleCard({
 }
 
 export function SocialPlatformIcon({ option }: { option: PlatformOption }) {
+  if (option.id === "threads") {
+    return (
+      <span
+        className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-black p-2.5 shadow-xs"
+        aria-hidden="true"
+      >
+        <Image
+          src="/social-icons/threads-logo-white.svg"
+          alt=""
+          width={28}
+          height={28}
+          className="h-full w-full object-contain"
+        />
+      </span>
+    )
+  }
+
   return (
     <span
       className="relative flex h-11 w-11 shrink-0 items-center justify-center"

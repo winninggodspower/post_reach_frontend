@@ -29,6 +29,7 @@ const getPlatformFormKey = (platform: string): any => {
     case "facebook": return "facebookCaption"
     case "linkedin": return "linkedinCaption"
     case "x": return "xCaption"
+    case "threads": return "threadsCaption"
     default: return "caption"
   }
 }
@@ -248,24 +249,36 @@ export function CompositionDetails({
                         )}
 
                         {/* Caption / Description override */}
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                              {channel.platform === "youtube" ? "Override Description" : "Platform-Specific Caption"}
-                            </label>
-                            <span className={`text-[10px] font-semibold ${overrideVal.length > 2900 ? "text-red-500" : "text-slate-400"}`}>
-                              {overrideVal.length} / 3000
-                            </span>
-                          </div>
-                          <textarea
-                            placeholder={channel.platform === "youtube" ? "Override the YouTube description for this post..." : "Platform caption (inheriting main caption)..."}
-                            rows={3}
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 text-sm focus:outline-hidden focus:ring-1 focus:ring-accent-brand focus:border-accent-brand resize-y scrollbar-thin text-slate-800 dark:text-slate-100"
-                            {...register(formKey, {
-                              maxLength: 3000
-                            })}
-                          />
-                        </div>
+                        {(() => {
+                          const maxChar = channel.platform === "threads" ? 500 : channel.platform === "x" ? 280 : 3000
+                          const isNearLimit = overrideVal.length > maxChar - (maxChar === 500 ? 50 : 100)
+                          return (
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                                  {channel.platform === "youtube" ? "Override Description" : "Platform-Specific Caption"}
+                                </label>
+                                <span className={`text-[10px] font-semibold ${isNearLimit ? "text-red-500" : "text-slate-400"}`}>
+                                  {overrideVal.length} / {maxChar}
+                                </span>
+                              </div>
+                              <textarea
+                                placeholder={
+                                  channel.platform === "youtube"
+                                    ? "Override the YouTube description for this post..."
+                                    : channel.platform === "threads"
+                                    ? "Thread caption (max 500 chars, inheriting main caption)..."
+                                    : "Platform caption (inheriting main caption)..."
+                                }
+                                rows={3}
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 text-sm focus:outline-hidden focus:ring-1 focus:ring-accent-brand focus:border-accent-brand resize-y scrollbar-thin text-slate-800 dark:text-slate-100"
+                                {...register(formKey, {
+                                  maxLength: maxChar,
+                                })}
+                              />
+                            </div>
+                          )
+                        })()}
 
                         {/* Actions Inside Panel */}
                         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">

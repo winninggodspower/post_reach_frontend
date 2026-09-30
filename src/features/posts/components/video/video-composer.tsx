@@ -62,7 +62,7 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
   // Target Accounts using hook
   const { channels, toggleChannel, selectedChannels, setChannels } = useTargetChannels(
     brand?.connected_accounts,
-    ["youtube", "instagram", "tiktok", "facebook", "linkedin", "twitter", "x"]
+    ["youtube", "instagram", "tiktok", "facebook", "linkedin", "twitter", "x", "threads"]
   )
 
   // React Hook Form
@@ -80,6 +80,7 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
       facebookCaption: "",
       linkedinCaption: "",
       xCaption: "",
+      threadsCaption: "",
       tiktokPrivacyLevel: "PUBLIC_TO_EVERYONE",
       tiktokAllowComments: true,
       tiktokAllowDuet: true,
@@ -102,6 +103,7 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
   const facebookCaption = watch("facebookCaption")
   const linkedinCaption = watch("linkedinCaption")
   const xCaption = watch("xCaption")
+  const threadsCaption = watch("threadsCaption")
 
   // Video state
   const [videoFile, setVideoFile] = React.useState<File | null>(null)
@@ -111,7 +113,7 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
   const previewVideoRef = React.useRef<HTMLVideoElement>(null)
 
   // Phone preview interactions
-  const [previewPlatform, setPreviewPlatform] = React.useState<"tiktok" | "youtube" | "instagram">("tiktok")
+  const [previewPlatform, setPreviewPlatform] = React.useState<"tiktok" | "youtube" | "instagram" | "threads">("tiktok")
 
   // Thumbnail (cover frame)
   const [thumbnailDataUrl, setThumbnailDataUrl] = React.useState("")
@@ -393,6 +395,8 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
                   ? youtubeCaption
                   : previewPlatform === "tiktok"
                   ? tiktokCaption
+                  : previewPlatform === "threads"
+                  ? threadsCaption
                   : instagramCaption) || caption
               }
               channels={channels}

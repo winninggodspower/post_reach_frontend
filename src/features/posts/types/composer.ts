@@ -11,6 +11,7 @@ export interface ComposerFormValues {
   facebookCaption?: string
   linkedinCaption?: string
   xCaption?: string
+  threadsCaption?: string
   tiktokPrivacyLevel?: "PUBLIC_TO_EVERYONE" | "MUTUAL_FRIENDS" | "SELF_ONLY"
   tiktokAllowComments?: boolean
   tiktokAllowDuet?: boolean

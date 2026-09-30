@@ -9,8 +9,8 @@ import { FormattedCaption } from "../formatted-caption"
 type LivePreviewPhoneProps = {
   videoSrc: string
   isPlaying: boolean
-  previewPlatform: "tiktok" | "youtube" | "instagram"
-  onChangePreviewPlatform: (platform: "tiktok" | "youtube" | "instagram") => void
+  previewPlatform: "tiktok" | "youtube" | "instagram" | "threads"
+  onChangePreviewPlatform: (platform: "tiktok" | "youtube" | "instagram" | "threads") => void
   previewVideoRef: React.RefObject<HTMLVideoElement | null>
   activeChannel: AccountChannel | undefined
   onTogglePlay: () => void
@@ -70,12 +70,14 @@ export function LivePreviewPhone({
     { id: "tiktok", label: "TikTok" },
     { id: "youtube", label: "YTShorts" },
     { id: "instagram", label: "Instagram" },
+    { id: "threads", label: "Threads" },
   ].filter(tab => selectedPlatforms.includes(tab.id))
 
   const tabsToRender = previewTabs.length > 0 ? previewTabs : [
     { id: "tiktok", label: "TikTok" },
     { id: "youtube", label: "YTShorts" },
     { id: "instagram", label: "Instagram" },
+    { id: "threads", label: "Threads" },
   ]
 
 
@@ -162,6 +164,12 @@ export function LivePreviewPhone({
             <div className="w-full flex justify-between items-center text-white font-extrabold text-sm">
               <span>Reels</span>
               <span>📷</span>
+            </div>
+          )}
+          {previewPlatform === "threads" && (
+            <div className="w-full flex justify-between items-center text-white font-extrabold text-sm">
+              <span>Threads</span>
+              <span className="text-[10px] font-medium text-white/70">Video</span>
             </div>
           )}
         </div>

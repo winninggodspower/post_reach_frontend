@@ -11,6 +11,7 @@ export const AUTH_URL_ENDPOINTS: Record<OnboardingPlatform, string> = {
   x: "/social_accounts/x/auth-url/",
   tiktok: "/social_accounts/tiktok/auth-url/",
   linkedin: "/social_accounts/linkedin/auth-url/",
+  threads: "/social_accounts/threads/auth-url/",
 }
 
 export const FACEBOOK_PAGES_ENDPOINT = "/social_accounts/facebook/pages/"
@@ -22,4 +23,5 @@ export const CONNECT_ENDPOINTS: Record<OnboardingPlatform, string> = {
   x: "/social_accounts/x/connect/",
   tiktok: "/social_accounts/tiktok/connect/",
   linkedin: "/social_accounts/linkedin/connect/",
+  threads: "/social_accounts/threads/connect/",
 }

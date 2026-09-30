@@ -40,6 +40,11 @@ const SOCIAL_ICONS: IconConfig[] = [
     src: "/social-icons/linkedin.png",
     className: "animate-float-6",
   },
+  {
+    name: "Threads",
+    src: "/social-icons/threads-logo-black.svg",
+    className: "animate-float-2 dark:invert",
+  },
 ];
 
 export default function FloatingSocialIcons() {

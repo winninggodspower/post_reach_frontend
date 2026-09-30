@@ -33,7 +33,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
   // Target Accounts using hook
   const { channels, toggleChannel, selectedChannels, setChannels } = useTargetChannels(
     brand?.connected_accounts,
-    ["facebook", "linkedin", "twitter", "x"]
+    ["facebook", "linkedin", "twitter", "x", "threads"]
   )
 
   // React Hook Form
@@ -47,6 +47,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
       facebookCaption: "",
       linkedinCaption: "",
       xCaption: "",
+      threadsCaption: "",
     },
   })
 
@@ -57,6 +58,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
   const facebookCaption = watch("facebookCaption")
   const linkedinCaption = watch("linkedinCaption")
   const xCaption = watch("xCaption")
+  const threadsCaption = watch("threadsCaption")
 
   // Hydrate post data when editing
   const { isFetching } = usePostHydration({
@@ -120,7 +122,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
       return
     }
 
-    const hasContent = caption?.trim() || facebookCaption?.trim() || linkedinCaption?.trim() || xCaption?.trim()
+    const hasContent = caption?.trim() || facebookCaption?.trim() || linkedinCaption?.trim() || xCaption?.trim() || threadsCaption?.trim()
     if (!hasContent) {
       toast.error("Content is empty", {
         description: "Please write something before posting.",
@@ -167,6 +169,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
             setValue={setValue as any}
             watch={watch as any}
             channels={channels}
+            postType="text"
           />
         </div>
 
@@ -177,6 +180,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
             facebookCaption={facebookCaption}
             linkedinCaption={linkedinCaption}
             xCaption={xCaption}
+            threadsCaption={threadsCaption}
             channels={channels}
           />
 

@@ -46,6 +46,9 @@ export function buildPlatformSettings({
   if (hasPlatform("twitter") && values.xCaption?.trim()) {
     platformSettings.twitter = { ...(platformSettings.twitter || {}), caption: values.xCaption.trim() }
   }
+  if (hasPlatform("threads") && values.threadsCaption?.trim()) {
+    platformSettings.threads = { ...(platformSettings.threads || {}), caption: values.threadsCaption.trim() }
+  }
 
   // TikTok (custom caption override + advanced settings)
   if (hasPlatform("tiktok")) {

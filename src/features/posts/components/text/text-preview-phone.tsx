@@ -7,11 +7,14 @@ import { PhoneMockupWrapper } from "../phone-mockup-wrapper"
 import { PLAIN_AVATAR } from "@/features/onboarding/components/steps/shared"
 import { FormattedCaption } from "../formatted-caption"
 
+import { ThreadsPostPreview } from "../previews/threads-post-preview"
+
 type TextPreviewPhoneProps = {
   caption: string
   facebookCaption?: string
   linkedinCaption?: string
   xCaption?: string
+  threadsCaption?: string
   channels: AccountChannel[]
 }
 
@@ -20,15 +23,17 @@ export function TextPreviewPhone({
   facebookCaption = "",
   linkedinCaption = "",
   xCaption = "",
+  threadsCaption = "",
   channels,
 }: TextPreviewPhoneProps) {
-  const [previewPlatform, setPreviewPlatform] = React.useState<"facebook" | "linkedin" | "x">("facebook")
+  const [previewPlatform, setPreviewPlatform] = React.useState<"facebook" | "linkedin" | "x" | "threads">("facebook")
 
   const selectedPlatforms = channels
     .filter((c) => c.selected)
     .map((c) => (c.platform === "twitter" ? "x" : c.platform))
 
   const previewTabs = [
+    { id: "threads", label: "Threads" },
     { id: "facebook", label: "Facebook" },
     { id: "linkedin", label: "LinkedIn" },
     { id: "x", label: "X" },
@@ -38,7 +43,7 @@ export function TextPreviewPhone({
 
   React.useEffect(() => {
     if (tabsToRender.length > 0 && !tabsToRender.some((t) => t.id === previewPlatform)) {
-      setPreviewPlatform(tabsToRender[0].id as "facebook" | "linkedin" | "x")
+      setPreviewPlatform(tabsToRender[0].id as "facebook" | "linkedin" | "x" | "threads")
     }
   }, [tabsToRender, previewPlatform])
 
@@ -48,7 +53,9 @@ export function TextPreviewPhone({
     channels[0]
 
   const activeCaption =
-    (previewPlatform === "facebook"
+    (previewPlatform === "threads"
+      ? threadsCaption
+      : previewPlatform === "facebook"
       ? facebookCaption
       : previewPlatform === "linkedin"
       ? linkedinCaption
@@ -84,49 +91,60 @@ export function TextPreviewPhone({
 
       {/* Smart Phone Wrapper */}
       <PhoneMockupWrapper>
-        {/* Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-805">
-          <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={activeChannel?.avatar || PLAIN_AVATAR}
-              alt="Avatar"
-              className="size-7 rounded-full object-cover border border-slate-100 dark:border-slate-800"
-            />
-            <div className="flex flex-col text-left">
-              <span className="text-[10px] font-bold leading-none">
-                {activeChannel?.name || "Channel Name"}
-              </span>
-              <span className="text-[8px] text-slate-400 mt-0.5 leading-none">
-                {activeChannel?.handle || "@channel"}
-              </span>
+        {previewPlatform === "threads" ? (
+          <ThreadsPostPreview
+            avatar={activeChannel?.avatar}
+            handle={activeChannel?.handle || "@channel"}
+            name={activeChannel?.name || "Channel"}
+            caption={activeCaption}
+          />
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-805">
+              <div className="flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={activeChannel?.avatar || PLAIN_AVATAR}
+                  alt="Avatar"
+                  className="size-7 rounded-full object-cover border border-slate-100 dark:border-slate-800"
+                />
+                <div className="flex flex-col text-left">
+                  <span className="text-[10px] font-bold leading-none">
+                    {activeChannel?.name || "Channel Name"}
+                  </span>
+                  <span className="text-[8px] text-slate-400 mt-0.5 leading-none">
+                    {activeChannel?.handle || "@channel"}
+                  </span>
+                </div>
+              </div>
+              <span className="text-slate-400 text-xs font-bold px-1">•••</span>
             </div>
-          </div>
-          <span className="text-slate-400 text-xs font-bold px-1">•••</span>
-        </div>
 
-        {/* Text Only Content Area (Mocking social post body) */}
-        <div className="flex-1 px-3 py-4 text-left overflow-y-auto max-h-[300px] scrollbar-none">
-          <p className="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-sans leading-normal">
-            <FormattedCaption text={activeCaption} fallback="Enter your post text here..." />
-          </p>
-        </div>
+            {/* Text Only Content Area (Mocking social post body) */}
+            <div className="flex-1 px-3 py-4 text-left overflow-y-auto max-h-[300px] scrollbar-none">
+              <p className="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-sans leading-normal">
+                <FormattedCaption text={activeCaption} fallback="Enter your post text here..." />
+              </p>
+            </div>
 
-        {/* Mock Engagement Bar */}
-        <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-805 flex items-center justify-between text-slate-400 dark:text-slate-500">
-          <div className="flex items-center gap-1.5">
-            <Heart className="size-3.5" />
-            <span className="text-[9px] font-medium">Like</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <MessageCircle className="size-3.5" />
-            <span className="text-[9px] font-medium">Comment</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Share2 className="size-3.5" />
-            <span className="text-[9px] font-medium">Share</span>
-          </div>
-        </div>
+            {/* Mock Engagement Bar */}
+            <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-805 flex items-center justify-between text-slate-400 dark:text-slate-500">
+              <div className="flex items-center gap-1.5">
+                <Heart className="size-3.5" />
+                <span className="text-[9px] font-medium">Like</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MessageCircle className="size-3.5" />
+                <span className="text-[9px] font-medium">Comment</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Share2 className="size-3.5" />
+                <span className="text-[9px] font-medium">Share</span>
+              </div>
+            </div>
+          </>
+        )}
       </PhoneMockupWrapper>
     </div>
   )

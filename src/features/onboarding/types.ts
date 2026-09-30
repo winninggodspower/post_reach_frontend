@@ -30,6 +30,7 @@ export type OnboardingPlatform =
   | "facebook"
   | "x"
   | "youtube"
+  | "threads"
 
 export type OnboardingSubmission = {
   role: OnboardingRole

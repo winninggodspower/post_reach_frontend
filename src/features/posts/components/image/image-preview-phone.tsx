@@ -12,11 +12,12 @@ import { XPostPreview } from "../previews/x-post-preview"
 import { FacebookPostPreview } from "../previews/facebook-post-preview"
 import { LinkedInPostPreview } from "../previews/linkedin-post-preview"
 import { TikTokPostPreview } from "../previews/tiktok-post-preview"
+import { ThreadsPostPreview } from "../previews/threads-post-preview"
 
 type ImagePreviewPhoneProps = {
   imageSrcs: string[]
-  previewPlatform: "instagram" | "facebook" | "linkedin" | "x" | "tiktok"
-  onChangePreviewPlatform: (platform: "instagram" | "facebook" | "linkedin" | "x" | "tiktok") => void
+  previewPlatform: "instagram" | "facebook" | "linkedin" | "x" | "tiktok" | "threads"
+  onChangePreviewPlatform: (platform: "instagram" | "facebook" | "linkedin" | "x" | "tiktok" | "threads") => void
   activeChannel: AccountChannel | undefined
   caption: string
   channels: AccountChannel[]
@@ -41,6 +42,7 @@ export function ImagePreviewPhone({
 
   const previewTabs = [
     { id: "instagram", label: "Instagram" },
+    { id: "threads", label: "Threads" },
     { id: "facebook", label: "Facebook" },
     { id: "linkedin", label: "LinkedIn" },
     { id: "x", label: "X" },
@@ -163,6 +165,16 @@ export function ImagePreviewPhone({
           <InstagramPostPreview
             avatar={activeChannel?.avatar}
             handle={activeChannel?.handle || "@channel"}
+            caption={caption}
+            media={renderMedia("aspect-square")}
+          />
+        )}
+
+        {previewPlatform === "threads" && (
+          <ThreadsPostPreview
+            avatar={activeChannel?.avatar}
+            handle={activeChannel?.handle || "@channel"}
+            name={activeChannel?.name || "Channel"}
             caption={caption}
             media={renderMedia("aspect-square")}
           />
