@@ -28,7 +28,7 @@ export type OnboardingPlatform =
   | "linkedin"
   | "tiktok"
   | "facebook"
-  | "x"
+  | "twitter"
   | "youtube"
   | "threads"
 

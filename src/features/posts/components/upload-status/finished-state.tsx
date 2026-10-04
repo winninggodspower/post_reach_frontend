@@ -105,7 +105,7 @@ export function FinishedState({
             return (
               <div key={p.id} className="flex items-center justify-between py-1">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center overflow-hidden border border-slate-100">
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm">
                     <img src={p.meta.icon} alt={p.meta.label} className="w-5 h-5 object-contain" />
                   </div>
                   <div className="flex flex-col">

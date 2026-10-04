@@ -28,6 +28,7 @@ const getPlatformFormKey = (platform: string): any => {
     case "instagram": return "instagramCaption"
     case "facebook": return "facebookCaption"
     case "linkedin": return "linkedinCaption"
+    case "twitter":
     case "x": return "xCaption"
     case "threads": return "threadsCaption"
     default: return "caption"
@@ -250,7 +251,7 @@ export function CompositionDetails({
 
                         {/* Caption / Description override */}
                         {(() => {
-                          const maxChar = channel.platform === "threads" ? 500 : channel.platform === "x" ? 280 : 3000
+                          const maxChar = channel.platform === "threads" ? 500 : (channel.platform === "twitter" || channel.platform === "x") ? 280 : 3000
                           const isNearLimit = overrideVal.length > maxChar - (maxChar === 500 ? 50 : 100)
                           return (
                             <div className="space-y-1.5">

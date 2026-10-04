@@ -79,7 +79,7 @@ export const PLATFORM_OPTIONS: PlatformOption[] = [
   { id: "instagram", label: "Instagram", accent: "from-fuchsia-500 to-orange-400", icon: "/social-icons/instagram-circle.png" },
   { id: "threads", label: "Threads", accent: "from-zinc-900 to-black", icon: "/social-icons/threads-logo-black.svg" },
   { id: "linkedin", label: "LinkedIn", accent: "from-sky-600 to-sky-400", icon: "/social-icons/linkedin-circle.png" },
-  { id: "x", label: "X", accent: "from-slate-950 to-slate-700", icon: "/social-icons/twitter-circle.png" },
+  { id: "twitter", label: "X", accent: "from-slate-950 to-slate-700", icon: "/social-icons/twitter-circle.png" },
 ]
 
 export const STEP_TITLES = ["Role", "Business", "Content", "Accounts"]

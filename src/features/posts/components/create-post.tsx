@@ -25,7 +25,7 @@ const POST_TYPES = [
         <path d="M42 22 h12 M42 32 h12 M42 42 h12" />
       </svg>
     ),
-    platforms: ["facebook", "x", "linkedin", "threads"],
+    platforms: ["facebook", "twitter", "linkedin", "threads"],
   },
   {
     id: "image",
@@ -46,7 +46,7 @@ const POST_TYPES = [
         <path d="M30 36 l8 -8 l16 16" />
       </svg>
     ),
-    platforms: ["facebook", "x", "linkedin", "instagram", "tiktok", "threads"],
+    platforms: ["facebook", "twitter", "linkedin", "instagram", "tiktok", "threads"],
   },
   {
     id: "video",
@@ -65,7 +65,7 @@ const POST_TYPES = [
         <path d="M40 26 l14 -9 v30 l-14 -9 z" />
       </svg>
     ),
-    platforms: ["facebook", "x", "linkedin", "instagram", "tiktok", "youtube", "threads"],
+    platforms: ["facebook", "twitter", "linkedin", "instagram", "tiktok", "youtube", "threads"],
   },
 ]
 

@@ -33,7 +33,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
   // Target Accounts using hook
   const { channels, toggleChannel, selectedChannels, setChannels } = useTargetChannels(
     brand?.connected_accounts,
-    ["facebook", "linkedin", "twitter", "x", "threads"]
+    ["facebook", "linkedin", "twitter", "threads"]
   )
 
   // React Hook Form
@@ -80,7 +80,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
   } = usePostSubmit({
     submitFn: async (scheduledAt) => {
       const activeChs = channels.filter((c) => c.selected)
-      const platforms = activeChs.map((c) => (c.platform === "x" ? "twitter" : c.platform))
+      const platforms = activeChs.map((c) => c.platform)
       const platformSettings = buildPlatformSettings({
         platforms,
         values: getValues(),

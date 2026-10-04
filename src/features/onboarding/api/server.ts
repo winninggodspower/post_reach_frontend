@@ -123,20 +123,28 @@ export const getAuthUrl = async (
  */
 export const exchangeOAuthCode = async (payload: {
   platform: OnboardingPlatform
-  code: string
-  state: string
-  redirect_uri: string
+  code?: string
+  state?: string
+  redirect_uri?: string
   page_id?: string
+  oauth_token?: string
+  oauth_verifier?: string
 }): Promise<ConnectResponse> => {
   try {
     const endpoint = CONNECT_ENDPOINTS[payload.platform]
 
-    const { data } = await api.post<ConnectResponse>(endpoint, {
-      code: payload.code,
-      state: payload.state,
-      redirect_uri: payload.redirect_uri,
-      ...(payload.page_id ? { page_id: payload.page_id } : {}),
-    })
+    const requestBody: Record<string, unknown> = {}
+    if (payload.platform === "twitter" && payload.oauth_token && payload.oauth_verifier) {
+      requestBody.oauth_token = payload.oauth_token
+      requestBody.oauth_verifier = payload.oauth_verifier
+    } else {
+      if (payload.code) requestBody.code = payload.code
+      if (payload.state) requestBody.state = payload.state
+      if (payload.redirect_uri) requestBody.redirect_uri = payload.redirect_uri
+      if (payload.page_id) requestBody.page_id = payload.page_id
+    }
+
+    const { data } = await api.post<ConnectResponse>(endpoint, requestBody)
 
     if (!data.success) {
       throw new Error(

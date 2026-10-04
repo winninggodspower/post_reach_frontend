@@ -62,7 +62,7 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
   // Target Accounts using hook
   const { channels, toggleChannel, selectedChannels, setChannels } = useTargetChannels(
     brand?.connected_accounts,
-    ["youtube", "instagram", "tiktok", "facebook", "linkedin", "twitter", "x", "threads"]
+    ["youtube", "instagram", "tiktok", "facebook", "linkedin", "twitter", "threads"]
   )
 
   // React Hook Form
@@ -151,7 +151,7 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
   } = usePostSubmit({
     submitFn: async (scheduledAt) => {
       const activeChs = channels.filter((c) => c.selected)
-      const platforms = activeChs.map((c) => (c.platform === "x" ? "twitter" : c.platform))
+      const platforms = activeChs.map((c) => c.platform)
       const vals = getValues()
 
       const platformSettings = buildPlatformSettings({

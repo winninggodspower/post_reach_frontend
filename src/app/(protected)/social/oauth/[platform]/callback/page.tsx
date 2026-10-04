@@ -18,18 +18,27 @@ export default function OAuthCallbackPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const processedRef = useRef(false)
 
-  const platform = params?.platform as OnboardingPlatform | undefined
-  const platformLabel = platform ? (platformLabelMap[platform] ?? platform) : ""
+  // Direct access from Next.js route params: /social/oauth/[platform]/callback
+  const platformParam = typeof params?.platform === "string" ? params.platform.toLowerCase() : ""
+  const isTwitter = platformParam === "twitter" || platformParam === "x"
+  const platform = (isTwitter ? "twitter" : platformParam) as OnboardingPlatform
+  const platformLabel = isTwitter ? "X" : platformParam ? (platformLabelMap[platform] ?? platformParam) : ""
 
-  const code = searchParams?.get("code")
-  const state = searchParams?.get("state")
-  const error = searchParams?.get("error")
+  // Read params synchronously from window.location.search to prevent hydration delays
+  const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null
+
+  const code = urlParams?.get("code") ?? searchParams?.get("code")
+  const state = urlParams?.get("state") ?? searchParams?.get("state")
+  const error = urlParams?.get("error") ?? searchParams?.get("error")
+  const denied = urlParams?.get("denied") ?? searchParams?.get("denied")
+  const oauthToken = urlParams?.get("oauth_token") ?? searchParams?.get("oauth_token")
+  const oauthVerifier = urlParams?.get("oauth_verifier") ?? searchParams?.get("oauth_verifier")
 
   const handlePageSelect = async (pageId: string) => {
     if (!platform || !code || !state) return
     setStatus("processing")
     try {
-      const redirectUri = `${window.location.origin}/social/oauth/${platform}/callback`
+      const redirectUri = `${window.location.origin}/social/oauth/${platformParam}/callback`
       await exchangeOAuthCode({
         platform,
         code,
@@ -87,11 +96,22 @@ export default function OAuthCallbackPage() {
   }
 
   useEffect(() => {
+    if (!platformParam) return
+
+    // If Twitter, wait until OAuth 1.0a tokens or denial arrive before processing
+    if (isTwitter && !oauthToken && !oauthVerifier && !error && !denied) {
+      return
+    }
+
+    // If OAuth 2.0, wait until code or error/denial arrive before processing
+    if (!isTwitter && !code && !error && !denied) {
+      return
+    }
+
     if (processedRef.current) return
-    if (!platform) return
     processedRef.current = true
 
-    if (error) {
+    if (error || denied) {
       setStatus("error")
       setErrorMessage("You denied the authorization request.")
 
@@ -104,34 +124,62 @@ export default function OAuthCallbackPage() {
       return
     }
 
-    if (!code || !state) {
-      setStatus("error")
-      setErrorMessage("Missing authorization code or state parameter.")
+    if (isTwitter) {
+      // Twitter OAuth 1.0a flow: only validates oauth_token and oauth_verifier
+      if (!oauthToken || !oauthVerifier) {
+        setStatus("error")
+        setErrorMessage("Missing Twitter authorization parameters (oauth_token or oauth_verifier).")
 
-      if (window.opener) {
-        window.opener.postMessage(
-          { type: `oauth-error`, error: "Missing authorization code or state parameter." },
-          window.location.origin,
-        )
+        if (window.opener) {
+          window.opener.postMessage(
+            {
+              type: `oauth-error`,
+              error: "Missing Twitter authorization parameters (oauth_token or oauth_verifier).",
+            },
+            window.location.origin,
+          )
+        }
+        return
       }
-      return
+    } else {
+      // Standard OAuth 2.0 flow: validates code and state
+      if (!code || !state) {
+        setStatus("error")
+        setErrorMessage("Missing authorization code or state parameter.")
+
+        if (window.opener) {
+          window.opener.postMessage(
+            { type: `oauth-error`, error: "Missing authorization code or state parameter." },
+            window.location.origin,
+          )
+        }
+        return
+      }
     }
 
     const handleCallback = async () => {
       try {
-        const redirectUri = `${window.location.origin}/social/oauth/${platform}/callback`
+        const redirectUri = `${window.location.origin}/social/oauth/${platformParam}/callback`
 
         if (platform === "facebook") {
           setStatus("select_page")
           return // FacebookPageSelect component will handle the fetch
         }
 
-        await exchangeOAuthCode({
-          platform,
-          code,
-          redirect_uri: redirectUri,
-          state,
-        })
+        if (isTwitter) {
+          await exchangeOAuthCode({
+            platform: "twitter",
+            oauth_token: oauthToken!,
+            oauth_verifier: oauthVerifier!,
+          })
+        } else {
+          await exchangeOAuthCode({
+            platform,
+            code: code!,
+            redirect_uri: redirectUri,
+            state: state ?? undefined,
+          })
+        }
 
         setStatus("success")
 
@@ -158,20 +206,15 @@ export default function OAuthCallbackPage() {
     }
 
     void handleCallback()
-  }, [platform, platformLabel, code, state, error])
+  }, [platformParam, isTwitter, platform, platformLabel, code, state, error, denied, oauthToken, oauthVerifier])
 
-  if (!platform) {
+  if (!platformParam) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-6">
         <div className="w-full rounded-[24px] border border-black/8 bg-white p-8 text-center shadow-sm">
           <div className="space-y-4">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-red-100">
-              <svg className="size-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-            <h1 className="text-xl font-semibold text-slate-950">Invalid platform</h1>
-            <p className="text-sm text-slate-500">No platform was specified in the callback URL.</p>
+            <Loader2 className="mx-auto size-8 animate-spin text-slate-500" />
+            <p className="text-sm text-slate-500">Connecting account...</p>
           </div>
         </div>
       </main>

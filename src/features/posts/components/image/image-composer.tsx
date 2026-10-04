@@ -37,7 +37,7 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
   // Target Accounts using hook
   const { channels, setChannels, toggleChannel, selectedChannels } = useTargetChannels(
     brand?.connected_accounts,
-    ["facebook", "linkedin", "twitter", "x", "instagram", "tiktok", "threads"]
+    ["facebook", "linkedin", "twitter", "instagram", "tiktok", "threads"]
   )
 
   // Images state
@@ -139,7 +139,7 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
   } = usePostSubmit({
     submitFn: async (scheduledAt) => {
       const activeChs = channels.filter((c) => c.selected)
-      const platforms = activeChs.map((c) => (c.platform === "x" ? "twitter" : c.platform))
+      const platforms = activeChs.map((c) => c.platform)
       const vals = getValues()
       const platformSettings = buildPlatformSettings({
         platforms,
