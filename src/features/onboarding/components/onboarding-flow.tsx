@@ -314,7 +314,10 @@ export function OnboardingFlow() {
               ) : null}
 
               {step === 3 ? (
-                <OnboardingStepFourSocial />
+                <OnboardingStepFourSocial
+                  onSkip={() => void finishOnboarding()}
+                  isSaving={isSaving}
+                />
               ) : null}
             </div>
 
@@ -353,28 +356,19 @@ export function OnboardingFlow() {
                     <ArrowRight className="size-4" />
                   </Button>
                 ) : (
-                  <div className="flex items-center gap-3">
-                    {connectedCount === 0 ? (
-                      <button
-                        type="button"
-                        onClick={() => void finishOnboarding()}
-                        disabled={isSaving}
-                        className="text-sm font-medium text-slate-500 underline underline-offset-4 transition hover:text-slate-800 cursor-pointer disabled:opacity-50"
-                      >
-                        Skip for now
-                      </button>
-                    ) : null}
-
-                    <Button
-                      type="button"
-                      onClick={() => void finishOnboarding()}
-                      disabled={isSaving}
-                      className="gap-2 cursor-pointer"
-                    >
-                      {isSaving ? "Saving..." : connectedCount > 0 ? "Complete setup" : "Finish setup"}
-                      <ArrowRight className="size-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => void finishOnboarding()}
+                    disabled={isSaving}
+                    className="gap-2 cursor-pointer"
+                  >
+                    {isSaving
+                      ? "Saving..."
+                      : connectedCount > 0
+                        ? "Complete setup"
+                        : "Skip for now"}
+                    <ArrowRight className="size-4" />
+                  </Button>
                 )}
               </div>
             </div>
