@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -195,13 +197,13 @@ export function OnboardingFlow() {
       const message =
         err instanceof Error
           ? (() => {
-              try {
-                const parsed = JSON.parse(err.message)
-                return parsed.message || "Something went wrong."
-              } catch {
-                return err.message || "Something went wrong."
-              }
-            })()
+            try {
+              const parsed = JSON.parse(err.message)
+              return parsed.message || "Something went wrong."
+            } catch {
+              return err.message || "Something went wrong."
+            }
+          })()
           : "Something went wrong."
 
       toast.error(message, {
@@ -238,15 +240,29 @@ export function OnboardingFlow() {
       />
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center px-4 py-5 sm:px-6 lg:px-8">
-        <div className="mb-6 w-full max-w-3xl rounded-full border border-white/70 bg-white/70 px-4 py-3 text-center shadow-sm backdrop-blur">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-accent-dark">
-            Onboarding
-          </p>
-        </div>
+        <header className="mb-5 flex w-full max-w-3xl items-center justify-between px-1">
+          <Link href="/" className="inline-flex items-center">
+            <Image
+              src="/postglee-logo.png"
+              alt="Post Reach logo"
+              width={120}
+              height={36}
+              className="h-7 sm:h-8 w-auto object-contain"
+              priority
+            />
+          </Link>
 
-        <div className="mb-6 h-2 w-full max-w-3xl overflow-hidden rounded-full bg-black/6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/80 px-3.5 py-1.5 shadow-xs backdrop-blur">
+            <span className="size-1.5 rounded-full bg-accent-dark animate-pulse" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-700">
+              Step {step + 1} of 4
+            </span>
+          </div>
+        </header>
+
+        <div className="mb-6 h-1 w-full max-w-3xl overflow-hidden rounded-full bg-black/6">
           <div
-            className="h-full rounded-full bg-linear-to-r from-accent-dark to-accent-brand transition-all duration-300"
+            className="h-full rounded-full bg-linear-to-r from-accent-dark to-accent-brand transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -269,15 +285,14 @@ export function OnboardingFlow() {
                         setStep(index as StepId)
                       }
                     }}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition ${
-                      isActive
-                        ? "bg-slate-950 text-white shadow-xs"
-                        : isComplete
-                          ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 cursor-pointer"
-                          : canNavigate
-                            ? "bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
-                            : "bg-slate-100/60 text-slate-400 cursor-not-allowed"
-                    }`}
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition ${isActive
+                      ? "bg-slate-950 text-white shadow-xs"
+                      : isComplete
+                        ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 cursor-pointer"
+                        : canNavigate
+                          ? "bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
+                          : "bg-slate-100/60 text-slate-400 cursor-not-allowed"
+                      }`}
                   >
                     {isComplete ? <span className="text-[10px]">✓</span> : <span className="text-[10px]">0{index + 1}</span>}
                     {label}
@@ -373,7 +388,7 @@ export function OnboardingFlow() {
               </div>
             </div>
           </section>
-          
+
         </div>
       </div>
     </main>

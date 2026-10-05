@@ -39,7 +39,7 @@ export function OnboardingStepFourSocial({
               size="sm"
               onClick={onSkip}
               disabled={isSaving}
-              className="rounded-full border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-xs gap-1.5 shrink-0"
+              className="rounded-full border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 hover:text-slate-950 hover:border-slate-300 transition-all cursor-pointer shadow-xs gap-1.5 shrink-0"
             >
               {connectedCount > 0 ? "Complete setup" : "Skip for now"}
               <ArrowRight className="size-3.5" />
