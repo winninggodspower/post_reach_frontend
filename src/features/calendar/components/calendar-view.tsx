@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react"
 
+import { format } from "date-fns"
+
 import { getCalendarItems } from "@/features/posts/api/server"
 import type { CalendarItem } from "@/features/posts/api/server"
 import {
@@ -56,11 +58,11 @@ export function CalendarView() {
         let endStr: string
 
         if (viewMode === "week") {
-          startStr = daysOfWeek[0].toISOString().split("T")[0]
-          endStr = daysOfWeek[6].toISOString().split("T")[0]
+          startStr = format(daysOfWeek[0], "yyyy-MM-dd")
+          endStr = format(daysOfWeek[6], "yyyy-MM-dd")
         } else {
-          startStr = monthDays[0].date.toISOString().split("T")[0]
-          endStr = monthDays[monthDays.length - 1].date.toISOString().split("T")[0]
+          startStr = format(monthDays[0].date, "yyyy-MM-dd")
+          endStr = format(monthDays[monthDays.length - 1].date, "yyyy-MM-dd")
         }
 
         const res = await getCalendarItems(startStr, endStr)
