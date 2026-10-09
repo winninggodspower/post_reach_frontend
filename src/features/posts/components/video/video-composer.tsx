@@ -24,6 +24,7 @@ import { ComposerHeader } from "../composer-header"
 import { LockedMediaCard } from "../locked-media-card"
 import type { VideoPostFormValues } from "../../types/composer"
 import { buildPlatformSettings } from "../../lib/composer-utils"
+import { validatePlatformCaptions } from "../../lib/caption-validation"
 
 export type { VideoPostFormValues } from "../../types/composer"
 
@@ -148,6 +149,7 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
     setUploadProgress,
     createdPostId,
     handlePublish,
+    handleCancel: handleCancelSubmit,
   } = usePostSubmit({
     submitFn: async (scheduledAt) => {
       const activeChs = channels.filter((c) => c.selected)
@@ -278,6 +280,17 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
     if (isYoutubeSelected && !title.trim()) {
       toast.error("YouTube Title is required", {
         description: "Please add a YouTube Title before publishing to YouTube.",
+      })
+      return
+    }
+
+    const captionValidation = validatePlatformCaptions({
+      channels: activeChs,
+      values: getValues(),
+    })
+    if (!captionValidation.isValid) {
+      toast.error("Caption exceeds character limit", {
+        description: captionValidation.firstErrorMessage,
       })
       return
     }
@@ -419,6 +432,7 @@ export function VideoComposer({ postId, onBack }: VideoComposerProps) {
 
       <UploadStatusModal
         isOpen={isStatusModalOpen}
+        onCancel={handleCancelSubmit}
         onClose={handleCloseStatusModal}
         postId={createdPostId}
         uploadProgress={uploadProgress}

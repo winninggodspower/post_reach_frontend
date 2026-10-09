@@ -18,6 +18,7 @@ import { TextPreviewPhone } from "./text-preview-phone"
 import { ComposerHeader } from "../composer-header"
 import type { TextPostFormValues } from "../../types/composer"
 import { buildPlatformSettings } from "../../lib/composer-utils"
+import { validatePlatformCaptions } from "../../lib/caption-validation"
 import { Loader2 } from "lucide-react"
 
 type TextComposerProps = {
@@ -77,6 +78,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
     setUploadProgress,
     createdPostId,
     handlePublish,
+    handleCancel: handleCancelSubmit,
   } = usePostSubmit({
     submitFn: async (scheduledAt) => {
       const activeChs = channels.filter((c) => c.selected)
@@ -126,6 +128,17 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
     if (!hasContent) {
       toast.error("Content is empty", {
         description: "Please write something before posting.",
+      })
+      return
+    }
+
+    const captionValidation = validatePlatformCaptions({
+      channels: activeChs,
+      values: getValues(),
+    })
+    if (!captionValidation.isValid) {
+      toast.error("Caption exceeds character limit", {
+        description: captionValidation.firstErrorMessage,
       })
       return
     }
@@ -200,6 +213,7 @@ export function TextComposer({ postId, onBack }: TextComposerProps = {}) {
       {/* Status Multi-platform modal popup */}
       <UploadStatusModal
         isOpen={isStatusModalOpen}
+        onCancel={handleCancelSubmit}
         onClose={() => {
           setIsStatusModalOpen(false)
           setIsPublishing(false)

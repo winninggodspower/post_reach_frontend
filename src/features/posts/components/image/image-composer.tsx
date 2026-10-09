@@ -23,6 +23,7 @@ import { ComposerHeader } from "../composer-header"
 import { LockedMediaCard } from "../locked-media-card"
 import type { ImagePostFormValues } from "../../types/composer"
 import { buildPlatformSettings } from "../../lib/composer-utils"
+import { validatePlatformCaptions } from "../../lib/caption-validation"
 
 interface ImageComposerProps {
   postId?: string
@@ -136,6 +137,7 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
     setUploadProgress,
     createdPostId,
     handlePublish,
+    handleCancel: handleCancelSubmit,
   } = usePostSubmit({
     submitFn: async (scheduledAt) => {
       const activeChs = channels.filter((c) => c.selected)
@@ -197,6 +199,17 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
     if (imageFiles.length === 0 && !postId) {
       toast.error("Images are missing", {
         description: "Please upload at least one image to compose your post.",
+      })
+      return
+    }
+
+    const captionValidation = validatePlatformCaptions({
+      channels: activeChs,
+      values: getValues(),
+    })
+    if (!captionValidation.isValid) {
+      toast.error("Caption exceeds character limit", {
+        description: captionValidation.firstErrorMessage,
       })
       return
     }
@@ -314,6 +327,7 @@ export function ImageComposer({ postId, onBack }: ImageComposerProps) {
       {/* Status Multi-platform modal popup */}
       <UploadStatusModal
         isOpen={isStatusModalOpen}
+        onCancel={handleCancelSubmit}
         onClose={() => {
           setIsStatusModalOpen(false)
           setIsPublishing(false)

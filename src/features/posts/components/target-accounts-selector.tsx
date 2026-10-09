@@ -13,6 +13,7 @@ export type AccountChannel = {
   avatar: string
   selected: boolean
   expired?: boolean
+  is_premium?: boolean
 }
 
 type TargetAccountsSelectorProps = {
@@ -48,7 +49,11 @@ export function TargetAccountsSelector({
               key={channel.id}
               onClick={() => onToggleChannel(channel.id)}
               className="group relative cursor-pointer focus:outline-hidden"
-              title={isExpired ? `${channel.name} (${channel.handle}) - Connection Expired` : `${channel.name} (${channel.handle})`}
+              title={
+                isExpired
+                  ? `${channel.name} (${channel.handle}) - Connection Expired`
+                  : `${channel.name} (${channel.handle})${channel.is_premium ? " • Premium Account" : ""}`
+              }
             >
               <div className="relative">
                 <div

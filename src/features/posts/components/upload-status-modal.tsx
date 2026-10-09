@@ -13,6 +13,7 @@ import { PreviewData } from "./upload-status/types"
 type UploadStatusModalProps = {
   isOpen: boolean
   onClose: () => void
+  onCancel?: () => void
   postId: string | null
   uploadProgress: number
   postType?: "video" | "photo" | "text"
@@ -25,6 +26,7 @@ type UploadStatusModalProps = {
 export function UploadStatusModal({
   isOpen,
   onClose,
+  onCancel,
   postId,
   uploadProgress,
   postType,
@@ -76,6 +78,8 @@ export function UploadStatusModal({
   const totalMB = fileSizeBytes ? (fileSizeBytes / (1024 * 1024)).toFixed(1) : null;
   const currentMB = fileSizeBytes ? ((fileSizeBytes * (uploadProgress / 100)) / (1024 * 1024)).toFixed(1) : null;
 
+  const handleCancelAction = onCancel || onClose
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl w-full max-w-[440px] shadow-2xl overflow-hidden flex flex-col">
@@ -86,7 +90,7 @@ export function UploadStatusModal({
             totalMB={totalMB}
             currentMB={currentMB}
             selectedPlatforms={selectedPlatforms}
-            onCancel={onClose}
+            onCancel={handleCancelAction}
           />
         )}
 
@@ -96,7 +100,7 @@ export function UploadStatusModal({
             selectedPlatforms={selectedPlatforms}
             previewData={previewData}
             isScheduled={isScheduled}
-            onClose={onClose}
+            onClose={handleCancelAction}
             onFinished={setFinalStatuses}
           />
         )}
@@ -109,7 +113,8 @@ export function UploadStatusModal({
             contentType={postType || null}
             previewData={previewData}
             onClose={onClose}
-            onViewPost={() => router.push("/dashboard/calendar")}
+            onCancel={handleCancelAction}
+            onViewPost={() => router.push(isScheduled ? "/dashboard/scheduled" : "/dashboard/calendar")}
           />
         )}
       </div>

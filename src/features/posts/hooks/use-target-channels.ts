@@ -9,6 +9,7 @@ type ConnectedAccount = {
   account_name: string
   profile_picture_url?: string | null
   is_expired?: boolean
+  is_premium?: boolean
 }
 
 export function useTargetChannels(connectedAccounts: ConnectedAccount[] | undefined, allowedPlatforms: string[]) {
@@ -32,6 +33,7 @@ export function useTargetChannels(connectedAccounts: ConnectedAccount[] | undefi
             avatar: conn.profile_picture_url || PLAIN_AVATAR,
             selected: shouldSelect,
             expired: isExpired,
+            is_premium: !!conn.is_premium,
           }
         })
     }

@@ -12,6 +12,7 @@ type FinishedStateProps = {
   contentType: string | null
   previewData?: PreviewData
   onClose: () => void
+  onCancel?: () => void
   onViewPost: () => void
 }
 
@@ -22,6 +23,7 @@ export function FinishedState({
   contentType,
   previewData,
   onClose,
+  onCancel,
   onViewPost,
 }: FinishedStateProps) {
   const failedCount = finalStatuses ? finalStatuses.filter(s => s.status === "failed").length : 0;
@@ -142,10 +144,10 @@ export function FinishedState({
       {/* Footer Buttons */}
       <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
         <button
-          onClick={onClose}
+          onClick={isAllFailed ? (onCancel || onClose) : onClose}
           className="px-5 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
         >
-          Close
+          {isAllFailed ? "Back to Edit" : "Close"}
         </button>
         <button
           onClick={onViewPost}

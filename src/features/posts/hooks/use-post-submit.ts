@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { toast } from "sonner"
 import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 
@@ -17,10 +17,19 @@ export function usePostSubmit({ submitFn }: UsePostSubmitProps) {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [createdPostId, setCreatedPostId] = useState<string | null>(null)
+  const isCancelledRef = useRef(false)
+
+  const handleCancel = () => {
+    isCancelledRef.current = true
+    setIsStatusModalOpen(false)
+    setIsPublishing(false)
+    setUploadProgress(0)
+  }
 
   const handlePublish = async (action: "schedule" | "now", scheduleDate?: string, scheduleTime?: string) => {
     if (isPublishing) return
 
+    isCancelledRef.current = false
     let scheduledAt: string | undefined = undefined
     if (action === "schedule" && scheduleDate && scheduleTime) {
       const dt = new Date(`${scheduleDate}T${scheduleTime}:00`)
@@ -34,6 +43,8 @@ export function usePostSubmit({ submitFn }: UsePostSubmitProps) {
 
     try {
       const response = await submitFn(scheduledAt)
+      if (isCancelledRef.current) return
+
       if (response.success && response.data?.id) {
         setCreatedPostId(response.data.id)
         setUploadProgress(100)
@@ -51,6 +62,7 @@ export function usePostSubmit({ submitFn }: UsePostSubmitProps) {
         setIsPublishing(false)
       }
     } catch (err: unknown) {
+      if (isCancelledRef.current) return
       const errorDesc = extractErrorMessage(err, "Failed to publish post.")
       console.error("Post submission error:", errorDesc, err)
       toast.error("Failed to create post", {
@@ -71,5 +83,6 @@ export function usePostSubmit({ submitFn }: UsePostSubmitProps) {
     createdPostId,
     setCreatedPostId,
     handlePublish,
+    handleCancel,
   }
 }

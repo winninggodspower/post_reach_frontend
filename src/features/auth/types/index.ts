@@ -11,6 +11,7 @@ export type ConnectedAccount = {
   connected_at: string
   is_expired?: boolean
   expired_at?: string | null
+  is_premium?: boolean
 }
 
 export type UserBrand = {
