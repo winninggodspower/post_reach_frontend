@@ -79,6 +79,21 @@ export function getEffectivePlatformCaption(
 }
 
 /**
+ * Formats platform ID into a user-friendly display name (e.g. "threads" -> "Threads", "twitter" -> "Twitter / X").
+ */
+export function getPlatformDisplayName(platform: string): string {
+  const p = platform.toLowerCase()
+  if (p === "threads") return "Threads"
+  if (p === "twitter" || p === "x") return "Twitter / X"
+  if (p === "instagram") return "Instagram"
+  if (p === "facebook") return "Facebook"
+  if (p === "linkedin") return "LinkedIn"
+  if (p === "tiktok") return "TikTok"
+  if (p === "youtube") return "YouTube"
+  return platform.charAt(0).toUpperCase() + platform.slice(1)
+}
+
+/**
  * Validates captions across all provided/selected channels before submitting to the backend.
  * Checks platform-specific limits and flags any captions that exceed them.
  */
@@ -114,7 +129,7 @@ export function validatePlatformCaptions({
       } else if (platform === "linkedin") {
         message = `LinkedIn post is limited to 3,000 characters. Current length: ${currentLength}.`
       } else {
-        message = `${channel.name || platform} caption exceeds the ${maxLength.toLocaleString()} character limit. Current length: ${currentLength}.`
+        message = `${getPlatformDisplayName(platform)} caption exceeds the ${maxLength.toLocaleString()} character limit. Current length: ${currentLength}.`
       }
 
       errors.push({

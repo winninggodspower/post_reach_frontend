@@ -7,7 +7,7 @@ import { PLATFORM_OPTIONS } from "@/features/onboarding/components/steps/shared"
 import type { ComposerFormValues } from "../types/composer"
 import type { AccountChannel } from "./target-accounts-selector"
 import { TiktokAdvancedSettings } from "./tiktok-advanced-settings"
-import { getPlatformCaptionLimit } from "../lib/caption-validation"
+import { getPlatformCaptionLimit, getPlatformDisplayName } from "../lib/caption-validation"
 
 type CompositionDetailsProps = {
   register: UseFormRegister<ComposerFormValues>
@@ -102,6 +102,20 @@ export function CompositionDetails({
     return caption.length > limit
   })
 
+  const handleJumpToOverride = (channelId: string) => {
+    setOpenChannelId(channelId)
+    setTimeout(() => {
+      const el = document.getElementById(`platform-override-${channelId}`)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+        const textarea = el.querySelector("textarea")
+        if (textarea) {
+          textarea.focus()
+        }
+      }
+    }, 120)
+  }
+
   return (
     <div className="space-y-6 pt-4">
       <div className="space-y-1">
@@ -152,16 +166,32 @@ export function CompositionDetails({
         {exceededInheritedChannels.length > 0 && (
           <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs mt-2 animate-fade-in">
             <AlertCircle className="size-4 shrink-0 mt-0.5 text-amber-500" />
-            <div className="space-y-1 flex-1">
+            <div className="space-y-1 flex-1 leading-relaxed">
               <p className="font-semibold text-amber-800 dark:text-amber-200">
                 Caption exceeds limit for {exceededInheritedChannels.map((c) => {
-                  const platName = c.platform === "threads" ? "Threads" : (c.platform === "twitter" || c.platform === "x") ? "Twitter / X" : c.name || c.platform
+                  const platName = getPlatformDisplayName(c.platform)
                   const limit = getPlatformCaptionLimit(c.platform, c.is_premium)
                   return `${platName} (${limit.toLocaleString()} max)`
                 }).join(", ")}
               </p>
-              <p className="text-[11px] text-amber-700/90 dark:text-amber-300/90 leading-relaxed">
-                Shorten your main caption or customize platform-specific captions in the section below before posting.
+              <p className="text-[11.5px] text-amber-700/90 dark:text-amber-300/90">
+                Shorten your main caption or customize directly:{" "}
+                {exceededInheritedChannels.map((c, idx) => {
+                  const platName = getPlatformDisplayName(c.platform)
+                  return (
+                    <React.Fragment key={c.id}>
+                      {idx > 0 && <span className="text-amber-500/60 mx-1.5">·</span>}
+                      <button
+                        type="button"
+                        onClick={() => handleJumpToOverride(c.id)}
+                        className="font-semibold underline underline-offset-2 decoration-amber-500/50 hover:decoration-amber-700 text-amber-800 dark:text-amber-200 hover:text-amber-950 dark:hover:text-white transition cursor-pointer inline-flex items-center gap-0.5"
+                      >
+                        <span>Edit {platName}</span>
+                        <span aria-hidden="true">&rarr;</span>
+                      </button>
+                    </React.Fragment>
+                  )
+                })}
               </p>
             </div>
           </div>
@@ -208,6 +238,7 @@ export function CompositionDetails({
               return (
                 <div
                   key={channel.id}
+                  id={`platform-override-${channel.id}`}
                   className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white/40 dark:bg-slate-900/40 shadow-xs transition-all duration-300"
                 >
                   {/* Collapsible Header */}
@@ -347,7 +378,7 @@ export function CompositionDetails({
                               />
                               {isOverLimit && (
                                 <p className="text-[11px] font-medium text-red-500">
-                                  Caption exceeds {channel.name || channel.platform} limit by {overrideVal.length - maxChar} characters.
+                                  Caption exceeds {getPlatformDisplayName(channel.platform)} limit by {overrideVal.length - maxChar} characters.
                                 </p>
                               )}
                             </div>
