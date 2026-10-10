@@ -10,10 +10,15 @@ import { useAuth } from "@/features/auth/store/auth-store"
 export default function CreateBrandPage() {
   const router = useRouter()
   const loadUser = useAuth((state) => state.loadUser)
+  const setUser = useAuth((state) => state.setUser)
 
   const handleSuccess = async (brandId: string) => {
-    await setActiveBrand(brandId)
-    await loadUser()
+    const updatedUser = await setActiveBrand(brandId)
+    if (updatedUser) {
+      setUser(updatedUser)
+    } else {
+      await loadUser()
+    }
     router.replace("/dashboard")
   }
 

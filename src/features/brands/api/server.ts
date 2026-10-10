@@ -15,6 +15,9 @@ export type BrandSummary = {
   id: string
   name: string
   logo_url?: string | null
+  is_default?: boolean
+  is_active?: boolean
+  role?: string | null
 }
 
 type BrandsListResponse = {

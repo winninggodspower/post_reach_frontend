@@ -25,15 +25,26 @@ export type UserBrand = {
   connected_accounts: ConnectedAccount[]
 }
 
+export type BrandBrief = {
+  id: string
+  name: string
+  logo_url: string | null
+  is_default?: boolean
+  is_active?: boolean
+  role?: string | null
+}
+
 export type AuthProfile = {
   id: string
   email: string
   first_name: string
   last_name: string
   handle: string | null
+  profile_picture_url?: string | null
   role: string | null
   has_completed_onboarding: boolean
   brand: UserBrand | null
+  brands?: BrandBrief[]
   is_superuser?: boolean
   is_staff?: boolean
 }

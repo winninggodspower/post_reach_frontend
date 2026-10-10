@@ -53,7 +53,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <DashboardSidebar />
           <SidebarInset>
             <DashboardNavbar />
-            {children}
+            <div key={user?.brand?.id || "default-brand"} className="flex-1 flex flex-col min-w-0">
+              {children}
+            </div>
           </SidebarInset>
         </SidebarProvider>
       </div>

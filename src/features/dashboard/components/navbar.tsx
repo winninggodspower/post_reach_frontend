@@ -25,6 +25,7 @@ export function DashboardNavbar() {
   const {
     activeBrandId,
     activeBrandName,
+    activeBrandLogoUrl,
     displayBrands,
     brandGradientMap,
     isLoadingBrands,
@@ -34,7 +35,6 @@ export function DashboardNavbar() {
   } = useBrands()
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "Brand Account"
-  const activeBrandLogoUrl = user?.brand?.logo_url
 
   return (
     <header className="sticky top-[var(--beta-banner-height,0px)] z-30 flex h-14 shrink-0 items-center justify-between border-b border-black/5 px-5 transition-[width,height] ease-linear bg-white/80 backdrop-blur-lg">
@@ -62,7 +62,7 @@ export function DashboardNavbar() {
               Brands
             </DropdownMenuLabel>
             {displayBrands.map((brand) => {
-              const isActive = brand.id === activeBrandId
+              const isActive = brand.is_active !== undefined ? brand.is_active : (brand.id === activeBrandId)
 
               return (
                 <DropdownMenuItem
