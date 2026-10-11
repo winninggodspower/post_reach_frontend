@@ -54,6 +54,16 @@ export type AuthToken = {
   access: string
 }
 
+export type TokenRefreshResponse = {
+  access: string
+  refresh: string
+}
+
+export type RefreshedTokens = {
+  accessToken: string
+  refreshToken: string
+}
+
 export type AuthData = {
   user: AuthProfile
   tokens: AuthToken

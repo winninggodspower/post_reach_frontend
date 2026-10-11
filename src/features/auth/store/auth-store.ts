@@ -30,6 +30,7 @@ type AuthState = {
   setTokens: (tokens: AuthTokenPair) => void
   setAuth: (auth: { user: AuthProfile; tokens: AuthTokenPair }) => void
   updateAccessToken: (accessToken: string) => void
+  updateTokens: (tokens: { accessToken: string; refreshToken?: string | null }) => void
   clearAuth: () => void
   setBrandConnection: (platform: OnboardingPlatform) => void
   login: (values: LoginFormValues) => Promise<AuthProfile>
@@ -63,6 +64,11 @@ export const useAuth = create<AuthState>()(
           refreshToken: tokens.refreshToken,
         }),
       updateAccessToken: (accessToken) => set({ accessToken }),
+      updateTokens: ({ accessToken, refreshToken }) =>
+        set((state) => ({
+          accessToken,
+          refreshToken: refreshToken ?? state.refreshToken,
+        })),
       clearAuth: () =>
         set({
           user: null,
@@ -178,15 +184,18 @@ export const useAuth = create<AuthState>()(
           return null
         }
 
-        const newAccessToken = await refreshAccessToken(state.refreshToken)
+        const tokens = await refreshAccessToken(state.refreshToken)
 
-        if (!newAccessToken) {
+        if (!tokens?.accessToken) {
           set({ user: null, accessToken: null, refreshToken: null })
           return null
         }
 
-        set({ accessToken: newAccessToken })
-        return newAccessToken
+        set({
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        })
+        return tokens.accessToken
       },
 
       logout: () => {

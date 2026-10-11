@@ -170,13 +170,4 @@ export const googleSignIn = async ({ authCode, redirectUri }: GoogleSignInPayloa
   }
 }
 
-export const refreshAccessToken = async (refreshToken: string) => {
-  const { data } = await authApi.post<{ access?: string; accessToken?: string }>(
-    AUTH_ENDPOINTS.refresh,
-    {
-      refresh: refreshToken,
-    },
-  )
-
-  return data.accessToken ?? data.access ?? null
-}
+export { refreshAccessToken } from "@/lib/api"

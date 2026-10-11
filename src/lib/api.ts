@@ -1,5 +1,6 @@
 import axios from "axios"
 import { AUTH_ENDPOINTS } from "@/features/auth/api/endpoints"
+import type { RefreshedTokens, TokenRefreshResponse } from "@/features/auth/types"
 
 const normalizeUrl = (value: string) => value.replace(/\/$/, "")
 
@@ -19,17 +20,26 @@ export const api = axios.create({
 
 const getAuthStore = async () => (await import("@/features/auth/store/auth-store")).useAuth
 
-let refreshPromise: Promise<string | null> | null = null
+let refreshPromise: Promise<RefreshedTokens | null> | null = null
 
-export const refreshAccessToken = async (refreshToken: string) => {
-  const { data } = await authApi.post<{ access?: string; accessToken?: string }>(
+export const refreshAccessToken = async (
+  refreshToken: string,
+): Promise<RefreshedTokens | null> => {
+  const { data } = await authApi.post<TokenRefreshResponse>(
     AUTH_ENDPOINTS.refresh,
     {
       refresh: refreshToken,
     },
   )
 
-  return data.accessToken ?? data.access ?? null
+  if (!data?.access || !data?.refresh) {
+    return null
+  }
+
+  return {
+    accessToken: data.access,
+    refreshToken: data.refresh,
+  }
 }
 
 const shouldSkipRefresh = (url?: string) => {
@@ -84,12 +94,15 @@ api.interceptors.response.use(
     try {
       if (!refreshPromise) {
         refreshPromise = refreshAccessToken(refreshToken)
-          .then((accessToken) => {
-            if (accessToken) {
-              authStore.getState().updateAccessToken(accessToken)
+          .then((tokens) => {
+            if (tokens) {
+              authStore.getState().updateTokens({
+                accessToken: tokens.accessToken,
+                refreshToken: tokens.refreshToken,
+              })
             }
 
-            return accessToken
+            return tokens
           })
           .catch(() => {
             authStore.getState().clearAuth()
@@ -100,14 +113,14 @@ api.interceptors.response.use(
           })
       }
 
-      const newAccessToken = await refreshPromise
+      const refreshed = await refreshPromise
 
-      if (!newAccessToken) {
+      if (!refreshed?.accessToken) {
         return Promise.reject(error)
       }
 
       originalRequest.headers = originalRequest.headers ?? {}
-      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+      originalRequest.headers.Authorization = `Bearer ${refreshed.accessToken}`
 
       return api(originalRequest)
     } catch {
