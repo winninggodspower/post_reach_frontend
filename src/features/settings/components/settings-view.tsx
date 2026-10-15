@@ -7,6 +7,8 @@ import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/features/auth/store/auth-store"
+import { useBrands } from "@/features/brands/hooks/use-brands"
+import { BrandMembersTab } from "@/features/brands/components/brand-members-tab"
 import { submitOnboardingProfile } from "@/features/onboarding/api/server"
 import {
   ROLE_OPTIONS,
@@ -40,8 +42,9 @@ export function SettingsView() {
   const user = useAuth((state) => state.user)
   const setUser = useAuth((state) => state.setUser)
   const isHydrated = useAuth((state) => state.isHydrated)
+  const { activeBrandId, activeBrandName, activeBrandLogoUrl } = useBrands()
 
-  const [activeTab, setActiveTab] = useState<"profile" | "brand">("profile")
+  const [activeTab, setActiveTab] = useState<"profile" | "brand" | "team">("profile")
 
   // React Hook Form for Profile settings
   const {
@@ -193,10 +196,10 @@ export function SettingsView() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-black/8 gap-6">
+      <div className="flex border-b border-black/8 gap-6 overflow-x-auto">
         <button
           onClick={() => setActiveTab("profile")}
-          className={`pb-3 text-sm font-semibold border-b-2 transition duration-200 cursor-pointer ${
+          className={`pb-3 text-sm font-semibold border-b-2 transition duration-200 cursor-pointer whitespace-nowrap ${
             activeTab === "profile"
               ? "border-slate-950 text-slate-950"
               : "border-transparent text-slate-500 hover:text-slate-900"
@@ -206,13 +209,23 @@ export function SettingsView() {
         </button>
         <button
           onClick={() => setActiveTab("brand")}
-          className={`pb-3 text-sm font-semibold border-b-2 transition duration-200 cursor-pointer ${
+          className={`pb-3 text-sm font-semibold border-b-2 transition duration-200 cursor-pointer whitespace-nowrap ${
             activeTab === "brand"
               ? "border-slate-950 text-slate-950"
               : "border-transparent text-slate-500 hover:text-slate-900"
           }`}
         >
           Brand configuration
+        </button>
+        <button
+          onClick={() => setActiveTab("team")}
+          className={`pb-3 text-sm font-semibold border-b-2 transition duration-200 cursor-pointer whitespace-nowrap ${
+            activeTab === "team"
+              ? "border-slate-950 text-slate-950"
+              : "border-transparent text-slate-500 hover:text-slate-900"
+          }`}
+        >
+          Team & members
         </button>
       </div>
 
@@ -371,6 +384,14 @@ export function SettingsView() {
             Save Brand Details
           </Button>
         </form>
+      )}
+
+      {activeTab === "team" && (
+        <BrandMembersTab
+          brandId={activeBrandId}
+          brandName={activeBrandName}
+          brandLogoUrl={activeBrandLogoUrl}
+        />
       )}
     </main>
   )
