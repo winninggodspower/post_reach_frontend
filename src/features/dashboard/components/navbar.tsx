@@ -1,12 +1,13 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Check, ChevronDown, LogOut, Settings } from "lucide-react"
+import { Check, ChevronDown, LogOut, Mail, Settings } from "lucide-react"
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useBrands } from "@/features/brands/hooks/use-brands"
+import { useReceivedInvitations } from "@/features/brands/hooks/use-received-invitations"
 import { BrandAvatar } from "@/features/brands/components/brand-avatar"
 import {
   DropdownMenu,
@@ -34,6 +35,8 @@ export function DashboardNavbar() {
     handleDropdownOpenChange,
   } = useBrands()
 
+  const { pendingCount } = useReceivedInvitations("pending")
+
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "Brand Account"
 
   return (
@@ -53,11 +56,33 @@ export function DashboardNavbar() {
                 gradientIndex={activeBrandId ? brandGradientMap.get(activeBrandId) : undefined}
                 className="size-5"
               />
-              <span>{activeBrandName}</span>
+              <span className="flex items-center gap-1.5">
+                <span>{activeBrandName}</span>
+                {pendingCount > 0 && (
+                  <span className="size-2 rounded-full bg-blue-600 ring-2 ring-white" />
+                )}
+              </span>
               <ChevronDown className="size-3.5 text-slate-400" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56 p-1.5">
+            {pendingCount > 0 && (
+              <>
+                <DropdownMenuItem
+                  onClick={() => router.push("/dashboard/settings?tab=invitations")}
+                  className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50/80 hover:bg-blue-100/80 mb-1 cursor-pointer"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Mail className="size-3.5 text-blue-600" />
+                    <span>Pending Invitations</span>
+                  </span>
+                  <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
+                    {pendingCount}
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="my-1" />
+              </>
+            )}
             <DropdownMenuLabel className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Brands
             </DropdownMenuLabel>
@@ -101,25 +126,39 @@ export function DashboardNavbar() {
       {/* Right Side: Profile Menu */}
       <div className="relative">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex size-8 items-center justify-center rounded-full border border-blur-500 hover:scale-105 transition-all overflow-hidden cursor-pointer bg-slate-50 outline-none">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/placeholder-avatar.svg"
-                alt={fullName}
-                className="size-full object-cover"
-              />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 p-1.5 space-y-0.5">
-            <div className="border-b border-black/5 p-2 mb-1">
-              <p className="text-xs font-bold text-slate-900 leading-none truncate">
-                {fullName}
-              </p>
-              <p className="text-[10px] text-slate-400 truncate mt-1">
-                {user?.email}
-              </p>
-            </div>
+            <DropdownMenuTrigger asChild>
+              <button className="flex size-8 items-center justify-center rounded-full border border-blur-500 hover:scale-105 transition-all overflow-hidden cursor-pointer bg-slate-50 outline-none">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/placeholder-avatar.svg"
+                  alt={fullName}
+                  className="size-full object-cover"
+                />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 p-1.5 space-y-0.5">
+              <div className="border-b border-black/5 p-2 mb-1">
+                <p className="text-xs font-bold text-slate-900 leading-none truncate">
+                  {fullName}
+                </p>
+                <p className="text-[10px] text-slate-400 truncate mt-1">
+                  {user?.email}
+                </p>
+              </div>
+              <DropdownMenuItem
+                onClick={() => router.push("/dashboard/settings?tab=invitations")}
+                className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <Mail className="size-3.5 text-slate-400" />
+                  Invitations
+                </span>
+                {pendingCount > 0 && (
+                  <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
+                    {pendingCount}
+                  </span>
+                )}
+              </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => router.push("/dashboard/settings")}
               className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"

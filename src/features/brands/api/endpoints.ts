@@ -10,4 +10,9 @@ export const BRANDS_ENDPOINTS = {
   members: (brandId: string) => `/auth/brands/${brandId}/members/`,
   memberDetail: (brandId: string, memberId: string) =>
     `/auth/brands/${brandId}/members/${memberId}/`,
+  receivedInvitations: "/auth/me/invitations/",
+  acceptInvitation: (invitationId: string) =>
+    `/auth/me/invitations/${invitationId}/accept/`,
+  declineInvitation: (invitationId: string) =>
+    `/auth/me/invitations/${invitationId}/decline/`,
 } as const

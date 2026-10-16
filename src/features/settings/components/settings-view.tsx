@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
@@ -8,7 +9,9 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/features/auth/store/auth-store"
 import { useBrands } from "@/features/brands/hooks/use-brands"
+import { useReceivedInvitations } from "@/features/brands/hooks/use-received-invitations"
 import { BrandMembersTab } from "@/features/brands/components/brand-members-tab"
+import { ReceivedInvitationsTab } from "@/features/brands/components/received-invitations-tab"
 import { submitOnboardingProfile } from "@/features/onboarding/api/server"
 import {
   ROLE_OPTIONS,
@@ -39,12 +42,41 @@ type BrandFormValues = {
 }
 
 export function SettingsView() {
+  const searchParams = useSearchParams()
+  const tabQuery = searchParams.get("tab")
+
   const user = useAuth((state) => state.user)
   const setUser = useAuth((state) => state.setUser)
   const isHydrated = useAuth((state) => state.isHydrated)
   const { activeBrandId, activeBrandName, activeBrandLogoUrl } = useBrands()
+  const { pendingCount } = useReceivedInvitations("pending")
 
-  const [activeTab, setActiveTab] = useState<"profile" | "brand" | "team">("profile")
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "brand" | "team" | "invitations"
+  >(() => {
+    if (
+      tabQuery === "profile" ||
+      tabQuery === "brand" ||
+      tabQuery === "team" ||
+      tabQuery === "invitations"
+    ) {
+      return tabQuery
+    }
+    return "profile"
+  })
+
+  // Sync tab with URL search parameter if changed
+  useEffect(() => {
+    if (
+      tabQuery &&
+      (tabQuery === "profile" ||
+        tabQuery === "brand" ||
+        tabQuery === "team" ||
+        tabQuery === "invitations")
+    ) {
+      setActiveTab(tabQuery)
+    }
+  }, [tabQuery])
 
   // React Hook Form for Profile settings
   const {
@@ -227,6 +259,21 @@ export function SettingsView() {
         >
           Team & members
         </button>
+        <button
+          onClick={() => setActiveTab("invitations")}
+          className={`flex items-center gap-1.5 pb-3 text-sm font-semibold border-b-2 transition duration-200 cursor-pointer whitespace-nowrap ${
+            activeTab === "invitations"
+              ? "border-slate-950 text-slate-950"
+              : "border-transparent text-slate-500 hover:text-slate-900"
+          }`}
+        >
+          <span>Invitations</span>
+          {pendingCount > 0 && (
+            <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
+              {pendingCount}
+            </span>
+          )}
+        </button>
       </div>
 
       {activeTab === "profile" && (
@@ -393,6 +440,8 @@ export function SettingsView() {
           brandLogoUrl={activeBrandLogoUrl}
         />
       )}
+
+      {activeTab === "invitations" && <ReceivedInvitationsTab />}
     </main>
   )
 }

@@ -7,6 +7,8 @@ import type {
   BrandInvitationRole,
   BrandMember,
   SendInvitationData,
+  ReceivedBrandInvitation,
+  AcceptInvitationResponse,
 } from "../types/members"
 
 export type CreateBrandData = {
@@ -214,5 +216,65 @@ export const removeBrandMember = async (
     await api.delete(BRANDS_ENDPOINTS.memberDetail(brandId, memberId))
   } catch (error) {
     throw new Error(extractApiError(error, "Failed to remove member."))
+  }
+}
+
+/* =========================================================================
+   Received Invitations (for Current User)
+   ========================================================================= */
+
+export const fetchReceivedInvitations = async (
+  status: string = "pending",
+): Promise<ReceivedBrandInvitation[]> => {
+  try {
+    const response = await api.get<
+      ApiResponse<ReceivedBrandInvitation[]> | ReceivedBrandInvitation[]
+    >(BRANDS_ENDPOINTS.receivedInvitations, {
+      params: { status },
+    })
+
+    if (Array.isArray(response.data)) {
+      return response.data
+    }
+
+    if (response.data && Array.isArray(response.data.data)) {
+      return response.data.data
+    }
+
+    return []
+  } catch (error) {
+    throw new Error(extractApiError(error, "Failed to load received invitations."))
+  }
+}
+
+export const acceptReceivedInvitation = async (
+  invitationId: string,
+): Promise<AcceptInvitationResponse> => {
+  try {
+    const response = await api.post<
+      ApiResponse<AcceptInvitationResponse> | AcceptInvitationResponse
+    >(BRANDS_ENDPOINTS.acceptInvitation(invitationId))
+
+    if (
+      "data" in response.data &&
+      response.data.data &&
+      typeof response.data.data === "object"
+    ) {
+      return response.data.data as AcceptInvitationResponse
+    }
+
+    return response.data as AcceptInvitationResponse
+  } catch (error) {
+    throw new Error(extractApiError(error, "Failed to accept invitation."))
+  }
+}
+
+export const declineReceivedInvitation = async (
+  invitationId: string,
+): Promise<void> => {
+  try {
+    await api.post(BRANDS_ENDPOINTS.declineInvitation(invitationId))
+  } catch (error) {
+    throw new Error(extractApiError(error, "Failed to decline invitation."))
   }
 }

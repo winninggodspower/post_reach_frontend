@@ -2,7 +2,12 @@ export type BrandRole = "owner" | "admin" | "editor" | "viewer"
 
 export type BrandInvitationRole = "admin" | "editor" | "viewer"
 
-export type BrandInvitationStatus = "pending" | "accepted" | "revoked" | "expired"
+export type BrandInvitationStatus =
+  | "pending"
+  | "accepted"
+  | "revoked"
+  | "expired"
+  | "declined"
 
 export type BrandMemberUser = {
   id: string
@@ -41,4 +46,27 @@ export type SendInvitationData = {
 
 export type UpdateMemberRoleData = {
   role: BrandInvitationRole
+}
+
+export type ReceivedBrandInvitation = {
+  id: string
+  brand_id: string
+  brand_name: string
+  brand_logo_url: string | null
+  email: string
+  role: BrandRole
+  status: BrandInvitationStatus
+  invited_by_email: string
+  invited_by_name: string
+  expires_at: string
+  created_at: string
+}
+
+export type AcceptInvitationResponse = {
+  id: string
+  brand_id: string
+  user: BrandMemberUser
+  role: BrandRole
+  created_at: string
+  updated_at: string
 }
