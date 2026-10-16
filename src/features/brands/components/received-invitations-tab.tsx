@@ -140,27 +140,27 @@ export function ReceivedInvitationsTab() {
             return (
               <div
                 key={inv.id}
-                className="flex flex-col gap-3 rounded-2xl border border-black/6 bg-white p-3.5 sm:px-4 sm:py-3 shadow-xs sm:flex-row sm:items-center sm:justify-between transition-all hover:border-black/10"
+                className="flex flex-col gap-4 rounded-2xl border border-black/6 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between transition-all hover:border-black/10"
               >
                 {/* Brand & Inviter Info */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <BrandAvatar
                     name={inv.brand_name}
                     logoUrl={inv.brand_logo_url}
                     brandId={inv.brand_id}
-                    className="size-9.5 shrink-0 rounded-xl shadow-xs"
+                    className="size-12 shrink-0 rounded-2xl shadow-xs"
                   />
-                  <div className="min-w-0 space-y-0.5">
+                  <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                      <h3 className="text-base font-bold text-slate-900 leading-tight">
                         {inv.brand_name}
                       </h3>
                       <BrandRoleBadge role={inv.role} size="sm" />
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <User className="size-3 text-slate-400" />
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                      <span className="flex items-center gap-1.5">
+                        <User className="size-3.5 text-slate-400" />
                         <span>
                           Invited by{" "}
                           <strong className="font-semibold text-slate-700">
@@ -170,8 +170,8 @@ export function ReceivedInvitationsTab() {
                       </span>
 
                       {inv.expires_at && (
-                        <span className="flex items-center gap-1 text-[11px] text-slate-400">
-                          <Clock className="size-3" />
+                        <span className="flex items-center gap-1.5 text-xs text-slate-400">
+                          <Clock className="size-3.5" />
                           <span>{formatExpiration(inv.expires_at)}</span>
                         </span>
                       )}
@@ -180,13 +180,13 @@ export function ReceivedInvitationsTab() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 shrink-0 sm:self-center">
+                <div className="flex items-center gap-2.5 shrink-0 sm:self-center">
                   <Button
                     variant="ghost"
                     size="sm"
                     disabled={isBusy}
                     onClick={() => setInvitationToDecline(inv)}
-                    className="h-8 px-2.5 text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
+                    className="h-9 px-3 text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
                   >
                     {isDeclining ? (
                       <Loader2 className="mr-1.5 size-3.5 animate-spin" />
@@ -200,7 +200,7 @@ export function ReceivedInvitationsTab() {
                     size="sm"
                     disabled={isBusy}
                     onClick={() => void acceptInvite(inv, { switchImmediately: true })}
-                    className="h-8 px-3.5 text-xs font-semibold bg-slate-950 text-white hover:bg-slate-800 shadow-xs cursor-pointer"
+                    className="h-9 px-4 text-xs font-semibold bg-slate-950 text-white hover:bg-slate-800 shadow-xs cursor-pointer"
                   >
                     {isAccepting ? (
                       <Loader2 className="mr-1.5 size-3.5 animate-spin" />
