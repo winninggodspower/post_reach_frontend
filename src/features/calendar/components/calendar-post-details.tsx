@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Clock, Film, Image as ImageIcon, FileText, Trash2, Edit2, Loader2 } from "lucide-react"
+import { Clock, Film, Image as ImageIcon, FileText, Trash2, Edit2, Loader2, BarChart3 } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { DeletePostDialog } from "@/features/posts/components/delete-post-dialog"
 import { Button } from "@/components/ui/button"
@@ -34,6 +34,7 @@ export function CalendarPostDetails({ post, onClose, onDelete }: CalendarPostDet
   }
 
   const isEditable = post?.platforms.some(p => p.status === 'scheduled' || p.status === 'pending')
+  const isPosted = post?.platforms.some(p => p.status === 'posted')
 
   return (
     <Sheet open={!!post} onOpenChange={(open) => !open && onClose()}>
@@ -138,6 +139,8 @@ export function CalendarPostDetails({ post, onClose, onDelete }: CalendarPostDet
                 </p>
               </div>
 
+
+
               {/* Platforms Section */}
               <div className="pt-6 border-t border-slate-100 dark:border-slate-800/60 flex flex-col gap-4">
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Destinations</h3>
@@ -198,29 +201,59 @@ export function CalendarPostDetails({ post, onClose, onDelete }: CalendarPostDet
             
             </div>
             
-            {isEditable && (
-              <div className="p-4 sm:p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 shrink-0 flex items-center justify-between gap-4">
-                <DeletePostDialog postId={post.id} onClose={onClose} onDelete={onDelete}>
+            {(isPosted || isEditable || onDelete) && (
+              <div className="p-4 sm:p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 shrink-0 flex flex-col gap-3">
+                {isPosted && (
                   <Button 
-                    variant="outline" 
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:border-red-900/30 dark:hover:bg-red-950/30 shadow-sm"
+                    className="w-full bg-linear-to-r from-accent-brand to-accent-dark text-white font-bold hover:brightness-105 shadow-xs rounded-xl cursor-pointer"
+                    onClick={() => {
+                      router.push(`/dashboard/posts/${post.id}/analytics`)
+                      onClose()
+                    }}
                   >
-                    <Trash2 className="size-4 mr-2" />
-                    Delete Post
+                    <BarChart3 className="size-4 mr-2" />
+                    View Post Analytics
                   </Button>
-                </DeletePostDialog>
+                )}
 
-                <Button 
-                  className="flex-1 bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
-                  onClick={() => {
-                    const routeType = post.content_type === "photo" ? "image" : post.content_type
-                    router.push(`/dashboard/posts/${routeType}/${post.id}/edit`)
-                    onClose()
-                  }}
-                >
-                  <Edit2 className="size-4 mr-2" />
-                  Edit Post
-                </Button>
+                {isEditable ? (
+                  <div className="flex items-center justify-between gap-4">
+                    <DeletePostDialog postId={post.id} onClose={onClose} onDelete={onDelete}>
+                      <Button 
+                        variant="outline" 
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:border-red-900/30 dark:hover:bg-red-950/30 shadow-sm cursor-pointer"
+                      >
+                        <Trash2 className="size-4 mr-2" />
+                        Delete Post
+                      </Button>
+                    </DeletePostDialog>
+
+                    <Button 
+                      className="flex-1 bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm cursor-pointer"
+                      onClick={() => {
+                        const routeType = post.content_type === "photo" ? "image" : post.content_type
+                        router.push(`/dashboard/posts/${routeType}/${post.id}/edit`)
+                        onClose()
+                      }}
+                    >
+                      <Edit2 className="size-4 mr-2" />
+                      Edit Post
+                    </Button>
+                  </div>
+                ) : (
+                  onDelete && (
+                    <DeletePostDialog postId={post.id} onClose={onClose} onDelete={onDelete}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="w-full text-slate-500 hover:text-red-600 hover:bg-red-50 text-xs font-medium cursor-pointer"
+                      >
+                        <Trash2 className="size-3.5 mr-1.5" />
+                        Delete Post
+                      </Button>
+                    </DeletePostDialog>
+                  )
+                )}
               </div>
             )}
           </>
