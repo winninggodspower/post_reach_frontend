@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, AlertCircle, Edit2, XCircle } from "lucide-react"
+import { ArrowLeft, AlertCircle, Edit2, XCircle, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { fetchPostById, type CalendarItem } from "@/features/posts/api/server"
@@ -19,7 +19,7 @@ export interface PostAnalyticsViewProps {
 
 export function PostAnalyticsView({ postId }: PostAnalyticsViewProps) {
   const router = useRouter()
-  const { data, isLoading, error, reload } = usePostAnalytics(postId)
+  const { data, isLoading, isRefreshing, error, refresh, reload } = usePostAnalytics(postId)
   const [postDetails, setPostDetails] = useState<CalendarItem | null>(null)
   const [activeTab, setActiveTab] = useState<string>("all")
 
@@ -117,19 +117,33 @@ export function PostAnalyticsView({ postId }: PostAnalyticsViewProps) {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-3.5 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-7 animate-in fade-in duration-200">
-      {/* Top Navigation */}
-      <div>
-        <button
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer mb-2 sm:mb-3"
-        >
-          <ArrowLeft className="size-3.5" />
-          <span>Back to calendar</span>
-        </button>
+      {/* Top Navigation & Header */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer mb-2 sm:mb-3"
+          >
+            <ArrowLeft className="size-3.5" />
+            <span>Back to calendar</span>
+          </button>
 
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-950">
-          Post Analytics
-        </h1>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-950">
+            Post Analytics
+          </h1>
+        </div>
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => void refresh()}
+          disabled={isRefreshing || isLoading}
+          className="size-9 rounded-xl border-slate-200 text-slate-700 hover:text-slate-950 hover:bg-slate-50 cursor-pointer shadow-2xs shrink-0"
+          title="Force refresh live analytics from social platforms"
+          aria-label="Refresh metrics"
+        >
+          <RefreshCw className={`size-4 ${isRefreshing ? "animate-spin text-slate-900" : "text-slate-500"}`} />
+        </Button>
       </div>
 
       {/* Loading Skeleton */}

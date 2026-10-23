@@ -4,6 +4,7 @@ import type { PostAnalyticsApiResponse, PostAnalyticsData } from "../types/post-
 
 export interface FetchPostAnalyticsOptions {
   refresh?: boolean
+  force?: boolean
 }
 
 export const fetchPostAnalytics = async (
@@ -11,8 +12,9 @@ export const fetchPostAnalytics = async (
   options?: FetchPostAnalyticsOptions
 ): Promise<PostAnalyticsData> => {
   const params: Record<string, boolean> = {}
-  if (options?.refresh) {
+  if (options?.refresh || options?.force) {
     params.refresh = true
+    params.force = true
   }
 
   const response = await api.get<PostAnalyticsApiResponse>(
