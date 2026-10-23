@@ -86,14 +86,14 @@ export function TikTokPostPreview({
             +
           </span>
         </div>
-        
+
         <div className="flex flex-col items-center">
           <div className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center">
             <Heart className="size-[18px] fill-white text-white" />
           </div>
           <span className="text-[8.5px] mt-0.5 font-semibold">12.5K</span>
         </div>
-        
+
         <div className="flex flex-col items-center">
           <div className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center">
             <MessageCircle className="size-[18px] fill-white text-white" />
@@ -121,14 +121,14 @@ export function TikTokPostPreview({
         <p className="font-bold text-white text-[12px] leading-none">
           {handle}
         </p>
-        
+
         <p className="text-[10px] text-zinc-100 line-clamp-3 leading-relaxed break-words whitespace-pre-wrap">
           {caption ? caption : <span className="text-zinc-400 italic">Enter caption text...</span>}
         </p>
 
         <div className="flex items-center gap-1.5 text-zinc-300 text-[9px] pt-1">
           <span className="animate-spin text-white">𝅘𝅥𝅮</span>
-          <span className="truncate max-w-[120px]">original sound - Post Reach</span>
+          <span className="truncate max-w-[120px]">original sound - Postglee</span>
         </div>
       </div>
     </div>

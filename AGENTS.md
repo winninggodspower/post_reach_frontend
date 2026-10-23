@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Product Overview
 
-Post Reach is a social media management platform designed to help creators, businesses, agencies, and social media managers manage their online presence from a single dashboard.
+Postglee is a social media management platform designed to help creators, businesses, agencies, and social media managers manage their online presence from a single dashboard.
 
 The platform allows users to connect multiple social media accounts and organize them under brands or workspaces. Users can create, schedule, manage, and publish content across platforms such as Instagram, Facebook, X (Twitter), TikTok, and YouTube.
 

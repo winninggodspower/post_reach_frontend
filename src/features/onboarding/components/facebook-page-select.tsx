@@ -66,7 +66,7 @@ export function FacebookPageSelect({ code, redirectUri, onSelect, onError }: Fac
           Select a Facebook Page
         </h1>
         <p className="text-sm text-slate-500">
-          Choose the page you want to connect to Post Reach.
+          Choose the page you want to connect to Postglee.
         </p>
       </div>
 

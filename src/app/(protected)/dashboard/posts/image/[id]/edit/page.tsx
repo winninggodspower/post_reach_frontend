@@ -1,7 +1,7 @@
 import { ImageComposer } from "@/features/posts/components/image/image-composer"
 
 export const metadata = {
-  title: "Edit Image Post | Post Reach",
+  title: "Edit Image Post | Postglee",
   description: "Edit your scheduled social media image posts.",
 }
 
@@ -11,6 +11,6 @@ export default async function EditImagePostPage({
   params: Promise<{ id: string }>
 }) {
   const resolvedParams = await params
-  
+
   return <ImageComposer postId={resolvedParams.id} />
 }

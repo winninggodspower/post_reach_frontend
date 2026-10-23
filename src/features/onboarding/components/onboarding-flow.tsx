@@ -244,7 +244,7 @@ export function OnboardingFlow() {
           <Link href="/" className="inline-flex items-center">
             <Image
               src="/postglee-logo.png"
-              alt="Post Reach logo"
+              alt="Postglee logo"
               width={120}
               height={36}
               className="h-7 sm:h-8 w-auto object-contain"
