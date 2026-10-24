@@ -150,13 +150,17 @@ export default function Navbar() {
         <div className="hidden sm:grid flex-1 grid-cols-[1fr_auto_1fr] items-center">
           <div />
 
-          {!showDashboard ? (
-            <div className="justify-self-center">
+          <div className="justify-self-center flex items-center gap-1">
+            <Link
+              href="/pricing"
+              className="rounded-full px-4 py-2 text-sm font-medium text-black/75 transition hover:text-black"
+            >
+              Pricing
+            </Link>
+            {!showDashboard ? (
               <NavDropdown isMobile={false} align="center" />
-            </div>
-          ) : (
-            <div />
-          )}
+            ) : null}
+          </div>
 
           <div className="justify-self-end">
             {showDashboard ? (
@@ -175,6 +179,13 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="sm:hidden mt-4 border-t border-black/5 pt-4 pb-2" id="mobile-menu">
             <div className="flex flex-col gap-2 pt-2 border-black/5">
+              <Link
+                href="/pricing"
+                onClick={() => setIsMenuOpen(false)}
+                className="w-full text-center rounded-full px-4 py-2.5 text-base font-medium text-black/75 hover:bg-black/5 hover:text-black transition block"
+              >
+                Pricing
+              </Link>
               {!showDashboard ? (
                 <NavDropdown isMobile onNavigate={() => setIsMenuOpen(false)} />
               ) : null}

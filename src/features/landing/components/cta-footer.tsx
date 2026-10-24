@@ -57,6 +57,9 @@ export function CtaFooter() {
             <Link href="/" className="hover:text-white transition">
               Home
             </Link>
+            <Link href="/pricing" className="hover:text-white transition">
+              Pricing
+            </Link>
             <Link href="/privacy-policy" className="hover:text-white transition">
               Privacy Policy
             </Link>
