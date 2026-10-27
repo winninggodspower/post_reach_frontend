@@ -9,6 +9,7 @@ import { exchangeOAuthCode } from "@/features/onboarding/api/server"
 import { platformLabelMap } from "@/features/onboarding/components/steps/shared"
 import { FacebookPageSelect } from "@/features/onboarding/components/facebook-page-select"
 import type { OnboardingPlatform } from "@/features/onboarding/types"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 
 export default function OAuthCallbackPage() {
   const router = useRouter()
@@ -73,17 +74,7 @@ export default function OAuthCallbackPage() {
 
   const handleError = (err: unknown) => {
     setStatus("error")
-    const message =
-      err instanceof Error
-        ? (() => {
-          try {
-            const parsed = JSON.parse(err.message) as { message?: string }
-            return parsed.message || `Failed to connect ${platformLabel} account.`
-          } catch {
-            return err.message || `Failed to connect ${platformLabel} account.`
-          }
-        })()
-        : `Failed to connect ${platformLabel} account.`
+    const message = extractErrorMessage(err, `Failed to connect ${platformLabel} account.`)
 
     setErrorMessage(message)
 

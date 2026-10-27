@@ -6,34 +6,35 @@ import {
   FACEBOOK_PAGES_ENDPOINT,
 } from "@/features/onboarding/api/endpoints"
 import type { OnboardingPlatform, OnboardingSubmission } from "@/features/onboarding/types"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 
 type OnboardingProfileResponse = {
   success: boolean
-  message?: string
+  message?: unknown
 }
 
 type OAuthInitResponse = {
   success: boolean
   redirect_url: string
-  message?: string
+  message?: unknown
 }
 
 type AuthUrlResponse = {
   success: boolean
-  data: {
+  data?: {
     auth_url: string
   }
-  message?: string
+  message?: unknown
 }
 
 type ConnectResponse = {
   success: boolean
-  data: {
+  data?: {
     message: string
     platform: string
     is_connected: boolean
   }
-  message?: string
+  message?: unknown
 }
 
 export type FacebookPage = {
@@ -44,9 +45,10 @@ export type FacebookPage = {
 
 type FacebookPagesResponse = {
   success: boolean
-  data: {
+  data?: {
     pages: FacebookPage[]
   }
+  message?: unknown
 }
 
 export const submitOnboardingProfile = async (
@@ -59,24 +61,12 @@ export const submitOnboardingProfile = async (
     )
 
     if (!data.success) {
-      throw new Error(
-        JSON.stringify({
-          message: data.message || "Failed to save onboarding profile.",
-        }),
-      )
+      throw new Error(extractErrorMessage(data, "Failed to save onboarding profile."))
     }
 
     return data
   } catch (err: unknown) {
-    if (err instanceof Error) {
-      throw err
-    }
-
-    const axiosError = err as { response?: { data?: { message?: string } } }
-    const message =
-      axiosError.response?.data?.message || "Unable to save onboarding profile."
-
-    throw new Error(JSON.stringify({ message }))
+    throw new Error(extractErrorMessage(err, "Unable to save onboarding profile."))
   }
 }
 
@@ -96,24 +86,12 @@ export const getAuthUrl = async (
     })
 
     if (!data.success) {
-      throw new Error(
-        JSON.stringify({
-          message: data.message || `Failed to get ${platform} auth URL.`,
-        }),
-      )
+      throw new Error(extractErrorMessage(data, `Failed to get ${platform} auth URL.`))
     }
 
     return data
   } catch (err: unknown) {
-    if (err instanceof Error) {
-      throw err
-    }
-
-    const axiosError = err as { response?: { data?: { message?: string } } }
-    const message =
-      axiosError.response?.data?.message || `Unable to initiate ${platform} connection.`
-
-    throw new Error(JSON.stringify({ message }))
+    throw new Error(extractErrorMessage(err, `Unable to initiate ${platform} connection.`))
   }
 }
 
@@ -148,23 +126,15 @@ export const exchangeOAuthCode = async (payload: {
 
     if (!data.success) {
       throw new Error(
-        JSON.stringify({
-          message: data.message || `Failed to connect ${payload.platform} account.`,
-        }),
+        extractErrorMessage(data, `Failed to connect ${payload.platform} account.`),
       )
     }
 
     return data
   } catch (err: unknown) {
-    if (err instanceof Error) {
-      throw err
-    }
-
-    const axiosError = err as { response?: { data?: { message?: string } } }
-    const message =
-      axiosError.response?.data?.message || `Unable to connect ${payload.platform} account.`
-
-    throw new Error(JSON.stringify({ message }))
+    throw new Error(
+      extractErrorMessage(err, `Unable to connect ${payload.platform} account.`),
+    )
   }
 }
 
@@ -177,17 +147,14 @@ export const getFacebookPages = async (
       code,
       redirect_uri: redirectUri,
     })
-    return data
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      throw err
+
+    if (!data.success) {
+      throw new Error(extractErrorMessage(data, "Unable to fetch Facebook pages."))
     }
 
-    const axiosError = err as { response?: { data?: { message?: string } } }
-    const message =
-      axiosError.response?.data?.message || "Unable to fetch Facebook pages."
-
-    throw new Error(JSON.stringify({ message }))
+    return data
+  } catch (err: unknown) {
+    throw new Error(extractErrorMessage(err, "Unable to fetch Facebook pages."))
   }
 }
 
@@ -201,22 +168,14 @@ export const initiatePlatformOAuth = async (
 
     if (!data.success) {
       throw new Error(
-        JSON.stringify({
-          message: data.message || `Failed to initiate ${platform} connection.`,
-        }),
+        extractErrorMessage(data, `Failed to initiate ${platform} connection.`),
       )
     }
 
     return data
   } catch (err: unknown) {
-    if (err instanceof Error) {
-      throw err
-    }
-
-    const axiosError = err as { response?: { data?: { message?: string } } }
-    const message =
-      axiosError.response?.data?.message || `Unable to connect ${platform}.`
-
-    throw new Error(JSON.stringify({ message }))
+    throw new Error(
+      extractErrorMessage(err, `Unable to connect ${platform}.`),
+    )
   }
 }

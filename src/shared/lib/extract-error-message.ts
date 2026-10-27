@@ -33,8 +33,78 @@ function formatDrfErrors(errors: unknown): string | null {
 }
 
 /**
- * Extracts a user-friendly error message from Axios errors or standard Errors.
- * Prioritizes `message`, flattens DRF field/nested errors, and ignores raw HTML / 404 response bodies.
+ * Recursively extracts a readable message string from various nested backend response formats:
+ * - { message: "..." }
+ * - { message: { message: "..." } } (e.g. Facebook error wrapped by backend)
+ * - { error: { message: "..." } } (e.g. Graph API error)
+ * - { detail: "..." } (e.g. DRF detail)
+ * - stringified JSON: '{"message": {"message": "..."}}'
+ * - DRF serializer errors: { field: ["error"] }
+ */
+function extractMessageFromPayload(data: unknown): string | null {
+  if (!data) return null
+
+  if (typeof data === "string") {
+    const trimmed = data.trim()
+    if (!trimmed || isHtml(trimmed)) return null
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+      try {
+        const parsed = JSON.parse(trimmed)
+        const extracted = extractMessageFromPayload(parsed)
+        if (extracted) return extracted
+      } catch {
+        // Not valid JSON, continue with trimmed string
+      }
+    }
+    return trimmed
+  }
+
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      const extracted = extractMessageFromPayload(item)
+      if (extracted) return extracted
+    }
+    return null
+  }
+
+  if (typeof data === "object" && data !== null) {
+    const record = data as Record<string, unknown>
+
+    // 1. Direct message (can be string or nested object like { message: "..." })
+    if (record.message !== undefined && record.message !== null) {
+      const extracted = extractMessageFromPayload(record.message)
+      if (extracted) return extracted
+    }
+
+    // 2. Direct detail
+    if (record.detail !== undefined && record.detail !== null) {
+      const extracted = extractMessageFromPayload(record.detail)
+      if (extracted) return extracted
+    }
+
+    // 3. Direct error (string or nested object like { error: { message: "..." } })
+    if (record.error !== undefined && record.error !== null) {
+      const extracted = extractMessageFromPayload(record.error)
+      if (extracted) return extracted
+    }
+
+    // 4. errors field
+    if (record.errors !== undefined && record.errors !== null) {
+      const extracted = extractMessageFromPayload(record.errors)
+      if (extracted) return extracted
+    }
+
+    // 5. DRF validation error formatting
+    const drfError = formatDrfErrors(record)
+    if (drfError) return drfError
+  }
+
+  return null
+}
+
+/**
+ * Extracts a user-friendly error message from Axios errors, standard Errors, or response objects.
+ * Handles nested `{ message: { message: "..." } }`, DRF field/nested errors, status codes, and ignores raw HTML.
  */
 export function extractErrorMessage(
   error: unknown,
@@ -42,10 +112,15 @@ export function extractErrorMessage(
 ): string {
   if (!error) return fallback
 
+  // 1. Axios Error
   if (axios.isAxiosError(error)) {
-    const status = error.response?.status
+    const data = error.response?.data
+    const extractedFromData = extractMessageFromPayload(data)
+    if (extractedFromData) {
+      return extractedFromData
+    }
 
-    // 1. Status-code based early returns
+    const status = error.response?.status
     if (status === 404) {
       return "The requested resource was not found (404)."
     }
@@ -53,48 +128,36 @@ export function extractErrorMessage(
       return "Internal server error. Please try again later."
     }
 
-    const data = error.response?.data
-
-    // 2. Ignore missing data or raw HTML error pages
-    if (!data || isHtml(data)) {
-      return fallback
+    // Ignore Axios generic message "Request failed with status code ..."
+    if (error.message && !/^Request failed with status code \d+/i.test(error.message)) {
+      const extractedMsg = extractMessageFromPayload(error.message)
+      if (extractedMsg) return extractedMsg
     }
 
-    // 3. Clean string response
-    if (typeof data === "string" && data.trim()) {
-      return data.trim()
-    }
-
-    // 4. Object response: Custom backend message, DRF detail, or serializer field errors
-    if (typeof data === "object") {
-      const record = data as Record<string, unknown>
-
-      if (typeof record.message === "string" && record.message.trim()) {
-        return record.message.trim()
-      }
-
-      if (typeof record.detail === "string" && record.detail.trim()) {
-        return record.detail.trim()
-      }
-
-      if (typeof record.error === "string" && record.error.trim()) {
-        return record.error.trim()
-      }
-
-      const drfError = formatDrfErrors(record.errors ?? record)
-      if (drfError) return drfError
-    }
+    return fallback
   }
 
+  // 2. Standard Error instance
   if (error instanceof Error) {
     if (/^Request failed with status code \d+/i.test(error.message)) {
       return fallback
     }
-    if (isHtml(error.message)) {
-      return fallback
-    }
-    return error.message
+    const extracted = extractMessageFromPayload(error.message)
+    if (extracted) return extracted
+    return fallback
   }
 
-  return typeof error === "string" && !isHtml(error) ? error : fallback
+  // 3. Object (e.g. backend response payload passed directly: { success: false, message: ... })
+  if (typeof error === "object") {
+    const extracted = extractMessageFromPayload(error)
+    if (extracted) return extracted
+  }
+
+  // 4. Raw string
+  if (typeof error === "string") {
+    const extracted = extractMessageFromPayload(error)
+    if (extracted) return extracted
+  }
+
+  return fallback
 }

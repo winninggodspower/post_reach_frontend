@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { Loader2 } from "lucide-react"
 import { getFacebookPages, type FacebookPage } from "@/features/onboarding/api/server"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 
 type FacebookPageSelectProps = {
   code: string
@@ -23,20 +24,13 @@ export function FacebookPageSelect({ code, redirectUri, onSelect, onError }: Fac
     const fetchPages = async () => {
       try {
         const res = await getFacebookPages(code, redirectUri)
-        console.log(res)
-        if (res.success && res.data?.pages?.length > 0) {
+        if (res.success && res.data?.pages && res.data.pages.length > 0) {
           setPages(res.data.pages)
         } else {
-          onError("No Facebook pages found.")
+          onError(extractErrorMessage(res, "No Facebook pages found for this account."))
         }
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Failed to fetch Facebook pages."
-        try {
-          const parsed = JSON.parse(message)
-          onError(parsed.message || "Failed to fetch Facebook pages.")
-        } catch {
-          onError(message)
-        }
+        onError(extractErrorMessage(err, "Failed to fetch Facebook pages."))
       } finally {
         setLoading(false)
       }

@@ -64,8 +64,6 @@ const emptySubmission = (): OnboardingSubmission => ({
   connected_platforms: [],
 })
 
-const getStepTitle = (step: StepId) => STEP_TITLES[step]
-
 export function OnboardingFlow() {
   const router = useRouter()
   const searchParams = useSearchParams()
