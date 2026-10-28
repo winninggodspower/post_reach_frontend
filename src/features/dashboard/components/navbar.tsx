@@ -167,8 +167,8 @@ export function DashboardNavbar() {
               Settings
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => {
-                logout()
+              onClick={async () => {
+                await logout()
                 window.location.href = "/signin"
               }}
               className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"

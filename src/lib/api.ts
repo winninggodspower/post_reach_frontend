@@ -47,9 +47,13 @@ const shouldSkipRefresh = (url?: string) => {
     return false
   }
 
-  return [AUTH_ENDPOINTS.login, AUTH_ENDPOINTS.refresh, AUTH_ENDPOINTS.register].some(
-    (endpoint) => url.includes(endpoint),
-  )
+  return [
+    AUTH_ENDPOINTS.login,
+    AUTH_ENDPOINTS.googleSignIn,
+    AUTH_ENDPOINTS.logout,
+    AUTH_ENDPOINTS.refresh,
+    AUTH_ENDPOINTS.register,
+  ].some((endpoint) => url.includes(endpoint))
 }
 
 api.interceptors.request.use((config) => {

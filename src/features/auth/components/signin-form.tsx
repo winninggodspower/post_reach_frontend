@@ -10,6 +10,7 @@ import { handleServerFormErrors } from "@/lib/form/serverErrors"
 import { FormField } from "@/components/form-field"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { isBackendOAuthAuthorizeUrl } from "@/features/auth/lib/redirect"
 import { useAuth } from "@/features/auth/store/auth-store"
 
 type SignInFormValues = {
@@ -44,7 +45,13 @@ export function SignInForm() {
         password: values.password,
       })
 
-      const callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard"
+      const next = searchParams?.get("next")
+      if (isBackendOAuthAuthorizeUrl(next)) {
+        window.location.href = next
+        return
+      }
+
+      const callbackUrl = next ?? searchParams?.get("callbackUrl") ?? "/dashboard"
       router.replace(callbackUrl)
     } catch (error) {
       handleServerFormErrors<SignInFormValues>(error, setError, setSubmitError)

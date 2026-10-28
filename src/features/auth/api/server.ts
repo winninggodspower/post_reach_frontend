@@ -52,7 +52,9 @@ const submitAuthRequest = async (
   errorMessage?: string,
 ) => {
   try {
-    const { data } = await authApi.post<AuthResponse>(endpoint, body)
+    const { data } = await authApi.post<AuthResponse>(endpoint, body, {
+      withCredentials: true,
+    })
 
     if (!data.success) {
       throw new Error(
@@ -133,10 +135,16 @@ type GoogleSignInPayload = {
 
 export const googleSignIn = async ({ authCode, redirectUri }: GoogleSignInPayload) => {
   try {
-    const { data } = await authApi.post<AuthResponse>(AUTH_ENDPOINTS.googleSignIn, {
-      auth_code: authCode,
-      redirect_uri: redirectUri,
-    })
+    const { data } = await authApi.post<AuthResponse>(
+      AUTH_ENDPOINTS.googleSignIn,
+      {
+        auth_code: authCode,
+        redirect_uri: redirectUri,
+      },
+      {
+        withCredentials: true,
+      },
+    )
 
     if (!data.success) {
       throw new Error(
@@ -167,6 +175,20 @@ export const googleSignIn = async ({ authCode, redirectUri }: GoogleSignInPayloa
     }
 
     throw new Error(JSON.stringify({ message: "Google authentication failed.", fields: null }))
+  }
+}
+
+export const signOutAccount = async (refreshToken?: string | null) => {
+  try {
+    await api.post(
+      AUTH_ENDPOINTS.logout,
+      refreshToken ? { refresh: refreshToken } : {},
+      {
+        withCredentials: true,
+      },
+    )
+  } catch {
+    // Ignore errors during sign-out so client state still clears cleanly
   }
 }
 

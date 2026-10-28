@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, type ReactNode } from "react"
 
+import { isBackendOAuthAuthorizeUrl } from "@/features/auth/lib/redirect"
 import { useAuth } from "@/features/auth/store/auth-store"
 
 type AuthGuardProps = {
@@ -16,15 +17,17 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const isHydrated = useAuth((state) => state.isHydrated)
   const isLoadingUser = useAuth((state) => state.isLoadingUser)
   const hasRedirected = useRef(false)
+  const nextParam = searchParams?.get("next")
+  const isOAuthFlow = isBackendOAuthAuthorizeUrl(nextParam)
 
   useEffect(() => {
-    if (!isHydrated || isLoadingUser || !user || hasRedirected.current) {
+    if (isOAuthFlow || !isHydrated || isLoadingUser || !user || hasRedirected.current) {
       return
     }
 
     hasRedirected.current = true
 
-    const callbackUrl = searchParams?.get("callbackUrl")
+    const callbackUrl = nextParam ?? searchParams?.get("callbackUrl")
 
     if (!user.has_completed_onboarding) {
       const nextUrl = callbackUrl
@@ -35,13 +38,13 @@ export function AuthGuard({ children }: AuthGuardProps) {
     } else {
       router.replace(callbackUrl ?? "/dashboard")
     }
-  }, [user, isHydrated, isLoadingUser, router, searchParams])
+  }, [user, isHydrated, isLoadingUser, router, searchParams, nextParam, isOAuthFlow])
 
   if (!isHydrated || isLoadingUser) {
     return null
   }
 
-  if (user) {
+  if (user && !isOAuthFlow) {
     return null
   }
 

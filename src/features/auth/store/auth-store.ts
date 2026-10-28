@@ -8,12 +8,12 @@ import {
   googleSignIn,
   refreshAccessToken,
   registerAccount,
+  signOutAccount,
 } from "@/features/auth/api/server"
 import type { OnboardingPlatform } from "@/features/onboarding/types"
 import type {
   AuthProfile,
   AuthTokenPair,
-  ConnectedAccount,
   LoginFormValues,
   RegisterFormValues,
 } from "@/features/auth/types"
@@ -39,7 +39,7 @@ type AuthState = {
   loadUser: () => Promise<AuthProfile | null>
   bootstrap: () => Promise<void>
   refreshSession: () => Promise<string | null>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 const storage = createJSONStorage(() => localStorage)
@@ -56,7 +56,7 @@ export const useAuth = create<AuthState>()(
       setLoadingUser: (isLoadingUser) => set({ isLoadingUser }),
       setUser: (user) => set({ user }),
       setTokens: ({ accessToken, refreshToken }) =>
-         set({ accessToken, refreshToken }),
+        set({ accessToken, refreshToken }),
       setAuth: ({ user, tokens }) =>
         set({
           user,
@@ -82,12 +82,12 @@ export const useAuth = create<AuthState>()(
 
         const connectionAccounts = currentUser.brand.connected_accounts || []
         const alreadyExists = connectionAccounts.some((a) => a.platform === platform)
-        
+
         const newConnectionAccounts = alreadyExists
           ? connectionAccounts.map((a) =>
               a.platform === platform
                 ? { ...a, is_expired: false, expired_at: null }
-                : a
+                : a,
             )
           : [
               ...connectionAccounts,
@@ -198,8 +198,13 @@ export const useAuth = create<AuthState>()(
         return tokens.accessToken
       },
 
-      logout: () => {
-        set({ user: null, accessToken: null, refreshToken: null })
+      logout: async () => {
+        const refreshToken = get().refreshToken
+        try {
+          await signOutAccount(refreshToken)
+        } finally {
+          set({ user: null, accessToken: null, refreshToken: null })
+        }
       },
     }),
     {

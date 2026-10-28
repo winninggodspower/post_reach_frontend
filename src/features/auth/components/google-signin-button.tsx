@@ -10,6 +10,7 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { GoogleIcon } from "@/features/auth/components/google-icon"
+import { isBackendOAuthAuthorizeUrl } from "@/features/auth/lib/redirect"
 import { useAuth } from "@/features/auth/store/auth-store"
 
 type GoogleSignInButtonProps = {
@@ -76,18 +77,23 @@ export function GoogleSignInButton({
         redirectUri: window.location.origin,
       })
 
+      const next = searchParams?.get("next")
+      if (isBackendOAuthAuthorizeUrl(next)) {
+        window.location.href = next
+        return
+      }
+
+      const callbackUrl = next ?? searchParams?.get("callbackUrl")
+
       if (mode === "signup") {
-        const callbackUrl = searchParams?.get("callbackUrl")
         const nextUrl = callbackUrl
           ? `/onboarding?next=${encodeURIComponent(callbackUrl)}`
           : "/onboarding"
 
         router.replace(nextUrl)
       } else {
-        const callbackUrl = searchParams?.get("callbackUrl") ?? "/dashboard"
-        router.replace(callbackUrl)
+        router.replace(callbackUrl ?? "/dashboard")
       }
-
     } catch (error) {
       onError?.(getGoogleErrorMessage(error))
     } finally {

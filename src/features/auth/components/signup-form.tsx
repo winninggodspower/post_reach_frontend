@@ -10,6 +10,7 @@ import { FormField } from "@/components/form-field"
 import { handleServerFormErrors } from "@/lib/form/serverErrors"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { isBackendOAuthAuthorizeUrl } from "@/features/auth/lib/redirect"
 import { useAuth } from "@/features/auth/store/auth-store"
 
 type SignUpFormValues = {
@@ -56,7 +57,13 @@ export function SignUpForm() {
         country: values.country,
       })
 
-      const callbackUrl = searchParams?.get("callbackUrl")
+      const next = searchParams?.get("next")
+      if (isBackendOAuthAuthorizeUrl(next)) {
+        window.location.href = next
+        return
+      }
+
+      const callbackUrl = next ?? searchParams?.get("callbackUrl")
       const nextUrl = callbackUrl
         ? `/onboarding?next=${encodeURIComponent(callbackUrl)}`
         : "/onboarding"
