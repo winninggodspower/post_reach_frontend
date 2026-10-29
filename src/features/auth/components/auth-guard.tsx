@@ -10,6 +10,19 @@ type AuthGuardProps = {
   children: ReactNode
 }
 
+const getSafeInternalCallbackUrl = (value: string | null | undefined): string | null => {
+  if (!value) {
+    return null
+  }
+
+  const trimmed = value.trim()
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !isBackendOAuthAuthorizeUrl(trimmed)) {
+    return trimmed
+  }
+
+  return null
+}
+
 export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -27,7 +40,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     hasRedirected.current = true
 
-    const callbackUrl = nextParam ?? searchParams?.get("callbackUrl")
+    const callbackUrl = getSafeInternalCallbackUrl(
+      nextParam ?? searchParams?.get("callbackUrl"),
+    )
 
     if (!user.has_completed_onboarding) {
       const nextUrl = callbackUrl
@@ -40,11 +55,15 @@ export function AuthGuard({ children }: AuthGuardProps) {
     }
   }, [user, isHydrated, isLoadingUser, router, searchParams, nextParam, isOAuthFlow])
 
+  if (isOAuthFlow) {
+    return <>{children}</>
+  }
+
   if (!isHydrated || isLoadingUser) {
     return null
   }
 
-  if (user && !isOAuthFlow) {
+  if (user) {
     return null
   }
 

@@ -2,17 +2,41 @@ import { API_BASE_URL } from "@/lib/api"
 
 const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"])
 
-const isSameOrLoopbackOrigin = (urlA: URL, urlB: URL): boolean => {
-  if (urlA.origin === urlB.origin) {
+const getRootDomain = (hostname: string): string => {
+  const parts = hostname.toLowerCase().split(".")
+  if (parts.length <= 2) {
+    return hostname.toLowerCase()
+  }
+  return parts.slice(-2).join(".")
+}
+
+const isTrustedBackendOrigin = (targetUrl: URL, referenceUrl: URL): boolean => {
+  if (targetUrl.origin === referenceUrl.origin) {
     return true
   }
 
-  return (
-    urlA.protocol === urlB.protocol &&
-    urlA.port === urlB.port &&
-    LOOPBACK_HOSTS.has(urlA.hostname) &&
-    LOOPBACK_HOSTS.has(urlB.hostname)
-  )
+  if (
+    targetUrl.protocol === referenceUrl.protocol &&
+    targetUrl.port === referenceUrl.port &&
+    LOOPBACK_HOSTS.has(targetUrl.hostname) &&
+    LOOPBACK_HOSTS.has(referenceUrl.hostname)
+  ) {
+    return true
+  }
+
+  // Allow subdomains of the same root domain (e.g. postglee.com <-> api.postglee.com)
+  const targetRoot = getRootDomain(targetUrl.hostname)
+  const referenceRoot = getRootDomain(referenceUrl.hostname)
+  if (
+    targetRoot &&
+    targetRoot.includes(".") &&
+    targetRoot === referenceRoot &&
+    !LOOPBACK_HOSTS.has(targetUrl.hostname)
+  ) {
+    return true
+  }
+
+  return false
 }
 
 const hasOAuthAuthorizePath = (pathname: string): boolean => {
@@ -58,13 +82,13 @@ export const isBackendOAuthAuthorizeUrl = (
       typeof window !== "undefined" ? window.location.origin : "http://127.0.0.1:8000"
     const backendBase = new URL(API_BASE_URL, fallbackOrigin)
 
-    if (isSameOrLoopbackOrigin(parsedNext, backendBase)) {
+    if (isTrustedBackendOrigin(parsedNext, backendBase)) {
       return true
     }
 
     if (typeof window !== "undefined") {
       const currentOrigin = new URL(window.location.origin)
-      if (isSameOrLoopbackOrigin(parsedNext, currentOrigin)) {
+      if (isTrustedBackendOrigin(parsedNext, currentOrigin)) {
         return true
       }
     }
@@ -74,4 +98,3 @@ export const isBackendOAuthAuthorizeUrl = (
     return false
   }
 }
-
