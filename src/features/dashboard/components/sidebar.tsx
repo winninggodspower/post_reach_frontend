@@ -14,6 +14,7 @@ import {
   Settings,
   ShieldCheck,
   Activity,
+  Code2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -55,6 +56,11 @@ const configNavItems = [
     title: "Connections",
     url: "/dashboard/connections",
     icon: Link2,
+  },
+  {
+    title: "Developer",
+    url: "/dashboard/developer",
+    icon: Code2,
   },
   {
     title: "Settings",

@@ -12,6 +12,7 @@ import { useBrands } from "@/features/brands/hooks/use-brands"
 import { useReceivedInvitations } from "@/features/brands/hooks/use-received-invitations"
 import { BrandMembersTab } from "@/features/brands/components/brand-members-tab"
 import { ReceivedInvitationsTab } from "@/features/brands/components/received-invitations-tab"
+import { DeveloperPortal } from "@/features/developer/components/developer-portal"
 import { submitOnboardingProfile } from "@/features/onboarding/api/server"
 import {
   ROLE_OPTIONS,
@@ -52,13 +53,14 @@ export function SettingsView() {
   const { pendingCount } = useReceivedInvitations("pending")
 
   const [activeTab, setActiveTab] = useState<
-    "profile" | "brand" | "team" | "invitations"
+    "profile" | "brand" | "team" | "invitations" | "developer"
   >(() => {
     if (
       tabQuery === "profile" ||
       tabQuery === "brand" ||
       tabQuery === "team" ||
-      tabQuery === "invitations"
+      tabQuery === "invitations" ||
+      tabQuery === "developer"
     ) {
       return tabQuery
     }
@@ -72,7 +74,8 @@ export function SettingsView() {
       (tabQuery === "profile" ||
         tabQuery === "brand" ||
         tabQuery === "team" ||
-        tabQuery === "invitations")
+        tabQuery === "invitations" ||
+        tabQuery === "developer")
     ) {
       setActiveTab(tabQuery)
     }
@@ -217,7 +220,7 @@ export function SettingsView() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-6 py-8 min-w-0 overflow-x-hidden space-y-8 animate-in fade-in slide-in-from-bottom-3 duration-300">
+    <main className={`mx-auto w-full ${activeTab === "developer" ? "max-w-5xl" : "max-w-4xl"} px-6 py-8 min-w-0 overflow-x-hidden space-y-8 animate-in fade-in slide-in-from-bottom-3 duration-300`}>
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-950">
           Settings
@@ -273,6 +276,16 @@ export function SettingsView() {
               {pendingCount}
             </span>
           )}
+        </button>
+        <button
+          onClick={() => setActiveTab("developer")}
+          className={`pb-3 text-sm font-semibold border-b-2 transition duration-200 cursor-pointer whitespace-nowrap ${
+            activeTab === "developer"
+              ? "border-slate-950 text-slate-950"
+              : "border-transparent text-slate-500 hover:text-slate-900"
+          }`}
+        >
+          Developer
         </button>
       </div>
 
@@ -442,6 +455,8 @@ export function SettingsView() {
       )}
 
       {activeTab === "invitations" && <ReceivedInvitationsTab />}
+
+      {activeTab === "developer" && <DeveloperPortal />}
     </main>
   )
 }
