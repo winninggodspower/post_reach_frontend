@@ -6,11 +6,11 @@ import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { ModalShell } from "@/components/ui/modal-shell"
 import { Button } from "@/components/ui/button"
+import { updateDeveloperApplication } from "../api/developer-api"
 import {
   applyFormServerErrors,
-  extractDeveloperApiError,
-  updateDeveloperApplication,
-} from "../api/developer-api"
+  extractErrorMessage,
+} from "@/shared/lib/extract-error-message"
 import type { DeveloperApplication } from "../types"
 
 interface EditAppModalProps {
@@ -83,7 +83,7 @@ export function EditAppModal({
     } catch (error) {
       const hasFieldErrors = applyFormServerErrors<FormValues>(error, setError)
       if (!hasFieldErrors) {
-        const msg = extractDeveloperApiError(error, "Failed to update application.")
+        const msg = extractErrorMessage(error, "Failed to update application.")
         toast.error(msg)
       }
     } finally {

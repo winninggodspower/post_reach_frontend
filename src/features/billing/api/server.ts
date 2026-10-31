@@ -1,5 +1,5 @@
-import axios from "axios"
 import { api } from "@/lib/api"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 import { BILLING_ENDPOINTS } from "./endpoints"
 import type {
   CheckoutSessionRequest,
@@ -15,24 +15,7 @@ interface ApiResponse<T> {
   data?: T
 }
 
-export const extractBillingError = (error: unknown, fallbackMessage: string): string => {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data
-    if (typeof data === "string") return data
-    if (data?.message) return data.message
-    if (data?.detail) return data.detail
-    if (data?.errors?.detail) return data.errors.detail
-    if (data?.errors && typeof data.errors === "object") {
-      const firstKey = Object.keys(data.errors)[0]
-      const firstVal = data.errors[firstKey]
-      if (Array.isArray(firstVal) && firstVal.length > 0) return `${firstKey}: ${firstVal[0]}`
-      if (typeof firstVal === "string") return `${firstKey}: ${firstVal}`
-    }
-  } else if (error instanceof Error) {
-    return error.message
-  }
-  return fallbackMessage
-}
+export const extractBillingError = extractErrorMessage
 
 export async function fetchSubscriptionPlans(): Promise<SubscriptionPlan[]> {
   try {

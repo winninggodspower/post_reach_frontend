@@ -34,12 +34,11 @@ function formatDrfErrors(errors: unknown): string | null {
 
 /**
  * Recursively extracts a readable message string from various nested backend response formats:
- * - { message: "..." }
- * - { message: { message: "..." } } (e.g. Facebook error wrapped by backend)
- * - { error: { message: "..." } } (e.g. Graph API error)
+ * - DRF serializer errors: { errors: { field: ["error"] } } or { field: ["error"] }
  * - { detail: "..." } (e.g. DRF detail)
+ * - { error: { message: "..." } } (e.g. Graph API error)
+ * - { message: "..." } (fallback summary)
  * - stringified JSON: '{"message": {"message": "..."}}'
- * - DRF serializer errors: { field: ["error"] }
  */
 function extractMessageFromPayload(data: unknown): string | null {
   if (!data) return null
@@ -70,13 +69,16 @@ function extractMessageFromPayload(data: unknown): string | null {
   if (typeof data === "object" && data !== null) {
     const record = data as Record<string, unknown>
 
-    // 1. Direct message (can be string or nested object like { message: "..." })
-    if (record.message !== undefined && record.message !== null) {
-      const extracted = extractMessageFromPayload(record.message)
+    // 1. Detailed field errors (e.g. { errors: { redirect_uris: [...] } })
+    // Prioritized before generic `record.message` summaries!
+    if (record.errors !== undefined && record.errors !== null) {
+      const drfError = formatDrfErrors(record.errors)
+      if (drfError) return drfError
+      const extracted = extractMessageFromPayload(record.errors)
       if (extracted) return extracted
     }
 
-    // 2. Direct detail
+    // 2. Direct detail (DRF detail string or object)
     if (record.detail !== undefined && record.detail !== null) {
       const extracted = extractMessageFromPayload(record.detail)
       if (extracted) return extracted
@@ -88,13 +90,13 @@ function extractMessageFromPayload(data: unknown): string | null {
       if (extracted) return extracted
     }
 
-    // 4. errors field
-    if (record.errors !== undefined && record.errors !== null) {
-      const extracted = extractMessageFromPayload(record.errors)
+    // 4. Direct message summary
+    if (record.message !== undefined && record.message !== null) {
+      const extracted = extractMessageFromPayload(record.message)
       if (extracted) return extracted
     }
 
-    // 5. DRF validation error formatting
+    // 5. DRF validation error formatting directly on root object
     const drfError = formatDrfErrors(record)
     if (drfError) return drfError
   }
@@ -160,4 +162,40 @@ export function extractErrorMessage(
   }
 
   return fallback
+}
+
+/**
+ * Maps server-side field validation errors directly into a React Hook Form instance.
+ * Returns true if one or more field errors were mapped, allowing the caller to suppress generic popups.
+ */
+export function applyFormServerErrors<T extends Record<string, any>>(
+  error: unknown,
+  setError: (name: any, error: { type: string; message: string }) => void,
+): boolean {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data
+    if (data?.errors && typeof data.errors === "object" && data.errors !== null) {
+      let hasFieldErrors = false
+      for (const [key, val] of Object.entries(data.errors)) {
+        let message = ""
+        if (Array.isArray(val)) {
+          message = val.filter(Boolean).map(String).join("\n")
+        } else if (typeof val === "string") {
+          message = val
+        } else if (typeof val === "object" && val !== null) {
+          message = JSON.stringify(val)
+        }
+
+        if (message) {
+          setError(key, {
+            type: "server",
+            message,
+          })
+          hasFieldErrors = true
+        }
+      }
+      return hasFieldErrors
+    }
+  }
+  return false
 }

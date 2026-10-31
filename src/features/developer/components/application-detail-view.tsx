@@ -18,10 +18,10 @@ import {
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
-  extractDeveloperApiError,
   fetchDeveloperApplication,
   getApiBaseDomain,
 } from "../api/developer-api"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 import type {
   DeveloperApplication,
   RegenerateSecretResponse,
@@ -73,7 +73,7 @@ export function ApplicationDetailView({ clientId }: ApplicationDetailViewProps) 
       const data = await fetchDeveloperApplication(clientId)
       setApp(data)
     } catch (error) {
-      const msg = extractDeveloperApiError(
+      const msg = extractErrorMessage(
         error,
         "Failed to load application details.",
       )
@@ -114,24 +114,23 @@ export function ApplicationDetailView({ clientId }: ApplicationDetailViewProps) 
     app?.redirect_uris_list?.length
       ? app.redirect_uris_list
       : app?.redirect_uris
-      ? app.redirect_uris.split(/\s+/).filter(Boolean)
-      : []
+        ? app.redirect_uris.split(/\s+/).filter(Boolean)
+        : []
 
   const allowedOrigins =
     app?.allowed_origins_list?.length
       ? app.allowed_origins_list
       : app?.allowed_origins
-      ? app.allowed_origins.split(/\s+/).filter(Boolean)
-      : []
+        ? app.allowed_origins.split(/\s+/).filter(Boolean)
+        : []
 
   const primaryRedirectUri = redirectUris[0] || "https://example.com/oauth/callback"
 
   const sampleAuthUrl = app
-    ? `${baseDomain}/oauth/authorize/?response_type=code&client_id=${
-        app.client_id
-      }&redirect_uri=${encodeURIComponent(
-        primaryRedirectUri,
-      )}&scope=${encodeURIComponent(selectedScopes.join(" "))}`
+    ? `${baseDomain}/oauth/authorize/?response_type=code&client_id=${app.client_id
+    }&redirect_uri=${encodeURIComponent(
+      primaryRedirectUri,
+    )}&scope=${encodeURIComponent(selectedScopes.join(" "))}`
     : ""
 
   const handleSecretRegenerated = (res: RegenerateSecretResponse) => {
@@ -402,11 +401,10 @@ export function ApplicationDetailView({ clientId }: ApplicationDetailViewProps) 
                   key={s.scope}
                   type="button"
                   onClick={() => toggleScope(s.scope)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono transition cursor-pointer ${
-                    isChecked
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono transition cursor-pointer ${isChecked
                       ? "border-slate-900 bg-slate-50 dark:border-white dark:bg-slate-800 text-slate-900 dark:text-white"
                       : "border-black/10 dark:border-white/10 bg-white dark:bg-slate-900 text-slate-400"
-                  }`}
+                    }`}
                 >
                   {isChecked ? (
                     <CheckSquare className="size-3.5 text-slate-900 dark:text-white shrink-0" />

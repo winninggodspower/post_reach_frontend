@@ -2,10 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
-import {
-  extractDeveloperApiError,
-  fetchDeveloperApplications,
-} from "../api/developer-api"
+import { fetchDeveloperApplications } from "../api/developer-api"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 import type {
   DeveloperApplication,
   RegenerateSecretResponse,
@@ -53,7 +51,7 @@ export function DeveloperPortal() {
       const data = await fetchDeveloperApplications()
       setApplications(data)
     } catch (error) {
-      const msg = extractDeveloperApiError(
+      const msg = extractErrorMessage(
         error,
         "Failed to load developer applications.",
       )
@@ -186,7 +184,9 @@ export function DeveloperPortal() {
         />
       )}
 
-      {activeSubTab === "mcp" && <McpConnections />}
+      {activeSubTab === "mcp" && (
+        <McpConnections applications={applications} />
+      )}
 
       {activeSubTab === "oauth" && (
         <OAuthReference applications={applications} />

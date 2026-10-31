@@ -5,10 +5,8 @@ import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { ModalShell } from "@/components/ui/modal-shell"
 import { Button } from "@/components/ui/button"
-import {
-  deleteDeveloperApplication,
-  extractDeveloperApiError,
-} from "../api/developer-api"
+import { deleteDeveloperApplication } from "../api/developer-api"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 import type { DeveloperApplication } from "../types"
 
 interface DeleteAppModalProps {
@@ -36,7 +34,7 @@ export function DeleteAppModal({
       onSuccess(app.client_id)
       onClose()
     } catch (error) {
-      const msg = extractDeveloperApiError(error, "Failed to delete application.")
+      const msg = extractErrorMessage(error, "Failed to delete application.")
       toast.error(msg)
     } finally {
       setIsDeleting(false)

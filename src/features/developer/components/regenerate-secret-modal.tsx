@@ -5,10 +5,8 @@ import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { ModalShell } from "@/components/ui/modal-shell"
 import { Button } from "@/components/ui/button"
-import {
-  extractDeveloperApiError,
-  regenerateApplicationSecret,
-} from "../api/developer-api"
+import { regenerateApplicationSecret } from "../api/developer-api"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 import type { DeveloperApplication, RegenerateSecretResponse } from "../types"
 
 interface RegenerateSecretModalProps {
@@ -36,7 +34,7 @@ export function RegenerateSecretModal({
       onSuccess(data)
       onClose()
     } catch (error) {
-      const msg = extractDeveloperApiError(
+      const msg = extractErrorMessage(
         error,
         "Failed to regenerate client secret.",
       )

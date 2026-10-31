@@ -6,11 +6,11 @@ import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { ModalShell } from "@/components/ui/modal-shell"
 import { Button } from "@/components/ui/button"
+import { createDeveloperApplication } from "../api/developer-api"
 import {
   applyFormServerErrors,
-  createDeveloperApplication,
-  extractDeveloperApiError,
-} from "../api/developer-api"
+  extractErrorMessage,
+} from "@/shared/lib/extract-error-message"
 import type {
   ClientType,
   DeveloperApplication,
@@ -74,7 +74,7 @@ export function CreateAppModal({
     } catch (error) {
       const hasFieldErrors = applyFormServerErrors<FormValues>(error, setError)
       if (!hasFieldErrors) {
-        const msg = extractDeveloperApiError(error, "Failed to create application.")
+        const msg = extractErrorMessage(error, "Failed to create application.")
         toast.error(msg)
       }
     } finally {
@@ -113,11 +113,10 @@ export function CreateAppModal({
               required: "Application name is required",
               minLength: { value: 3, message: "Name must be at least 3 characters" },
             })}
-            className={`w-full rounded-xl border px-3.5 py-2 text-sm outline-none transition bg-white dark:bg-slate-900 ${
-              errors.name
+            className={`w-full rounded-xl border px-3.5 py-2 text-sm outline-none transition bg-white dark:bg-slate-900 ${errors.name
                 ? "border-rose-500 focus:border-rose-600"
                 : "border-black/10 dark:border-white/10 focus:border-slate-950 dark:focus:border-white"
-            }`}
+              }`}
           />
           {errors.name && (
             <p className="text-xs text-rose-500 whitespace-pre-line mt-1">
@@ -135,11 +134,10 @@ export function CreateAppModal({
             <button
               type="button"
               onClick={() => setValue("client_type", "confidential")}
-              className={`flex flex-col text-left p-3 rounded-xl border transition cursor-pointer ${
-                selectedClientType === "confidential"
+              className={`flex flex-col text-left p-3 rounded-xl border transition cursor-pointer ${selectedClientType === "confidential"
                   ? "border-slate-900 bg-slate-50 dark:border-white dark:bg-slate-800"
                   : "border-black/10 dark:border-white/10 bg-white dark:bg-slate-900 hover:border-slate-400"
-              }`}
+                }`}
             >
               <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                 Confidential
@@ -152,11 +150,10 @@ export function CreateAppModal({
             <button
               type="button"
               onClick={() => setValue("client_type", "public")}
-              className={`flex flex-col text-left p-3 rounded-xl border transition cursor-pointer ${
-                selectedClientType === "public"
+              className={`flex flex-col text-left p-3 rounded-xl border transition cursor-pointer ${selectedClientType === "public"
                   ? "border-slate-900 bg-slate-50 dark:border-white dark:bg-slate-800"
                   : "border-black/10 dark:border-white/10 bg-white dark:bg-slate-900 hover:border-slate-400"
-              }`}
+                }`}
             >
               <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                 Public
@@ -183,11 +180,10 @@ export function CreateAppModal({
             {...register("redirect_uris", {
               required: "At least one redirect URI is required",
             })}
-            className={`w-full rounded-xl border px-3 py-2 font-mono text-xs outline-none transition bg-white dark:bg-slate-900 ${
-              errors.redirect_uris
+            className={`w-full rounded-xl border px-3 py-2 font-mono text-xs outline-none transition bg-white dark:bg-slate-900 ${errors.redirect_uris
                 ? "border-rose-500 focus:border-rose-600"
                 : "border-black/10 dark:border-white/10 focus:border-slate-950 dark:focus:border-white"
-            }`}
+              }`}
           />
           <p className="text-[11px] text-slate-400">
             One URL per line. Must be HTTPS or localhost.
@@ -212,11 +208,10 @@ export function CreateAppModal({
             type="text"
             placeholder="https://example.com"
             {...register("allowed_origins")}
-            className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition bg-white dark:bg-slate-900 ${
-              errors.allowed_origins
+            className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition bg-white dark:bg-slate-900 ${errors.allowed_origins
                 ? "border-rose-500 focus:border-rose-600"
                 : "border-black/10 dark:border-white/10 focus:border-slate-950 dark:focus:border-white"
-            }`}
+              }`}
           />
           {errors.allowed_origins && (
             <p className="text-xs text-rose-500 whitespace-pre-line mt-1">

@@ -1,5 +1,5 @@
-import axios from "axios"
 import { api } from "@/lib/api"
+import { extractErrorMessage } from "@/shared/lib/extract-error-message"
 import type { AuthProfile } from "@/features/auth/types"
 import { BRANDS_ENDPOINTS } from "./endpoints"
 import type {
@@ -40,25 +40,7 @@ type BrandsListResponse = {
   data: BrandSummary[]
 }
 
-const extractApiError = (error: unknown, fallbackMessage: string): string => {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data
-    if (typeof data === "string") return data
-    if (data?.message) return data.message
-    if (data?.detail) return data.detail
-    if (data?.errors?.detail) return data.errors.detail
-    if (data?.errors && typeof data.errors === "object") {
-      const firstKey = Object.keys(data.errors)[0]
-      const firstVal = data.errors[firstKey]
-      if (Array.isArray(firstVal) && firstVal.length > 0) return `${firstKey}: ${firstVal[0]}`
-      if (typeof firstVal === "string") return `${firstKey}: ${firstVal}`
-    }
-    if (data?.email && Array.isArray(data.email)) return data.email[0]
-  } else if (error instanceof Error) {
-    return error.message
-  }
-  return fallbackMessage
-}
+const extractApiError = extractErrorMessage
 
 export const fetchBrands = async (): Promise<BrandSummary[]> => {
   const { data } = await api.get<BrandsListResponse>(BRANDS_ENDPOINTS.list)
