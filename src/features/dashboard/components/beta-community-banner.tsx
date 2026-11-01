@@ -77,8 +77,7 @@ export function BetaCommunityBanner({
         {/* Message */}
         <span className="text-slate-200 text-xs sm:text-sm">
           You need to be in the beta community to use{" "}
-          <strong className="font-semibold text-white">Instagram</strong> and{" "}
-          <strong className="font-semibold text-white">Facebook</strong>.
+          <strong className="font-semibold text-white">Instagram</strong>
         </span>
 
         {/* WhatsApp Join Button */}
