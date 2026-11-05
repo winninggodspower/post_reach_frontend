@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { fetchDeveloperApplications } from "../api/developer-api"
 import { extractErrorMessage } from "@/shared/lib/extract-error-message"
@@ -19,9 +20,23 @@ import { OAuthReference } from "./oauth-reference"
 import { ApiReference } from "./api-reference"
 
 export function DeveloperPortal() {
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get("tab")
+
   const [activeSubTab, setActiveSubTab] = useState<
     "apps" | "mcp" | "oauth" | "docs"
-  >("apps")
+  >(() => {
+    if (tabParam === "mcp" || tabParam === "oauth" || tabParam === "docs") {
+      return tabParam
+    }
+    return "apps"
+  })
+
+  useEffect(() => {
+    if (tabParam === "apps" || tabParam === "mcp" || tabParam === "oauth" || tabParam === "docs") {
+      setActiveSubTab(tabParam)
+    }
+  }, [tabParam])
 
   const [applications, setApplications] = useState<DeveloperApplication[]>([])
   const [isLoading, setIsLoading] = useState(true)
