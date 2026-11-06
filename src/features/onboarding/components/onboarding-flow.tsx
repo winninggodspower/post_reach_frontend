@@ -81,6 +81,8 @@ export function OnboardingFlow() {
     trigger,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<OnboardingSubmission>({
     defaultValues: emptySubmission(),
@@ -141,30 +143,50 @@ export function OnboardingFlow() {
     }
   }, [form.role, form.team_size, setValue])
 
-  const canProceedStepOne = Boolean(form.role)
-  const canProceedStepTwo = (form.industry as string) !== "" && (form.team_size as string) !== ""
-  const canProceedStepThree = (form.primary_platform as string) !== "" && (form.posting_frequency as string) !== ""
   const maxAccessibleStep = Math.max(step, getStepFromData(form))
 
-  const handleNextStep = async () => {
-    const fieldsToValidate =
-      step === 0
-        ? ["role"]
-        : step === 1
-          ? ["industry", "team_size"]
-          : step === 2
-            ? ["primary_platform", "posting_frequency"]
-            : []
-
-    if (fieldsToValidate.length > 0) {
-      const isValid = await trigger(fieldsToValidate as Array<keyof OnboardingSubmission>)
-
-      if (!isValid) {
-        return
+  const validateStep = async (stepToValidate: StepId): Promise<boolean> => {
+    if (stepToValidate === 0) {
+      if (!form.role) {
+        setError("role", { type: "manual", message: "Please select an option to continue." })
+        return false
       }
+      clearErrors("role")
+      return true
+    } else if (stepToValidate === 1) {
+      return await trigger(["industry", "team_size"])
+    } else if (stepToValidate === 2) {
+      return await trigger(["primary_platform", "posting_frequency"])
     }
+    return true
+  }
+
+  const handleNextStep = async () => {
+    const isValid = await validateStep(step)
+    if (!isValid) return
 
     setStep((current) => ((current + 1) as StepId))
+  }
+
+  const handleStepClick = async (targetIndex: number) => {
+    const targetStep = targetIndex as StepId
+    if (targetStep === step) return
+
+    // Navigating backwards is always allowed
+    if (targetStep < step) {
+      setStep(targetStep)
+      return
+    }
+
+    // Navigating forward validates the current step and triggers error messages if invalid
+    const isValid = await validateStep(step)
+    if (!isValid) return
+
+    if (targetStep <= maxAccessibleStep) {
+      setStep(targetStep)
+    } else {
+      setStep((current) => ((current + 1) as StepId))
+    }
   }
 
   const [isSaving, setIsSaving] = useState(false)
@@ -277,19 +299,14 @@ export function OnboardingFlow() {
                   <button
                     key={label}
                     type="button"
-                    disabled={!canNavigate}
-                    onClick={() => {
-                      if (canNavigate) {
-                        setStep(index as StepId)
-                      }
-                    }}
-                    className={`inline-flex shrink-0 items-center gap-1 sm:gap-2 rounded-full px-2 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-tight sm:tracking-[0.2em] transition whitespace-nowrap ${isActive
+                    onClick={() => void handleStepClick(index)}
+                    className={`inline-flex shrink-0 items-center gap-1 sm:gap-2 rounded-full px-2 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-tight sm:tracking-[0.2em] transition whitespace-nowrap cursor-pointer ${isActive
                       ? "bg-slate-950 text-white shadow-xs"
                       : isComplete
-                        ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 cursor-pointer"
+                        ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20"
                         : canNavigate
-                          ? "bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
-                          : "bg-slate-100/60 text-slate-400 cursor-not-allowed"
+                          ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                          : "bg-slate-100/60 text-slate-400 hover:bg-slate-100"
                       }`}
                   >
                     {isComplete ? (
@@ -307,13 +324,15 @@ export function OnboardingFlow() {
               {step === 0 ? (
                 <OnboardingStepOneRole
                   selectedRole={form.role}
-                  onSelectRole={(role) =>
+                  error={errors.role?.message}
+                  onSelectRole={(role) => {
                     setValue("role", role, {
                       shouldDirty: true,
                       shouldTouch: true,
                       shouldValidate: true,
                     })
-                  }
+                    clearErrors("role")
+                  }}
                 />
               ) : null}
 
@@ -341,7 +360,7 @@ export function OnboardingFlow() {
             <div className="mt-8 flex flex-col gap-3 border-t border-black/6 pt-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-slate-500">
                 {step === 3
-                  ? null
+                  ? "You can connect or manage channels anytime in Settings."
                   : "Everything stays editable after onboarding."}
               </div>
 
@@ -362,11 +381,6 @@ export function OnboardingFlow() {
                   <Button
                     type="button"
                     onClick={() => void handleNextStep()}
-                    disabled={
-                      (step === 0 && !canProceedStepOne) ||
-                      (step === 1 && !canProceedStepTwo) ||
-                      (step === 2 && !canProceedStepThree)
-                    }
                     className="gap-2 cursor-pointer"
                   >
                     Next

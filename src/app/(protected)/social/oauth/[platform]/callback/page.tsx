@@ -10,11 +10,14 @@ import { platformLabelMap } from "@/features/onboarding/components/steps/shared"
 import { FacebookPageSelect } from "@/features/onboarding/components/facebook-page-select"
 import type { OnboardingPlatform } from "@/features/onboarding/types"
 import { extractErrorMessage } from "@/shared/lib/extract-error-message"
+import { useAuth } from "@/features/auth/store/auth-store"
 
 export default function OAuthCallbackPage() {
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
+  const user = useAuth((state) => state.user)
+  const loadUser = useAuth((state) => state.loadUser)
   const [status, setStatus] = useState<"processing" | "select_page" | "success" | "error">("processing")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const processedRef = useRef(false)
@@ -35,6 +38,39 @@ export default function OAuthCallbackPage() {
   const oauthToken = urlParams?.get("oauth_token") ?? searchParams?.get("oauth_token")
   const oauthVerifier = urlParams?.get("oauth_verifier") ?? searchParams?.get("oauth_verifier")
 
+  const completeFlow = async () => {
+    setStatus("success")
+
+    if (window.opener) {
+      try {
+        window.opener.postMessage(
+          { type: `oauth-success` },
+          window.location.origin,
+        )
+      } catch {
+        // ignore cross-origin error
+      }
+    }
+
+    let isCompletedOnboarding = user?.has_completed_onboarding ?? false
+    try {
+      const refreshedUser = await loadUser()
+      if (refreshedUser) {
+        isCompletedOnboarding = refreshedUser.has_completed_onboarding
+      }
+    } catch {
+      // ignore
+    }
+
+    setTimeout(() => {
+      if (window.opener) {
+        window.close()
+      }
+      const destination = isCompletedOnboarding ? "/dashboard" : "/onboarding"
+      router.replace(destination)
+    }, 1500)
+  }
+
   const handlePageSelect = async (pageId: string) => {
     if (!platform || !code || !state) return
     setStatus("processing")
@@ -48,25 +84,7 @@ export default function OAuthCallbackPage() {
         page_id: pageId,
       })
 
-      setStatus("success")
-
-      if (window.opener) {
-        try {
-          window.opener.postMessage(
-            { type: `oauth-success` },
-            window.location.origin,
-          )
-        } catch {
-          // ignore cross-origin error
-        }
-      }
-
-      setTimeout(() => {
-        if (window.opener) {
-          window.close()
-        }
-        router.replace("/dashboard")
-      }, 1500)
+      await completeFlow()
     } catch (err) {
       handleError(err)
     }
@@ -172,25 +190,7 @@ export default function OAuthCallbackPage() {
           })
         }
 
-        setStatus("success")
-
-        if (window.opener) {
-          try {
-            window.opener.postMessage(
-              { type: `oauth-success` },
-              window.location.origin,
-            )
-          } catch {
-            // ignore cross-origin error
-          }
-        }
-
-        setTimeout(() => {
-          if (window.opener) {
-            window.close()
-          }
-          router.replace("/dashboard")
-        }, 1500)
+        await completeFlow()
       } catch (err) {
         handleError(err)
       }
@@ -256,10 +256,13 @@ export default function OAuthCallbackPage() {
             </p>
             <button
               type="button"
-              onClick={() => router.replace("/dashboard")}
+              onClick={() => {
+                const destination = user?.has_completed_onboarding ? "/dashboard" : "/onboarding"
+                router.replace(destination)
+              }}
               className="mt-2 inline-flex items-center justify-center rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 cursor-pointer shadow-xs"
             >
-              Continue to Dashboard
+              {user?.has_completed_onboarding ? "Continue to Dashboard" : "Return to Onboarding"}
             </button>
           </div>
         )}

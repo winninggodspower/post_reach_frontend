@@ -7,11 +7,13 @@ import { ROLE_OPTIONS, RoleCard } from "./shared"
 type OnboardingStepOneRoleProps = {
   selectedRole: OnboardingRole
   onSelectRole: (role: OnboardingRole) => void
+  error?: string
 }
 
 export function OnboardingStepOneRole({
   selectedRole,
   onSelectRole,
+  error,
 }: OnboardingStepOneRoleProps) {
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -34,6 +36,12 @@ export function OnboardingStepOneRole({
           />
         ))}
       </div>
+
+      {error ? (
+        <p className="text-sm font-medium text-destructive animate-in fade-in">
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }
