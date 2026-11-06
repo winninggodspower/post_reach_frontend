@@ -21,14 +21,10 @@ export function OnboardingStepFourSocial({
   const connectedCount = brand?.connected_accounts?.length ?? 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent-dark">
-          Step 4
-        </p>
-
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-3xl font-semibold text-slate-950 sm:text-4xl">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-950">
             Connect your accounts
           </h1>
 
@@ -39,7 +35,7 @@ export function OnboardingStepFourSocial({
               size="sm"
               onClick={onSkip}
               disabled={isSaving}
-              className="rounded-full border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 hover:text-slate-950 hover:border-slate-300 transition-all cursor-pointer shadow-xs gap-1.5 shrink-0"
+              className="rounded-full border-slate-200 bg-white px-3 sm:px-3.5 py-1 sm:py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 hover:text-slate-950 hover:border-slate-300 transition-all cursor-pointer shadow-xs gap-1.5 shrink-0"
             >
               {connectedCount > 0 ? "Complete setup" : "Skip for now"}
               <ArrowRight className="size-3.5" />
@@ -47,7 +43,7 @@ export function OnboardingStepFourSocial({
           ) : null}
         </div>
 
-        <p className="mt-2 max-w-xl text-base leading-7 text-slate-600">
+        <p className="mt-1 sm:mt-2 max-w-xl text-xs sm:text-base leading-relaxed text-slate-600">
           This step is optional. You can connect your accounts now or anytime later from your dashboard.
         </p>
       </div>

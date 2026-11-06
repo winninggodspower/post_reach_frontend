@@ -237,28 +237,28 @@ export function OnboardingFlow() {
         ]}
       />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center px-4 py-5 sm:px-6 lg:px-8">
-        <header className="mb-5 flex w-full max-w-3xl items-center justify-between px-1">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center px-3 py-3 sm:px-6 sm:py-5 lg:px-8">
+        <header className="mb-3 sm:mb-5 flex w-full max-w-3xl items-center justify-between px-1">
           <Link href="/" className="inline-flex items-center">
             <Image
               src="/postglee-logo.png"
               alt="Postglee logo"
               width={120}
               height={36}
-              className="h-7 sm:h-8 w-auto object-contain"
+              className="h-6 sm:h-8 w-auto object-contain"
               priority
             />
           </Link>
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/80 px-3.5 py-1.5 shadow-xs backdrop-blur">
+          <div className="inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/80 px-2.5 sm:px-3.5 py-1 sm:py-1.5 shadow-xs backdrop-blur">
             <span className="size-1.5 rounded-full bg-accent-dark animate-pulse" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-700">
+            <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] sm:tracking-[0.2em] text-slate-700">
               Step {step + 1} of 4
             </span>
           </div>
         </header>
 
-        <div className="mb-6 h-1 w-full max-w-3xl overflow-hidden rounded-full bg-black/6">
+        <div className="mb-3.5 sm:mb-6 h-1 w-full max-w-3xl overflow-hidden rounded-full bg-black/6">
           <div
             className="h-full rounded-full bg-linear-to-r from-accent-dark to-accent-brand transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
@@ -266,8 +266,8 @@ export function OnboardingFlow() {
         </div>
 
         <div className="flex w-full flex-1 justify-center">
-          <section className="w-full max-w-3xl rounded-[32px] border border-black/8 bg-white/92 p-4 shadow-[0_30px_90px_-55px_rgba(15,23,42,0.5)] backdrop-blur sm:p-6 lg:p-7">
-            <div className="mb-6 flex flex-wrap gap-2">
+          <section className="w-full max-w-3xl rounded-[28px] sm:rounded-[32px] border border-black/8 bg-white/92 p-4 sm:p-6 lg:p-7 shadow-[0_30px_90px_-55px_rgba(15,23,42,0.5)] backdrop-blur">
+            <div className="mb-4 sm:mb-6 flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {STEP_TITLES.map((label, index) => {
                 const isActive = index === step
                 const isComplete = index < step
@@ -283,7 +283,7 @@ export function OnboardingFlow() {
                         setStep(index as StepId)
                       }
                     }}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition ${isActive
+                    className={`inline-flex shrink-0 items-center gap-1 sm:gap-2 rounded-full px-2 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-tight sm:tracking-[0.2em] transition whitespace-nowrap ${isActive
                       ? "bg-slate-950 text-white shadow-xs"
                       : isComplete
                         ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 cursor-pointer"
@@ -292,8 +292,12 @@ export function OnboardingFlow() {
                           : "bg-slate-100/60 text-slate-400 cursor-not-allowed"
                       }`}
                   >
-                    {isComplete ? <span className="text-[10px]">✓</span> : <span className="text-[10px]">0{index + 1}</span>}
-                    {label}
+                    {isComplete ? (
+                      <span className="text-[9px] sm:text-[10px]">✓</span>
+                    ) : (
+                      <span className="hidden sm:inline text-[10px]">0{index + 1}</span>
+                    )}
+                    <span>{label}</span>
                   </button>
                 )
               })}

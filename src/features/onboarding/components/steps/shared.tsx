@@ -165,31 +165,37 @@ export function RoleCard({
       type="button"
       onClick={() => onSelect(option.id)}
       aria-pressed={selected}
-      className={`group relative flex h-full flex-col rounded-[28px] border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-32px_rgba(15,23,42,0.4)] sm:p-5 ${selected
+      className={`group relative flex h-full flex-col justify-between rounded-[18px] sm:rounded-[28px] border p-3 sm:p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-32px_rgba(15,23,42,0.4)] ${selected
         ? "border-slate-950/15 bg-slate-950/3 ring-1 ring-slate-950/10"
         : "border-black/8 bg-white hover:border-slate-950/12"
         }`}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="relative mb-5 overflow-hidden rounded-[22px] border border-black/6 bg-linear-to-br from-slate-50 to-white p-3 shadow-inner">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,146,60,0.12),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.1),transparent_42%)]" />
-            <div className="relative h-24 w-full">
-              <RoleIllustration role={option.id} />
-            </div>
+      <div className="w-full">
+        <div className="relative mb-2.5 sm:mb-5 overflow-hidden rounded-[13px] sm:rounded-[22px] border border-black/6 bg-linear-to-br from-slate-50 to-white p-1.5 sm:p-3 shadow-inner">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,146,60,0.12),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.1),transparent_42%)]" />
+          <div className="relative h-14 sm:h-24 w-full">
+            <RoleIllustration role={option.id} />
           </div>
-          <h3 className="text-lg font-semibold text-slate-950">{option.title}</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">{option.description}</p>
         </div>
 
-        <span
-          className={`mt-1 flex h-7 w-7 items-center justify-center rounded-full border transition ${selected
-            ? "border-slate-950 bg-slate-950 text-white"
-            : "border-black/10 bg-white text-transparent group-hover:border-slate-950/25"
-            }`}
-        >
-          <Check className="size-4" />
-        </span>
+        <div className="flex items-start justify-between gap-1.5 sm:gap-4">
+          <h3 className="text-sm sm:text-lg font-semibold text-slate-950 leading-tight">
+            {option.title}
+          </h3>
+
+          <span
+            className={`mt-0.5 flex h-4.5 w-4.5 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-full border transition ${selected
+              ? "border-slate-950 bg-slate-950 text-white"
+              : "border-black/10 bg-white text-transparent group-hover:border-slate-950/25"
+              }`}
+          >
+            <Check className="size-2.5 sm:size-4" />
+          </span>
+        </div>
+
+        <p className="mt-1 sm:mt-2 text-xs sm:text-sm leading-snug sm:leading-6 text-slate-600">
+          {option.description}
+        </p>
       </div>
     </button>
   )

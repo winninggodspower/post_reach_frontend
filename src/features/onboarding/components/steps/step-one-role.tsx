@@ -14,20 +14,17 @@ export function OnboardingStepOneRole({
   onSelectRole,
 }: OnboardingStepOneRoleProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent-dark">
-          Step 1
-        </p>
-        <h1 className="mt-3 text-3xl font-semibold text-slate-950 sm:text-4xl">
+        <h1 className="text-xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-950">
           What sounds most like you?
         </h1>
-        <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
+        <p className="mt-1 sm:mt-2 max-w-2xl text-xs sm:text-base leading-relaxed text-slate-600">
           We’ll tailor the workspace around how you actually work.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {ROLE_OPTIONS.map((option) => (
           <RoleCard
             key={option.id}
