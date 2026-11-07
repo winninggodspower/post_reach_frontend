@@ -5,6 +5,7 @@ import FloatingSocialIcons from "@/components/floating-social-icons"
 import Navbar from "@/components/navbar"
 import { GridPattern } from "@/components/ui/grid-pattern"
 import FeaturesStack from "@/features/landing/components/features-stack"
+import { McpSetupInstructions } from "@/features/landing/components/mcp-setup-instructions"
 import { FaqSection } from "@/features/landing/components/faq-section"
 import { CtaFooter } from "@/features/landing/components/cta-footer"
 import { WaitlistForm } from "@/features/landing/components/waitlist-form"
@@ -43,6 +44,7 @@ export default function Home() {
       </section>
 
       <FeaturesStack />
+      <McpSetupInstructions />
       <FaqSection />
       <CtaFooter />
     </main>
