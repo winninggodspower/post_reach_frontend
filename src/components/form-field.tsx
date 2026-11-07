@@ -27,7 +27,7 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
           name={name}
           aria-invalid={error ? true : undefined}
           className={cn(
-            "h-12 rounded-xl border-black/10 bg-white",
+            "h-12 rounded-xl border-black/10 bg-white text-sm placeholder:text-sm text-slate-900 shadow-xs",
             inputClassName
           )}
           {...props}

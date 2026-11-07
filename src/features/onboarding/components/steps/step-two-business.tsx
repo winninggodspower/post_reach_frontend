@@ -1,9 +1,8 @@
 "use client"
 
-import { PanelTopOpen } from "lucide-react"
 import type { FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form"
 
-import { Label } from "@/components/ui/label"
+import { FormSelect } from "@/components/form-select"
 import type {
   OnboardingSubmission,
   OnboardingTeamSize,
@@ -43,51 +42,33 @@ export function OnboardingStepTwoBusiness({
       </div>
 
       <div className="grid gap-4 sm:gap-5">
-        <div className="space-y-2">
-          <Label htmlFor="industry">Industry</Label>
-          <div className="relative">
-            <select
-              id="industry"
-              aria-invalid={errors.industry ? true : undefined}
-              {...register("industry", { required: "Industry is required." })}
-              className="h-12 w-full appearance-none rounded-xl border border-black/10 bg-white px-3 pr-10 text-base text-slate-900 shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
-            >
-              <option value="" disabled>Select an industry</option>
-              {INDUSTRY_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <PanelTopOpen className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-          </div>
-          {errors.industry ? (
-            <p className="text-sm text-destructive">{errors.industry.message}</p>
-          ) : null}
-        </div>
+        <FormSelect
+          id="industry"
+          label="Industry"
+          error={errors.industry?.message}
+          {...register("industry", { required: "Industry is required." })}
+        >
+          <option value="" disabled>Select an industry</option>
+          {INDUSTRY_OPTIONS.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
+        </FormSelect>
 
-        <div className="space-y-2">
-          <Label htmlFor="team_size">Team size</Label>
-          <div className="relative">
-            <select
-              id="team_size"
-              aria-invalid={errors.team_size ? true : undefined}
-              {...register("team_size", { required: "Team size is required." })}
-              className="h-12 w-full appearance-none rounded-xl border border-black/10 bg-white px-3 pr-10 text-base text-slate-900 shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
-            >
-              <option value="" disabled>Select team size</option>
-              {TEAM_SIZE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <PanelTopOpen className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-          </div>
-          {errors.team_size ? (
-            <p className="text-sm text-destructive">{errors.team_size.message}</p>
-          ) : null}
-        </div>
+        <FormSelect
+          id="team_size"
+          label="Team size"
+          error={errors.team_size?.message}
+          {...register("team_size", { required: "Team size is required." })}
+        >
+          <option value="" disabled>Select team size</option>
+          {TEAM_SIZE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </FormSelect>
       </div>
 
     </div>

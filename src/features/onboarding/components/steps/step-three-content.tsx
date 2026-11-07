@@ -1,9 +1,8 @@
 "use client"
 
-import { PanelTopOpen } from "lucide-react"
 import type { FieldErrors, UseFormRegister } from "react-hook-form"
 
-import { Label } from "@/components/ui/label"
+import { FormSelect } from "@/components/form-select"
 import type { OnboardingSubmission } from "@/features/onboarding/types"
 
 import { PLATFORM_OPTIONS } from "./shared"
@@ -37,51 +36,33 @@ export function OnboardingStepThreeContent({
       </div>
 
       <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="primary_platform">Primary platform</Label>
-          <div className="relative">
-            <select
-              id="primary_platform"
-              aria-invalid={errors.primary_platform ? true : undefined}
-              {...register("primary_platform", { required: "Primary platform is required." })}
-              className="h-12 w-full appearance-none rounded-xl border border-black/10 bg-white px-3 pr-10 text-base text-slate-900 shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
-            >
-              <option value="" disabled>Select primary platform</option>
-              {PLATFORM_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <PanelTopOpen className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-          </div>
-          {errors.primary_platform ? (
-            <p className="text-sm text-destructive">{errors.primary_platform.message}</p>
-          ) : null}
-        </div>
+        <FormSelect
+          id="primary_platform"
+          label="Primary platform"
+          error={errors.primary_platform?.message}
+          {...register("primary_platform", { required: "Primary platform is required." })}
+        >
+          <option value="" disabled>Select primary platform</option>
+          {PLATFORM_OPTIONS.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
+        </FormSelect>
 
-        <div className="space-y-2">
-          <Label htmlFor="posting_frequency">Posting frequency</Label>
-          <div className="relative">
-            <select
-              id="posting_frequency"
-              aria-invalid={errors.posting_frequency ? true : undefined}
-              {...register("posting_frequency", { required: "Posting frequency is required." })}
-              className="h-12 w-full appearance-none rounded-xl border border-black/10 bg-white px-3 pr-10 text-base text-slate-900 shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
-            >
-              <option value="" disabled>Select posting frequency</option>
-              {POSTING_FREQUENCY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <PanelTopOpen className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-          </div>
-          {errors.posting_frequency ? (
-            <p className="text-sm text-destructive">{errors.posting_frequency.message}</p>
-          ) : null}
-        </div>
+        <FormSelect
+          id="posting_frequency"
+          label="Posting frequency"
+          error={errors.posting_frequency?.message}
+          {...register("posting_frequency", { required: "Posting frequency is required." })}
+        >
+          <option value="" disabled>Select posting frequency</option>
+          {POSTING_FREQUENCY_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </FormSelect>
       </div>
     </div>
   )
